@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fundo">#000000</color>
+    <color name="cartao">#1C1C1E</color>
+    <color name="separador">#38383A</color>
+    <color name="texto">#FFFFFF</color>
+    <color name="texto_secundario">#8E8E93</color>
+    <color name="fundo_input">#2C2C2E</color>
+    <color name="roxo_suave">#3B2A63</color>
+    <color name="cinza_chip">#2C2C2E</color>
+</resources>
