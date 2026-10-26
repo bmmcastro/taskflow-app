@@ -56,4 +56,6 @@
     <string name="aceitar_convite">Aceitar convite</string>
     <string name="colar_link_convite">Cola aqui o link do convite</string>
     <string name="ver_convite">Ver convite</string>
+    <string name="criado_por_ti">Criado por ti</string>
+    <string name="editar_tarefa">Editar tarefa</string>
 </resources>
