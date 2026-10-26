@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/raiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fundo"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp">
+
+        <ImageButton
+            android:id="@+id/botao_voltar"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/voltar"
+            android:src="@drawable/ic_voltar" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/relatorio"
+            android:textColor="@color/texto"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="32dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_botao"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/numero_percentagem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    android:textSize="40sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/concluidas"
+                    android:textColor="#E9E0FF"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout style="@style/TileRelatorio"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
+
+                    <TextView android:id="@+id/numero_total" style="@style/TileNumero" />
+
+                    <TextView android:text="@string/total" style="@style/TileRotulo" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/TileRelatorio"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
+
+                    <TextView android:id="@+id/numero_concluidas" style="@style/TileNumero" />
+
+                    <TextView android:text="@string/concluidas" style="@style/TileRotulo" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout style="@style/TileRelatorio"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
+
+                    <TextView android:id="@+id/numero_em_curso" style="@style/TileNumero" android:textColor="@color/azul" />
+
+                    <TextView android:text="@string/em_curso" style="@style/TileRotulo" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/TileRelatorio"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1">
+
+                    <TextView android:id="@+id/numero_por_fazer" style="@style/TileNumero" />
+
+                    <TextView android:text="@string/por_fazer" style="@style/TileRotulo" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout style="@style/TileRelatorio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp">
+
+                <TextView android:id="@+id/numero_atrasadas" style="@style/TileNumero" android:textColor="@color/vermelho" />
+
+                <TextView android:text="@string/atrasadas" style="@style/TileRotulo" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/por_pessoa"
+                android:textColor="@color/texto"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linha_por_pessoa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/cartao"
+                android:orientation="vertical"
+                android:padding="16dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
