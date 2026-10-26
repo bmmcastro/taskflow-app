@@ -218,7 +218,7 @@ class QuadroActivity : AppCompatActivity() {
 
     private fun abrirDetalhe(tarefa: Tarefa) {
         val i = Intent(this, DetalheTarefaActivity::class.java)
-        i.putExtra("tarefa_id", tarefa.id)
+        i.putExtra("tarefa_id", tarefa.id); i.putExtra("projeto_id", projetoId)
         startActivity(i)
     }
 }
