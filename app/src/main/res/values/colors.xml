@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="roxo">#6D28D9</color>
+    <color name="roxo_suave">#EDE9FE</color>
+    <color name="fundo">#F2F2F7</color>
+    <color name="cartao">#FFFFFF</color>
+    <color name="separador">#E5E5EA</color>
+    <color name="texto">#000000</color>
+    <color name="texto_secundario">#8E8E93</color>
+    <color name="fundo_input">#E9E9EB</color>
+    <color name="azul">#007AFF</color>
+    <color name="verde">#34C759</color>
+    <color name="vermelho">#FF3B30</color>
+    <color name="cinza_chip">#E5E5EA</color>
 </resources>
