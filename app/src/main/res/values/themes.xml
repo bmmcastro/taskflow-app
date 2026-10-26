@@ -11,4 +11,29 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
     <style name="Theme.TaskFlow" parent="Base.Theme.TaskFlow" />
+
+    <style name="TileRelatorio">
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@color/cartao</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+    </style>
+
+    <style name="TileNumero">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/texto</item>
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TileRotulo">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/texto_secundario</item>
+        <item name="android:textSize">13sp</item>
+    </style>
 </resources>
