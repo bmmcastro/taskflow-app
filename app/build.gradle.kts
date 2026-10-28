@@ -1,10 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.navigation.safeargs)
 }
 android {
     namespace = "com.algarit.taskflow"
     compileSdk {
         version = release(37)
+    }
+    buildFeatures {
+        viewBinding = true
     }
     defaultConfig {
         applicationId = "com.algarit.taskflow"
@@ -36,6 +40,8 @@ dependencies {
     implementation(libs.volley)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

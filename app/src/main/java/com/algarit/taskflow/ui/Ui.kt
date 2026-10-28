@@ -10,12 +10,18 @@ import androidx.core.view.WindowInsetsCompat
 // Pequenas ajudas usadas em todos os ecrãs, para manter o código curto.
 
 // Respeita as barras do sistema (edge-to-edge) aplicando o espaçamento certo.
-fun Activity.aplicarInsets(raiz: View) {
+// Nos Fragments chamamos esta versão com a raiz do binding; nas Activities
+// restantes (Convite) mantém-se a extensão sobre Activity.
+fun aplicarInsetsEm(raiz: View) {
     ViewCompat.setOnApplyWindowInsetsListener(raiz) { v, insets ->
         val b = insets.getInsets(WindowInsetsCompat.Type.systemBars())
         v.setPadding(b.left, b.top, b.right, b.bottom)
         insets
     }
+}
+
+fun Activity.aplicarInsets(raiz: View) {
+    aplicarInsetsEm(raiz)
 }
 
 fun Context.aviso(mensagem: String) = Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show()

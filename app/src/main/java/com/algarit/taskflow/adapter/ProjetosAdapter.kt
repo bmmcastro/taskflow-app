@@ -3,46 +3,48 @@ package com.algarit.taskflow.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.algarit.taskflow.R
 import com.algarit.taskflow.api.Sessao
+import com.algarit.taskflow.databinding.ItemProjetoBinding
 import com.algarit.taskflow.model.Projeto
 
 // A lista de projetos: cada cartão abre o quadro, um toque longo dá o menu do projeto.
+// ListAdapter + DiffUtil: ao submeter uma lista nova, só o que mudou é redesenhado.
 class ProjetosAdapter(
     private val aoAbrir: (Projeto) -> Unit,
     private val aoSegurar: (Projeto) -> Unit
-) : RecyclerView.Adapter<ProjetosAdapter.VH>() {
+) : ListAdapter<Projeto, ProjetosAdapter.VH>(DIFERENCA) {
 
-    private val itens = mutableListOf<Projeto>()
-
-    fun atualizar(lista: List<Projeto>) {
-        itens.clear()
-        itens.addAll(lista)
-        notifyDataSetChanged()
+    companion object {
+        // Compara a lista antiga com a nova: o id diz se é o mesmo projeto,
+        // a data class diz se algum campo mudou.
+        val DIFERENCA = object : DiffUtil.ItemCallback<Projeto>() {
+            override fun areItemsTheSame(antigo: Projeto, novo: Projeto) = antigo.id == novo.id
+            override fun areContentsTheSame(antigo: Projeto, novo: Projeto) = antigo == novo
+        }
     }
 
-    class VH(v: View) : RecyclerView.ViewHolder(v) {
-        val nome: TextView = v.findViewById(R.id.item_nome)
-        val descricao: TextView = v.findViewById(R.id.item_descricao)
-        val tagCriador: TextView = v.findViewById(R.id.item_tag_criador)
-    }
+    fun atualizar(lista: List<Projeto>) = submitList(lista)
+
+    class VH(val binding: ItemProjetoBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
-        VH(LayoutInflater.from(parent.context).inflate(R.layout.item_projeto, parent, false))
-
-    override fun getItemCount() = itens.size
+        VH(ItemProjetoBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: VH, pos: Int) {
-        val projeto = itens[pos]
-        holder.nome.text = projeto.nome
-        if (projeto.descricao.isBlank()) holder.descricao.visibility = View.GONE
-        else { holder.descricao.visibility = View.VISIBLE; holder.descricao.text = projeto.descricao }
-        holder.tagCriador.visibility =
+        val projeto = getItem(pos)
+        holder.binding.itemNome.text = projeto.nome
+        if (projeto.descricao.isBlank()) holder.binding.itemDescricao.visibility = View.GONE
+        else {
+            holder.binding.itemDescricao.visibility = View.VISIBLE
+            holder.binding.itemDescricao.text = projeto.descricao
+        }
+        holder.binding.itemTagCriador.visibility =
             if (projeto.criadorId == Sessao.utilizadorId) View.VISIBLE else View.GONE
 
-        holder.itemView.setOnClickListener { aoAbrir(projeto) }
-        holder.itemView.setOnLongClickListener { aoSegurar(projeto); true }
+        holder.binding.root.setOnClickListener { aoAbrir(projeto) }
+        holder.binding.root.setOnLongClickListener { aoSegurar(projeto); true }
     }
 }

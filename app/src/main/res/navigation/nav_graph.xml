@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Grafo de navegação (Aula 8): um destino por ecrã, ações com Safe Args
+     para passar os ids com o tipo certo. -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.algarit.taskflow.ui.LoginFragment"
+        android:label="TaskFlow">
+        <action
+            android:id="@+id/action_login_to_registo"
+            app:destination="@id/registoFragment" />
+        <action
+            android:id="@+id/action_login_to_projetos"
+            app:destination="@id/projetosFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registoFragment"
+        android:name="com.algarit.taskflow.ui.RegistoFragment"
+        android:label="Criar conta">
+        <action
+            android:id="@+id/action_registo_to_projetos"
+            app:destination="@id/projetosFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/projetosFragment"
+        android:name="com.algarit.taskflow.ui.ProjetosFragment"
+        android:label="Os meus projetos">
+        <action
+            android:id="@+id/action_projetos_to_quadro"
+            app:destination="@id/quadroFragment" />
+        <action
+            android:id="@+id/action_projetos_to_perfil"
+            app:destination="@id/perfilFragment" />
+        <action
+            android:id="@+id/action_projetos_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/projetosFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/quadroFragment"
+        android:name="com.algarit.taskflow.ui.QuadroFragment"
+        android:label="Quadro">
+        <argument
+            android:name="projetoId"
+            app:argType="integer" />
+        <argument
+            android:name="projetoNome"
+            app:argType="string" />
+        <argument
+            android:name="criadorId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_quadro_to_detalhe"
+            app:destination="@id/detalheTarefaFragment" />
+        <action
+            android:id="@+id/action_quadro_to_membros"
+            app:destination="@id/membrosFragment" />
+        <action
+            android:id="@+id/action_quadro_to_relatorio"
+            app:destination="@id/relatorioFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/detalheTarefaFragment"
+        android:name="com.algarit.taskflow.ui.DetalheTarefaFragment"
+        android:label="Tarefa">
+        <argument
+            android:name="tarefaId"
+            app:argType="integer" />
+        <argument
+            android:name="projetoId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/membrosFragment"
+        android:name="com.algarit.taskflow.ui.MembrosFragment"
+        android:label="Membros">
+        <argument
+            android:name="projetoId"
+            app:argType="integer" />
+        <argument
+            android:name="criadorId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/relatorioFragment"
+        android:name="com.algarit.taskflow.ui.RelatorioFragment"
+        android:label="Relatório">
+        <argument
+            android:name="projetoId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/perfilFragment"
+        android:name="com.algarit.taskflow.ui.PerfilFragment"
+        android:label="A minha conta">
+        <action
+            android:id="@+id/action_perfil_to_login"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/projetosFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+</navigation>
