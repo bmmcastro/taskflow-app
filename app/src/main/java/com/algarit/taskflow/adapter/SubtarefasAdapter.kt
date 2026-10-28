@@ -1,54 +1,52 @@
 package com.algarit.taskflow.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
-import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.algarit.taskflow.R
+import com.algarit.taskflow.databinding.ItemSubtarefaBinding
 import com.algarit.taskflow.model.Subtarefa
 
 // A checklist da tarefa: tocar alterna o feito, tocar longo apaga.
 class SubtarefasAdapter(
     private val aoAlternar: (Subtarefa) -> Unit,
     private val aoApagar: (Subtarefa) -> Unit
-) : RecyclerView.Adapter<SubtarefasAdapter.VH>() {
+) : ListAdapter<Subtarefa, SubtarefasAdapter.VH>(DIFERENCA) {
 
-    private val itens = mutableListOf<Subtarefa>()
-
-    fun atualizar(lista: List<Subtarefa>) {
-        itens.clear()
-        itens.addAll(lista)
-        notifyDataSetChanged()
+    companion object {
+        val DIFERENCA = object : DiffUtil.ItemCallback<Subtarefa>() {
+            override fun areItemsTheSame(antigo: Subtarefa, novo: Subtarefa) = antigo.id == novo.id
+            override fun areContentsTheSame(antigo: Subtarefa, novo: Subtarefa) = antigo == novo
+        }
     }
 
-    fun concluidas() = itens.count { it.concluida }
-    fun total() = itens.size
+    fun atualizar(lista: List<Subtarefa>) = submitList(lista)
 
-    class VH(v: View) : RecyclerView.ViewHolder(v) {
-        val feito: CheckBox = v.findViewById(R.id.item_feito)
-        val descricao: TextView = v.findViewById(R.id.item_descricao)
-    }
+    // Contagens para a barra de progresso do detalhe.
+    fun concluidas() = currentList.count { it.concluida }
+    fun total() = currentList.size
+
+    class VH(val binding: ItemSubtarefaBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
-        VH(LayoutInflater.from(parent.context).inflate(R.layout.item_subtarefa, parent, false))
-
-    override fun getItemCount() = itens.size
+        VH(ItemSubtarefaBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
     override fun onBindViewHolder(holder: VH, pos: Int) {
-        val subtarefa = itens[pos]
-        holder.feito.isChecked = subtarefa.concluida
-        holder.feito.isEnabled = true
-        holder.descricao.text = subtarefa.descricao
+        val subtarefa = getItem(pos)
+        holder.binding.itemFeito.isChecked = subtarefa.concluida
+        holder.binding.itemFeito.isEnabled = true
+        holder.binding.itemDescricao.text = subtarefa.descricao
         if (subtarefa.concluida) {
-            holder.descricao.paintFlags = holder.descricao.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
-            holder.descricao.setTextColor(holder.descricao.context.getColor(R.color.texto_secundario))
+            holder.binding.itemDescricao.paintFlags = holder.binding.itemDescricao.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+            holder.binding.itemDescricao.setTextColor(ContextCompat.getColor(holder.binding.root.context, R.color.texto_secundario))
         } else {
-            holder.descricao.paintFlags = holder.descricao.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
-            holder.descricao.setTextColor(holder.descricao.context.getColor(R.color.texto))
+            holder.binding.itemDescricao.paintFlags = holder.binding.itemDescricao.paintFlags and android.graphics.Paint.STRIKE_THRU_TEXT_FLAG.inv()
+            holder.binding.itemDescricao.setTextColor(ContextCompat.getColor(holder.binding.root.context, R.color.texto))
         }
-        holder.itemView.setOnClickListener { aoAlternar(subtarefa) }
-        holder.itemView.setOnLongClickListener { aoApagar(subtarefa); true }
+        holder.binding.root.setOnClickListener { aoAlternar(subtarefa) }
+        holder.binding.root.setOnLongClickListener { aoApagar(subtarefa); true }
     }
 }

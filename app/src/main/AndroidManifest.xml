@@ -14,19 +14,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskFlow">
 
-        <activity android:name=".ui.LoginActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
+        <!-- Activity unica: os ecra sao Fragments no NavHost (Navigation Jetpack). -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.RegistoActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.ProjetosActivity" android:exported="false" />
-        <activity android:name=".ui.QuadroActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.DetalheTarefaActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.MembrosActivity" android:exported="false" />
-        <activity android:name=".ui.RelatorioActivity" android:exported="false" />
-        <activity android:name=".ui.PerfilActivity" android:exported="false" />
-        <activity android:name=".ui.ConviteActivity" android:exported="false" android:windowSoftInputMode="adjustResize" />
+
+        <!-- Entra aqui a partir de um convite (link/token colado), fora do grafo. -->
+        <activity
+            android:name=".ui.ConviteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>

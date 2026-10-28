@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.algarit.taskflow.MainActivity
 import com.algarit.taskflow.R
 import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
@@ -64,7 +65,9 @@ class ConviteActivity : AppCompatActivity() {
         Api.post("/convites/$token/aceitar", JSONObject().put("utilizador_id", Sessao.utilizadorId)) { r ->
             if (r.sucesso) {
                 aviso("Agora és membro do projeto!")
-                startActivity(Intent(this, ProjetosActivity::class.java))
+                // A sessão está guardada: a MainActivity abre direto nos projetos.
+                startActivity(Intent(this, MainActivity::class.java)
+                    .putExtra("abrir_projetos", true))
                 finish()
             } else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
         }

@@ -1,24 +1,27 @@
 package com.algarit.taskflow.ui
 
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.TarefasAdapter
 import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
+import com.algarit.taskflow.databinding.ActivityQuadroBinding
 import com.algarit.taskflow.model.Tarefa
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -26,9 +29,13 @@ import org.json.JSONObject
 import java.util.Calendar
 
 // O quadro do projeto: 3 colunas em tabs, filtro por pessoa e cartões de tarefa.
-class QuadroActivity : AppCompatActivity() {
+// Recebe projetoId, projetoNome e criadorId por Safe Args.
+class QuadroFragment : Fragment() {
 
-    private var projetoId = -1
+    private var _binding: ActivityQuadroBinding? = null
+    private val binding get() = _binding!!
+    private val args: QuadroFragmentArgs by navArgs()
+
     private var criadorId = -1
     private val tarefas = mutableListOf<Tarefa>()
     private val nomesMembros = mutableListOf<String>()
@@ -42,40 +49,42 @@ class QuadroActivity : AppCompatActivity() {
     private lateinit var linhaFiltros: LinearLayout
     private lateinit var tabs: TabLayout
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        aplicarInsets(findViewById(android.R.id.content))
-        Api.iniciar(this)
-        Sessao.carregar(this)
-        projetoId = intent.getIntExtra("projeto_id", -1)
-        criadorId = intent.getIntExtra("criador_id", -1)
-        if (projetoId <= 0) { finish(); return }
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        _binding = ActivityQuadroBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        setContentView(R.layout.activity_quadro)
-        findViewById<TextView>(R.id.titulo_projeto).text = intent.getStringExtra("projeto_nome") ?: ""
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Api.iniciar(requireContext())
+        Sessao.carregar(requireContext())
+        binding.tituloProjeto.text = args.projetoNome
 
-        findViewById<ImageButton>(R.id.botao_voltar).setOnClickListener { finish() }
-        findViewById<ImageButton>(R.id.botao_nova_tarefa).setOnClickListener { dialogTarefa(null) }
-        findViewById<ImageButton>(R.id.botao_membros).setOnClickListener {
-            val i = Intent(this, MembrosActivity::class.java)
-            i.putExtra("projeto_id", projetoId); i.putExtra("criador_id", criadorId); startActivity(i)
+        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
+        binding.botaoNovaTarefa.setOnClickListener { dialogTarefa(null) }
+        binding.botaoMembros.setOnClickListener {
+            findNavController().navigate(
+                QuadroFragmentDirections.actionQuadroToMembros(args.projetoId, args.criadorId)
+            )
         }
-        findViewById<ImageButton>(R.id.botao_relatorio).setOnClickListener {
-            val i = Intent(this, RelatorioActivity::class.java)
-            i.putExtra("projeto_id", projetoId); startActivity(i)
+        binding.botaoRelatorio.setOnClickListener {
+            findNavController().navigate(
+                QuadroFragmentDirections.actionQuadroToRelatorio(args.projetoId)
+            )
         }
 
         adaptador = TarefasAdapter(aoAbrir = { abrirDetalhe(it) }, aoSegurar = { moverTarefa(it) })
-        val lista = findViewById<RecyclerView>(R.id.lista_tarefas)
-        lista.layoutManager = LinearLayoutManager(this)
-        lista.adapter = adaptador
+        binding.listaTarefas.layoutManager = LinearLayoutManager(requireContext())
+        binding.listaTarefas.adapter = adaptador
 
-        swipe = findViewById(R.id.swipe_quadro)
+        swipe = binding.swipeQuadro
         swipe.setOnRefreshListener { carregarTudo() }
-        textoVazio = findViewById(R.id.texto_vazio)
-        linhaFiltros = findViewById(R.id.linha_filtros)
+        textoVazio = binding.textoVazio
+        linhaFiltros = binding.linhaFiltros
 
-        tabs = findViewById(R.id.tabs_estado)
+        tabs = binding.tabsEstado
         listOf(getString(R.string.por_fazer), getString(R.string.em_curso), getString(R.string.concluida))
             .forEach { tabs.addTab(tabs.newTab().setText(it)) }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -92,12 +101,14 @@ class QuadroActivity : AppCompatActivity() {
 
     private fun carregarTudo() {
         swipe.isRefreshing = true
-        Api.get("/projetos/$projetoId/membros") { r ->
+        Api.get("/projetos/${args.projetoId}/membros") { r ->
+            if (!isAdded) return@get
             nomesMembros.clear()
             r.lista?.let { arr -> for (i in 0 until arr.length()) nomesMembros.add(arr.getJSONObject(i).optString("nome")) }
             construirChips()
         }
-        Api.get("/tarefas", mapOf("projeto_id" to projetoId.toString())) { r ->
+        Api.get("/tarefas", mapOf("projeto_id" to args.projetoId.toString())) { r ->
+            if (!isAdded) return@get
             swipe.isRefreshing = false
             tarefas.clear()
             r.lista?.let { arr -> for (i in 0 until arr.length()) tarefas.add(Tarefa.deJson(arr.getJSONObject(i))) }
@@ -113,8 +124,8 @@ class QuadroActivity : AppCompatActivity() {
             val chip = layoutInflater.inflate(R.layout.item_chip, linhaFiltros, false) as TextView
             chip.text = nome
             val ativo = nome == filtroPessoa || (filtroPessoa.isBlank() && nome == getString(R.string.todas_as_pessoas))
-            chip.background = getDrawable(if (ativo) R.drawable.bg_chip_ativo else R.drawable.bg_chip)
-            chip.setTextColor(getColor(if (ativo) android.R.color.white else R.color.texto))
+            chip.background = ContextCompat.getDrawable(requireContext(), if (ativo) R.drawable.bg_chip_ativo else R.drawable.bg_chip)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), if (ativo) android.R.color.white else R.color.texto))
             chip.setOnClickListener {
                 filtroPessoa = if (nome == getString(R.string.todas_as_pessoas)) "" else nome
                 construirChips(); refrescar()
@@ -129,7 +140,7 @@ class QuadroActivity : AppCompatActivity() {
             .filter { it.status == estadoAtual && (filtroPessoa.isBlank() || it.responsavel == filtroPessoa) }
             .sortedBy { it.dataConclusao ?: "9999-12-31" }
         adaptador.atualizar(visiveis)
-        textoVazio.visibility = if (visiveis.isEmpty()) View.VISIBLE else View.GONE
+        textoVazio.isVisible = visiveis.isEmpty()
 
         tabs.getTabAt(0)?.text = "${getString(R.string.por_fazer)} (${tarefas.count { it.status == Tarefa.POR_FAZER }})"
         tabs.getTabAt(1)?.text = "${getString(R.string.em_curso)} (${tarefas.count { it.status == Tarefa.EM_CURSO }})"
@@ -138,14 +149,14 @@ class QuadroActivity : AppCompatActivity() {
 
     // Criar tarefa nova (tarefa == null) ou editar uma existente.
     private fun dialogTarefa(tarefa: Tarefa?) {
-        val vista = LayoutInflater.from(this).inflate(R.layout.dialog_tarefa, null)
+        val vista = layoutInflater.inflate(R.layout.dialog_tarefa, null)
         val campoTitulo = vista.findViewById<EditText>(R.id.campo_titulo)
         val campoDescricao = vista.findViewById<EditText>(R.id.campo_descricao)
         val campoResponsavel = vista.findViewById<AutoCompleteTextView>(R.id.campo_responsavel)
         val campoPrazo = vista.findViewById<EditText>(R.id.campo_prazo)
         val campoLink = vista.findViewById<EditText>(R.id.campo_link)
 
-        campoResponsavel.setAdapter(ArrayAdapter(this, android.R.layout.simple_list_item_1, nomesMembros))
+        campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
         prazoEscolhido = tarefa?.dataConclusao ?: ""
         if (tarefa != null) {
             campoTitulo.setText(tarefa.titulo)
@@ -157,7 +168,7 @@ class QuadroActivity : AppCompatActivity() {
 
         campoPrazo.setOnClickListener {
             val cal = Calendar.getInstance()
-            DatePickerDialog(this, { _, ano, mes, dia ->
+            DatePickerDialog(requireContext(), { _, ano, mes, dia ->
                 val m = if (mes + 1 < 10) "0${mes + 1}" else "${mes + 1}"
                 val d = if (dia < 10) "0$dia" else "$dia"
                 prazoEscolhido = "$ano-$m-$d"
@@ -165,7 +176,7 @@ class QuadroActivity : AppCompatActivity() {
             }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
         }
 
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (tarefa == null) R.string.nova_tarefa else R.string.editar_tarefa)
             .setView(vista)
             .setPositiveButton(R.string.guardar) { _, _ ->
@@ -183,7 +194,7 @@ class QuadroActivity : AppCompatActivity() {
                     .put("data_conclusao", prazoEscolhido)
                     .put("link", campoLink.text.toString().trim())
                 if (tarefa == null) {
-                    corpo.put("projeto_id", projetoId)
+                    corpo.put("projeto_id", args.projetoId)
                     Api.post("/tarefas", corpo) { r -> depoisDeGuardar(r) }
                 } else {
                     Api.patch("/tarefas/${tarefa.id}", corpo) { r -> depoisDeGuardar(r) }
@@ -194,13 +205,14 @@ class QuadroActivity : AppCompatActivity() {
     }
 
     private fun depoisDeGuardar(r: Api.Resposta) {
+        if (!isAdded) return
         if (r.sucesso) carregarTudo() else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
     }
 
     // Tocar longo num cartão: escolher para que coluna mover.
     private fun moverTarefa(tarefa: Tarefa) {
         val destinos = listOf(Tarefa.POR_FAZER, Tarefa.EM_CURSO, Tarefa.CONCLUIDA).filter { it != tarefa.status }
-        MaterialAlertDialogBuilder(this)
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.mover_para)
             .setItems(destinos.toTypedArray()) { _, qual ->
                 val corpo = JSONObject()
@@ -217,8 +229,15 @@ class QuadroActivity : AppCompatActivity() {
     }
 
     private fun abrirDetalhe(tarefa: Tarefa) {
-        val i = Intent(this, DetalheTarefaActivity::class.java)
-        i.putExtra("tarefa_id", tarefa.id); i.putExtra("projeto_id", projetoId)
-        startActivity(i)
+        findNavController().navigate(
+            QuadroFragmentDirections.actionQuadroToDetalhe(tarefaId = tarefa.id, projetoId = args.projetoId)
+        )
+    }
+
+    private fun aviso(mensagem: String) = requireContext().aviso(mensagem)
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
