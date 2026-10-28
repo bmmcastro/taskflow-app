@@ -69,7 +69,7 @@ object Api {
     }
 
     // A API às vezes devolve JSON (objetos ou listas) e às vezes só texto simples.
-    private fun interpretar(texto: String): Any? = try {
+    private fun interpretar(texto: String): Any = try {
         JSONObject(texto)
     } catch (_: Exception) {
         try { JSONArray(texto) } catch (_: Exception) { texto }

@@ -20,9 +20,10 @@ fun Activity.aplicarInsets(raiz: View) {
 
 fun Context.aviso(mensagem: String) = Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show()
 
-// "2026-11-02" -> "02/11/2026" (se vier vazia devolvemos "—").
+// "2026-11-02" ou "2026-11-02T00:00:00" -> "02/11/2026" (se vier vazia devolvemos "—").
 fun dataCurta(iso: String?): String {
     if (iso.isNullOrBlank()) return "—"
-    val partes = iso.split("-")
+    val dataLimpa = iso.split("T")[0].split(" ")[0]
+    val partes = dataLimpa.split("-")
     return if (partes.size == 3) "${partes[2]}/${partes[1]}/${partes[0]}" else iso
 }
