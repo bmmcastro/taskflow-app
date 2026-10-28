@@ -14,17 +14,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.SubtarefasAdapter
-import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.databinding.ActivityDetalheTarefaBinding
-import com.algarit.taskflow.model.Subtarefa
 import com.algarit.taskflow.model.Tarefa
+import com.algarit.taskflow.model.TarefaPedido
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import org.json.JSONObject
 import java.util.Calendar
 
 // O detalhe da tarefa: informação, editar, apagar e a checklist de subtarefas.
@@ -34,9 +33,9 @@ class DetalheTarefaFragment : Fragment() {
     private var _binding: ActivityDetalheTarefaBinding? = null
     private val binding get() = _binding!!
     private val args: DetalheTarefaFragmentArgs by navArgs()
+    private val viewModel: DetalheTarefaViewModel by viewModels()
 
     private var tarefa: Tarefa? = null
-    private val nomesMembros = mutableListOf<String>()
     private var prazoEscolhido = ""
 
     private lateinit var adaptador: SubtarefasAdapter
@@ -50,48 +49,41 @@ class DetalheTarefaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Api.iniciar(requireContext())
-
         binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
         binding.botaoApagar.setOnClickListener { confirmarApagar() }
         binding.botaoEditar.setOnClickListener { dialogEditar() }
 
-        adaptador = SubtarefasAdapter(aoAlternar = { alternar(it) }, aoApagar = { apagarSubtarefa(it) })
+        adaptador = SubtarefasAdapter(aoAlternar = { viewModel.alternarSubtarefa(it, args.tarefaId) },
+                                     aoApagar = { viewModel.apagarSubtarefa(it, args.tarefaId) })
         binding.listaSubtarefas.layoutManager = LinearLayoutManager(requireContext())
         binding.listaSubtarefas.adapter = adaptador
 
-        binding.botaoAdicionarSubtarefa.setOnClickListener { criarSubtarefa() }
-
-        carregarTarefa()
-    }
-
-    // A API só lista por projeto, por isso buscamos todas e ficamos com a nossa.
-    private fun carregarTarefa() {
-        Api.get("/tarefas", mapOf("projeto_id" to args.projetoId.toString())) { r ->
-            if (!isAdded) return@get
-            r.lista?.let { arr ->
-                for (i in 0 until arr.length()) {
-                    val t = Tarefa.deJson(arr.getJSONObject(i))
-                    if (t.id == args.tarefaId) { tarefa = t; break }
-                }
+        binding.botaoAdicionarSubtarefa.setOnClickListener {
+            val texto = binding.campoNovaSubtarefa.text.toString().trim()
+            if (texto.isNotBlank()) {
+                viewModel.criarSubtarefa(args.tarefaId, texto)
+                binding.campoNovaSubtarefa.setText("")
             }
-            if (tarefa == null) { aviso("Tarefa não encontrada"); findNavController().navigateUp(); return@get }
-            preencher()
-            carregarMembros()
-            carregarSubtarefas()
         }
+
+        viewModel.tarefa.observe(viewLifecycleOwner) { estado ->
+            if (estado is UiState.Sucesso) { tarefa = estado.dados; preencher(estado.dados) }
+            else if (estado is UiState.Erro) { aviso(estado.mensagem); findNavController().navigateUp() }
+        }
+        viewModel.subtarefas.observe(viewLifecycleOwner) { estado ->
+            if (estado is UiState.Sucesso) {
+                adaptador.atualizar(estado.dados)
+                refrescarBarra()
+            }
+        }
+        viewModel.membros.observe(viewLifecycleOwner) { } // fica pronto para o diálogo de edição
+        viewModel.eliminada.observe(viewLifecycleOwner) { findNavController().navigateUp() }
+        viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
+
+        viewModel.carregarTudo(args.projetoId, args.tarefaId)
     }
 
-    private fun carregarMembros() {
-        Api.get("/projetos/${args.projetoId}/membros") { r ->
-            if (!isAdded) return@get
-            nomesMembros.clear()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) nomesMembros.add(arr.getJSONObject(i).optString("nome")) }
-        }
-    }
-
-    private fun preencher() {
-        val t = tarefa ?: return
+    private fun preencher(t: Tarefa) {
         binding.detalheTitulo.text = t.titulo
         if (t.descricao.isBlank()) binding.detalheDescricao.visibility = View.GONE
         else { binding.detalheDescricao.visibility = View.VISIBLE; binding.detalheDescricao.text = t.descricao }
@@ -115,16 +107,6 @@ class DetalheTarefaFragment : Fragment() {
         }
     }
 
-    private fun carregarSubtarefas() {
-        Api.get("/subtarefas", mapOf("tarefa_id" to args.tarefaId.toString())) { r ->
-            if (!isAdded) return@get
-            val lista = mutableListOf<Subtarefa>()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) lista.add(Subtarefa.deJson(arr.getJSONObject(i))) }
-            adaptador.atualizar(lista)
-            refrescarBarra()
-        }
-    }
-
     private fun refrescarBarra() {
         val total = adaptador.total()
         val feitas = adaptador.concluidas()
@@ -133,42 +115,10 @@ class DetalheTarefaFragment : Fragment() {
         binding.textoPercentagem.text = "$feitas de $total concluídas ($percentagem%)"
     }
 
-    private fun criarSubtarefa() {
-        val texto = binding.campoNovaSubtarefa.text.toString().trim()
-        if (texto.isBlank()) { aviso("Escreve a subtarefa primeiro"); return }
-        Api.post("/subtarefas", JSONObject()
-            .put("tarefa_id", args.tarefaId)
-            .put("descricao", texto)) { r ->
-            if (!isAdded) return@post
-            if (r.sucesso) { binding.campoNovaSubtarefa.setText(""); carregarSubtarefas() }
-            else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
-        }
-    }
-
-    private fun alternar(subtarefa: Subtarefa) {
-        Api.patch("/subtarefas/${subtarefa.id}", JSONObject().put("concluida", !subtarefa.concluida)) { r ->
-            if (!isAdded) return@patch
-            if (r.sucesso) carregarSubtarefas() else aviso(getString(R.string.erro_rede))
-        }
-    }
-
-    private fun apagarSubtarefa(subtarefa: Subtarefa) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.apagar)
-            .setMessage("Apagar \"${subtarefa.descricao}\"?")
-            .setPositiveButton(R.string.apagar) { _, _ ->
-                Api.delete("/subtarefas/${subtarefa.id}") { r ->
-                    if (!isAdded) return@delete
-                    if (r.sucesso) carregarSubtarefas() else aviso(getString(R.string.erro_rede))
-                }
-            }
-            .setNegativeButton(R.string.cancelar, null)
-            .show()
-    }
-
     // Editar a tarefa: o mesmo formulário da criação, já preenchido.
     private fun dialogEditar() {
         val t = tarefa ?: return
+        val nomesMembros = viewModel.membros.value ?: emptyList()
         val vista = layoutInflater.inflate(R.layout.dialog_tarefa, null)
         val campoTitulo = vista.findViewById<EditText>(R.id.campo_titulo)
         val campoDescricao = vista.findViewById<EditText>(R.id.campo_descricao)
@@ -203,17 +153,19 @@ class DetalheTarefaFragment : Fragment() {
                 if (titulo.isBlank() || responsavel.isBlank() || prazoEscolhido.isBlank()) {
                     aviso("Faltam campos obrigatórios"); return@setPositiveButton
                 }
-                val corpo = JSONObject()
-                    .put("titulo", titulo)
-                    .put("descricao", campoDescricao.text.toString().trim())
-                    .put("responsavel", responsavel)
-                    .put("status", t.status)
-                    .put("data_conclusao", prazoEscolhido)
-                    .put("link", campoLink.text.toString().trim())
-                Api.patch("/tarefas/${t.id}", corpo) { r ->
-                    if (!isAdded) return@patch
-                    if (r.sucesso) carregarTarefa() else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
-                }
+                viewModel.editar(
+                    args.tarefaId,
+                    TarefaPedido(
+                        titulo = titulo,
+                        descricao = campoDescricao.text.toString().trim(),
+                        criador = t.criador,
+                        responsavel = responsavel,
+                        status = t.status,
+                        dataConclusao = prazoEscolhido,
+                        link = campoLink.text.toString().trim(),
+                        projetoId = null
+                    )
+                )
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()
@@ -223,12 +175,7 @@ class DetalheTarefaFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.apagar)
             .setMessage(R.string.apagar_tarefa_pergunta)
-            .setPositiveButton(R.string.apagar) { _, _ ->
-                Api.delete("/tarefas/${args.tarefaId}") { r ->
-                    if (!isAdded) return@delete
-                    if (r.sucesso) findNavController().navigateUp() else aviso(getString(R.string.erro_rede))
-                }
-            }
+            .setPositiveButton(R.string.apagar) { _, _ -> viewModel.apagar(args.tarefaId) }
             .setNegativeButton(R.string.cancelar, null)
             .show()
     }

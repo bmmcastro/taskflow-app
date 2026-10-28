@@ -1,15 +1,15 @@
 package com.algarit.taskflow.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityLoginBinding
-import org.json.JSONObject
 
 // Primeiro ecrã: entrar com a conta (a mesma do site).
 // É o destino inicial do grafo de navegação.
@@ -17,6 +17,7 @@ class LoginFragment : Fragment() {
 
     private var _binding: ActivityLoginBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: LoginViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -27,7 +28,6 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Api.iniciar(requireContext())
         Sessao.carregar(requireContext())
         if (Sessao.estaLogado()) { irParaProjetos(); return }
 
@@ -41,27 +41,23 @@ class LoginFragment : Fragment() {
             findNavController().navigate(LoginFragmentDirections.actionLoginToRegisto())
         }
         binding.botaoConvite.setOnClickListener {
-            startActivity(android.content.Intent(requireContext(), ConviteActivity::class.java))
+            startActivity(Intent(requireContext(), ConviteActivity::class.java))
+        }
+
+        viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            binding.botaoEntrar.isEnabled = estado !is UiState.Loading
+            if (estado is UiState.Sucesso) irParaProjetos()
+            else if (estado is UiState.Erro) aviso(estado.mensagem)
         }
     }
 
     private fun entrar() {
         val email = binding.campoEmail.text.toString().trim()
         val password = binding.campoPassword.text.toString()
-        if (email.isBlank() || password.isBlank()) { aviso("Preenche o email e a password"); return }
-
-        binding.botaoEntrar.isEnabled = false
-        Api.post("/utilizadores/login", JSONObject().put("email", email).put("password", password)) { r ->
-            if (!isAdded) return@post
-            binding.botaoEntrar.isEnabled = true
-            val utilizador = r.objeto?.optJSONObject("utilizador")
-            if (r.sucesso && utilizador != null) {
-                Sessao.guardar(requireContext(), utilizador.optInt("id"), utilizador.optString("nome"), utilizador.optString("email"))
-                irParaProjetos()
-            } else {
-                aviso(if (r.codigo == 401) "Email ou password errados" else "Não foi possível entrar")
-            }
+        if (email.isBlank() || password.isBlank()) {
+            aviso("Preenche o email e a password"); return
         }
+        viewModel.entrar(email, password)
     }
 
     // Login aceite: projetos passa a ser a raiz (popUpTo limpa o login da pilha).

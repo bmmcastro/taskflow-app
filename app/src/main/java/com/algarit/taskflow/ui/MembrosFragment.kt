@@ -7,16 +7,15 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.algarit.taskflow.R
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.algarit.taskflow.api.Api
+import com.algarit.taskflow.R
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityMembrosBinding
 import com.algarit.taskflow.model.Utilizador
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import org.json.JSONObject
 
 // Quem está no projeto: membros, convites pendentes, juntar e convidar.
 class MembrosFragment : Fragment() {
@@ -24,8 +23,10 @@ class MembrosFragment : Fragment() {
     private var _binding: ActivityMembrosBinding? = null
     private val binding get() = _binding!!
     private val args: MembrosFragmentArgs by navArgs()
+    private val viewModel: MembrosViewModel by viewModels()
 
     private val membros = mutableListOf<Utilizador>()
+    private var agendarDialogo = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -36,61 +37,48 @@ class MembrosFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Api.iniciar(requireContext())
         Sessao.carregar(requireContext())
 
         binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
-        binding.botaoAdicionar.setOnClickListener { dialogAdicionar() }
+        binding.botaoAdicionar.setOnClickListener {
+            agendarDialogo = true
+            viewModel.carregarCandidatos(args.projetoId)
+        }
         binding.botaoConvidar.setOnClickListener { dialogConvidar() }
 
         binding.listaMembros.layoutManager = LinearLayoutManager(requireContext())
         binding.listaMembros.adapter = MembrosAdapter()
 
-        carregar()
-    }
-
-    private fun carregar() {
-        Api.get("/projetos/${args.projetoId}/membros") { r ->
-            if (!isAdded) return@get
-            membros.clear()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) membros.add(Utilizador.deJson(arr.getJSONObject(i))) }
+        viewModel.membros.observe(viewLifecycleOwner) { lista ->
+            membros.clear(); membros.addAll(lista)
             binding.listaMembros.adapter?.notifyDataSetChanged()
         }
-        Api.get("/projetos/${args.projetoId}/convites") { r ->
-            if (!isAdded) return@get
-            val pendentes = mutableListOf<String>()
-            r.lista?.let { arr ->
-                for (i in 0 until arr.length()) {
-                    val c = arr.getJSONObject(i)
-                    pendentes.add("${c.optString("email_convidado")} (${c.optString("status")})")
-                }
+        viewModel.convitesTexto.observe(viewLifecycleOwner) { binding.textoConvites.text = it }
+        viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
+        viewModel.conviteCriado.observe(viewLifecycleOwner) { token ->
+            if (token != null) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.convites_pendentes)
+                    .setMessage("Envia este link:\nhttps://taskflow.algarit.pt/#convite/$token")
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
             }
-            binding.textoConvites.text = if (pendentes.isEmpty()) "Sem convites pendentes."
-            else pendentes.joinToString("\n")
         }
-    }
-
-    // Juntar alguém que já tem conta: escolhemos da lista de utilizadores.
-    private fun dialogAdicionar() {
-        Api.get("/utilizadores") { r ->
-            if (!isAdded) return@get
-            val todos = mutableListOf<Utilizador>()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) todos.add(Utilizador.deJson(arr.getJSONObject(i))) }
-            val candidatos = todos.filter { u -> membros.none { it.id == u.id } }
-            if (candidatos.isEmpty()) { aviso("Não há mais utilizadores registados"); return@get }
+        viewModel.candidatos.observe(viewLifecycleOwner) { candidatos ->
+            if (!agendarDialogo || !isAdded) return@observe
+            agendarDialogo = false
+            if (candidatos.isEmpty()) { aviso("Não há mais utilizadores registados"); return@observe }
             val nomes = candidatos.map { "${it.nome} (${it.email})" }.toTypedArray()
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.adicionar_membro)
                 .setItems(nomes) { _, qual ->
-                    Api.post("/projetos/${args.projetoId}/membros", JSONObject().put("utilizador_id", candidatos[qual].id)) { resp ->
-                        if (!isAdded) return@post
-                        aviso(resp.texto.ifBlank { if (resp.sucesso) "Membro adicionado" else getString(R.string.erro_rede) })
-                        carregar()
-                    }
+                    viewModel.juntar(args.projetoId, candidatos[qual].id)
                 }
                 .setNegativeButton(R.string.cancelar, null)
                 .show()
         }
+
+        viewModel.carregar(args.projetoId)
     }
 
     // Convidar por email: a API devolve o token do convite para partilharmos o link.
@@ -104,22 +92,7 @@ class MembrosFragment : Fragment() {
             .setTitle(R.string.convidar_por_email)
             .setView(campo)
             .setPositiveButton(R.string.guardar) { _, _ ->
-                val email = campo.text.toString().trim().lowercase()
-                Api.post("/projetos/${args.projetoId}/convidar", JSONObject()
-                    .put("email_convidado", email)
-                    .put("criador_id", Sessao.utilizadorId)
-                    .put("enviar_email", false)) { r ->
-                    if (!isAdded) return@post
-                    val token = r.objeto?.optString("token")
-                    if (r.sucesso && token != null) {
-                        MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(R.string.convites_pendentes)
-                            .setMessage("Convite criado para $email.\n\nEnvia este link:\nhttps://taskflow.algarit.pt/#convite/$token")
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show()
-                        carregar()
-                    } else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
-                }
+                viewModel.convidar(args.projetoId, campo.text.toString().trim().lowercase(), Sessao.utilizadorId)
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()
@@ -156,13 +129,7 @@ class MembrosFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.remover_do_projeto)
             .setMessage("Remover ${m.nome} do projeto?")
-            .setPositiveButton(R.string.apagar) { _, _ ->
-                Api.delete("/projetos/${args.projetoId}/membros/${m.id}") { r ->
-                    if (!isAdded) return@delete
-                    aviso(r.texto.ifBlank { if (r.sucesso) "Membro removido" else getString(R.string.erro_rede) })
-                    carregar()
-                }
-            }
+            .setPositiveButton(R.string.apagar) { _, _ -> viewModel.remover(args.projetoId, m.id) }
             .setNegativeButton(R.string.cancelar, null)
             .show()
     }
