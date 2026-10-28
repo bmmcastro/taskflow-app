@@ -18,8 +18,17 @@ android {
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("../taskflow.jks")
+            storePassword = "taskflow2026"
+            keyAlias = "taskflow"
+            keyPassword = "taskflow2026"
+        }
+    }
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
@@ -37,11 +46,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
-    implementation(libs.volley)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.coroutines.android)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    testImplementation(libs.org.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

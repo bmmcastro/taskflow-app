@@ -13,19 +13,19 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.TarefasAdapter
-import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityQuadroBinding
 import com.algarit.taskflow.model.Tarefa
+import com.algarit.taskflow.model.TarefaPedido
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
-import org.json.JSONObject
 import java.util.Calendar
 
 // O quadro do projeto: 3 colunas em tabs, filtro por pessoa e cartões de tarefa.
@@ -35,10 +35,9 @@ class QuadroFragment : Fragment() {
     private var _binding: ActivityQuadroBinding? = null
     private val binding get() = _binding!!
     private val args: QuadroFragmentArgs by navArgs()
+    private val viewModel: QuadroViewModel by viewModels()
 
-    private var criadorId = -1
     private val tarefas = mutableListOf<Tarefa>()
-    private val nomesMembros = mutableListOf<String>()
     private var estadoAtual = Tarefa.POR_FAZER
     private var filtroPessoa = ""
     private var prazoEscolhido = ""
@@ -58,7 +57,6 @@ class QuadroFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Api.iniciar(requireContext())
         Sessao.carregar(requireContext())
         binding.tituloProjeto.text = args.projetoNome
 
@@ -80,7 +78,7 @@ class QuadroFragment : Fragment() {
         binding.listaTarefas.adapter = adaptador
 
         swipe = binding.swipeQuadro
-        swipe.setOnRefreshListener { carregarTudo() }
+        swipe.setOnRefreshListener { viewModel.carregarTudo(args.projetoId) }
         textoVazio = binding.textoVazio
         linhaFiltros = binding.linhaFiltros
 
@@ -96,28 +94,22 @@ class QuadroFragment : Fragment() {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
-        carregarTudo()
+        viewModel.membros.observe(viewLifecycleOwner) { construirChips(it) }
+        viewModel.tarefas.observe(viewLifecycleOwner) { estado ->
+            swipe.isRefreshing = estado is UiState.Loading
+            when (estado) {
+                is UiState.Sucesso -> { tarefas.clear(); tarefas.addAll(estado.dados); refrescar() }
+                is UiState.Erro -> { textoVazio.isVisible = true; aviso(estado.mensagem) }
+                else -> Unit
+            }
+        }
+        viewModel.atualizar.observe(viewLifecycleOwner) { viewModel.carregarTudo(args.projetoId) }
+        viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
+
+        viewModel.carregarTudo(args.projetoId)
     }
 
-    private fun carregarTudo() {
-        swipe.isRefreshing = true
-        Api.get("/projetos/${args.projetoId}/membros") { r ->
-            if (!isAdded) return@get
-            nomesMembros.clear()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) nomesMembros.add(arr.getJSONObject(i).optString("nome")) }
-            construirChips()
-        }
-        Api.get("/tarefas", mapOf("projeto_id" to args.projetoId.toString())) { r ->
-            if (!isAdded) return@get
-            swipe.isRefreshing = false
-            tarefas.clear()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) tarefas.add(Tarefa.deJson(arr.getJSONObject(i))) }
-            if (!r.sucesso) aviso(getString(R.string.erro_rede))
-            refrescar()
-        }
-    }
-
-    private fun construirChips() {
+    private fun construirChips(nomesMembros: List<String>) {
         linhaFiltros.removeAllViews()
         val opcoes = listOf(getString(R.string.todas_as_pessoas)) + nomesMembros
         opcoes.forEach { nome ->
@@ -128,7 +120,7 @@ class QuadroFragment : Fragment() {
             chip.setTextColor(ContextCompat.getColor(requireContext(), if (ativo) android.R.color.white else R.color.texto))
             chip.setOnClickListener {
                 filtroPessoa = if (nome == getString(R.string.todas_as_pessoas)) "" else nome
-                construirChips(); refrescar()
+                construirChips(nomesMembros); refrescar()
             }
             linhaFiltros.addView(chip)
         }
@@ -156,6 +148,7 @@ class QuadroFragment : Fragment() {
         val campoPrazo = vista.findViewById<EditText>(R.id.campo_prazo)
         val campoLink = vista.findViewById<EditText>(R.id.campo_link)
 
+        val nomesMembros = viewModel.membros.value ?: emptyList()
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
         prazoEscolhido = tarefa?.dataConclusao ?: ""
         if (tarefa != null) {
@@ -185,28 +178,23 @@ class QuadroFragment : Fragment() {
                 if (titulo.isBlank() || responsavel.isBlank() || prazoEscolhido.isBlank()) {
                     aviso("Faltam campos obrigatórios"); return@setPositiveButton
                 }
-                val corpo = JSONObject()
-                    .put("titulo", titulo)
-                    .put("descricao", campoDescricao.text.toString().trim())
-                    .put("criador", tarefa?.criador ?: Sessao.nome)
-                    .put("responsavel", responsavel)
-                    .put("status", tarefa?.status ?: Tarefa.POR_FAZER)
-                    .put("data_conclusao", prazoEscolhido)
-                    .put("link", campoLink.text.toString().trim())
-                if (tarefa == null) {
-                    corpo.put("projeto_id", args.projetoId)
-                    Api.post("/tarefas", corpo) { r -> depoisDeGuardar(r) }
-                } else {
-                    Api.patch("/tarefas/${tarefa.id}", corpo) { r -> depoisDeGuardar(r) }
-                }
+                viewModel.guardar(
+                    tarefaId = tarefa?.id,
+                    pedido = TarefaPedido(
+                        titulo = titulo,
+                        descricao = campoDescricao.text.toString().trim(),
+                        criador = tarefa?.criador ?: Sessao.nome,
+                        responsavel = responsavel,
+                        status = tarefa?.status ?: Tarefa.POR_FAZER,
+                        dataConclusao = prazoEscolhido,
+                        link = campoLink.text.toString().trim(),
+                        projetoId = null
+                    ),
+                    projetoId = args.projetoId
+                )
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()
-    }
-
-    private fun depoisDeGuardar(r: Api.Resposta) {
-        if (!isAdded) return
-        if (r.sucesso) carregarTudo() else aviso(r.texto.ifBlank { getString(R.string.erro_rede) })
     }
 
     // Tocar longo num cartão: escolher para que coluna mover.
@@ -215,14 +203,7 @@ class QuadroFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.mover_para)
             .setItems(destinos.toTypedArray()) { _, qual ->
-                val corpo = JSONObject()
-                    .put("titulo", tarefa.titulo)
-                    .put("descricao", tarefa.descricao)
-                    .put("responsavel", tarefa.responsavel)
-                    .put("status", destinos[qual])
-                    .put("data_conclusao", tarefa.dataConclusao ?: "")
-                    .put("link", tarefa.link)
-                Api.patch("/tarefas/${tarefa.id}", corpo) { r -> depoisDeGuardar(r) }
+                viewModel.mover(tarefa, destinos[qual])
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()

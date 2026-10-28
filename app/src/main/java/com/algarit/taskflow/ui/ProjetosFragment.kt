@@ -6,21 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.algarit.taskflow.api.Api
+import com.algarit.taskflow.R
+import com.algarit.taskflow.adapter.ProjetosAdapter
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityProjetosBinding
-import com.algarit.taskflow.adapter.ProjetosAdapter
+import com.algarit.taskflow.databinding.DialogNovoProjetoBinding
 import com.algarit.taskflow.model.Projeto
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import org.json.JSONObject
 
 // Ecrã principal depois do login: os projetos onde sou membro.
 class ProjetosFragment : Fragment() {
 
     private var _binding: ActivityProjetosBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: ProjetosViewModel by viewModels()
     private lateinit var adaptador: ProjetosAdapter
 
     override fun onCreateView(
@@ -32,7 +34,6 @@ class ProjetosFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Api.iniciar(requireContext())
         Sessao.carregar(requireContext())
         if (!Sessao.estaLogado()) { irParaLogin(); return }
 
@@ -40,10 +41,25 @@ class ProjetosFragment : Fragment() {
         binding.listaProjetos.layoutManager = LinearLayoutManager(requireContext())
         binding.listaProjetos.adapter = adaptador
 
-        binding.swipeProjetos.setOnRefreshListener { carregar() }
+        binding.swipeProjetos.setOnRefreshListener { viewModel.carregar() }
         binding.botaoNovo.setOnClickListener { dialogNovoProjeto() }
         binding.botaoPerfil.setOnClickListener {
             findNavController().navigate(ProjetosFragmentDirections.actionProjetosToPerfil())
+        }
+
+        viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            binding.swipeProjetos.isRefreshing = estado is UiState.Loading
+            when (estado) {
+                is UiState.Sucesso -> {
+                    adaptador.atualizar(estado.dados)
+                    binding.textoVazio.isVisible = estado.dados.isEmpty()
+                }
+                is UiState.Erro -> {
+                    binding.textoVazio.isVisible = true
+                    aviso(estado.mensagem)
+                }
+                else -> Unit
+            }
         }
 
         carregar()
@@ -55,39 +71,19 @@ class ProjetosFragment : Fragment() {
         if (Sessao.estaLogado() && _binding != null) carregar()
     }
 
-    private fun carregar() {
-        binding.swipeProjetos.isRefreshing = true
-        Api.get("/projetos", mapOf("utilizador_id" to Sessao.utilizadorId.toString())) { r ->
-            if (!isAdded) return@get
-            binding.swipeProjetos.isRefreshing = false
-            val lista = mutableListOf<Projeto>()
-            r.lista?.let { arr -> for (i in 0 until arr.length()) lista.add(Projeto.deJson(arr.getJSONObject(i))) }
-            adaptador.atualizar(lista)
-            binding.textoVazio.isVisible = lista.isEmpty()
-            if (!r.sucesso) aviso(getString(com.algarit.taskflow.R.string.erro_rede))
-        }
-    }
+    private fun carregar() = viewModel.carregar()
 
     private fun dialogNovoProjeto() {
-        val vista = layoutInflater.inflate(com.algarit.taskflow.R.layout.dialog_novo_projeto, null)
-        val campoNome = vista.findViewById<com.google.android.material.textfield.TextInputEditText>(com.algarit.taskflow.R.id.dialog_nome)
-        val campoDescricao = vista.findViewById<com.google.android.material.textfield.TextInputEditText>(com.algarit.taskflow.R.id.dialog_descricao)
-
+        val dialogBinding = DialogNovoProjetoBinding.inflate(layoutInflater)
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle(com.algarit.taskflow.R.string.novo_projeto)
-            .setView(vista)
-            .setPositiveButton(com.algarit.taskflow.R.string.guardar) { _, _ ->
-                val nome = campoNome.text.toString().trim()
+            .setTitle(R.string.novo_projeto)
+            .setView(dialogBinding.root)
+            .setPositiveButton(R.string.guardar) { _, _ ->
+                val nome = dialogBinding.dialogNome.text.toString().trim()
                 if (nome.isBlank()) { aviso("Dá um nome ao projeto"); return@setPositiveButton }
-                Api.post("/projetos", JSONObject()
-                    .put("nome", nome)
-                    .put("descricao", campoDescricao.text.toString().trim())
-                    .put("utilizador_id", Sessao.utilizadorId)) { r ->
-                    if (!isAdded) return@post
-                    if (r.sucesso) carregar() else aviso(r.texto.ifBlank { getString(com.algarit.taskflow.R.string.erro_rede) })
-                }
+                viewModel.criar(nome, dialogBinding.dialogDescricao.text.toString().trim())
             }
-            .setNegativeButton(com.algarit.taskflow.R.string.cancelar, null)
+            .setNegativeButton(R.string.cancelar, null)
             .show()
     }
 
@@ -95,14 +91,9 @@ class ProjetosFragment : Fragment() {
         if (projeto.criadorId != Sessao.utilizadorId) { aviso("Só o criador pode apagar o projeto"); return }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(projeto.nome)
-            .setMessage(com.algarit.taskflow.R.string.apagar_projeto_pergunta)
-            .setPositiveButton(com.algarit.taskflow.R.string.apagar) { _, _ ->
-                Api.delete("/projetos/${projeto.id}?utilizador_id=${Sessao.utilizadorId}") { r ->
-                    if (!isAdded) return@delete
-                    if (r.sucesso) carregar() else aviso(r.texto.ifBlank { getString(com.algarit.taskflow.R.string.erro_rede) })
-                }
-            }
-            .setNegativeButton(com.algarit.taskflow.R.string.cancelar, null)
+            .setMessage(R.string.apagar_projeto_pergunta)
+            .setPositiveButton(R.string.apagar) { _, _ -> viewModel.apagar(projeto.id) }
+            .setNegativeButton(R.string.cancelar, null)
             .show()
     }
 
