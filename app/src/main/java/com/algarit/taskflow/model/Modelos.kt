@@ -13,7 +13,7 @@ data class Utilizador(val id: Int, val nome: String, val email: String) {
 data class Projeto(val id: Int, val nome: String, val descricao: String, val criadorId: Int) {
     companion object {
         fun deJson(o: JSONObject) = Projeto(
-            o.optInt("id"), o.optString("nome"), o.optString("descricao"), o.optInt("criador_id")
+            o.optInt("id"), o.optString("nome"), o.optString("descricao"), o.optInt("criador_id"),
         )
     }
 }

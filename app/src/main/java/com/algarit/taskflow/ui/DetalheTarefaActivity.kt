@@ -184,11 +184,11 @@ class DetalheTarefaActivity : AppCompatActivity() {
         campoPrazo.setOnClickListener {
             val cal = Calendar.getInstance()
             DatePickerDialog(this, { _, ano, mes, dia ->
-                val m = if (mes + 1 < 10) "0${mes + 1}" else "${mes + 1}"
-                val d = if (dia < 10) "0$dia" else "$dia"
+                val m = String.format(java.util.Locale.getDefault(), "%02d", mes + 1)
+                val d = String.format(java.util.Locale.getDefault(), "%02d", dia)
                 prazoEscolhido = "$ano-$m-$d"
                 campoPrazo.setText("$d/$m/$ano")
-            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
+            }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]).show()
         }
 
         MaterialAlertDialogBuilder(this)
