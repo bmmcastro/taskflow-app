@@ -59,4 +59,5 @@
     <string name="criado_por_ti">Criado por ti</string>
     <string name="criador">Criador</string>
     <string name="editar_tarefa">Editar tarefa</string>
+    <string name="tentar_de_novo">Tentar de novo</string>
 </resources>

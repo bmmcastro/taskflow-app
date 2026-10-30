@@ -56,7 +56,12 @@ class ProjetosFragment : Fragment() {
                 }
                 is UiState.Erro -> {
                     binding.textoVazio.isVisible = true
-                    aviso(estado.mensagem)
+                    // Snackbar com ação: relança o carregamento sem sair do ecrã.
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root, estado.mensagem, com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    )
+                        .setAction(R.string.tentar_de_novo) { viewModel.carregar() }
+                        .show()
                 }
                 else -> Unit
             }
