@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -67,6 +68,7 @@ class DetalheTarefaFragment : Fragment() {
         }
 
         viewModel.tarefa.observe(viewLifecycleOwner) { estado ->
+            binding.loading.isVisible = estado is UiState.Loading
             if (estado is UiState.Sucesso) { tarefa = estado.dados; preencher(estado.dados) }
             else if (estado is UiState.Erro) { aviso(estado.mensagem); findNavController().navigateUp() }
         }

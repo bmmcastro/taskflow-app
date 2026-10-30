@@ -8,8 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.api.erroAmigavel
+import com.algarit.taskflow.data.Repo
 import com.algarit.taskflow.model.Tarefa
 import com.algarit.taskflow.model.TarefaPedido
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class QuadroViewModel(app: Application) : AndroidViewModel(app) {
@@ -27,22 +29,25 @@ class QuadroViewModel(app: Application) : AndroidViewModel(app) {
     private val _erro = MutableLiveData<String>()
     val erro: LiveData<String> = _erro
 
+    // Job do carregamento atual: ao recarregar, cancelamos o anterior para não
+    // termos duas coroutines a escrever no mesmo LiveData (cancelamento cooperativo).
+    private var carregarJob: kotlinx.coroutines.Job? = null
+
     fun carregarTudo(projetoId: Int) {
+        carregarJob?.cancel()
         _tarefas.value = UiState.Loading
-        viewModelScope.launch {
+        carregarJob = viewModelScope.launch {
             try {
-                val membros = Api.servico.membros(projetoId)
-                _membros.value = membros.map { it.nome }
+                // Membros e tarefas em paralelo, na camada de dados (Repo).
+                val dados = Repo.quadro(projetoId)
+                _membros.value = dados.nomesMembros
+                _tarefas.value = UiState.Sucesso(dados.tarefas)
             } catch (t: Throwable) {
-                _membros.value = emptyList()
-            }
-            try {
-                val lista = Api.servico.tarefas(projetoId)
-                _tarefas.value = UiState.Sucesso(lista)
-            } catch (t: Throwable) {
-                _tarefas.value = UiState.Erro(erroAmigavel(t))
-            }
-        }
+                if (kotlinx.coroutines.currentCoroutineContext().isActive) {
+                    _membros.value = emptyList()
+                    _tarefas.value = UiState.Erro(erroAmigavel(t))
+                }
+            }        }
     }
 
     // Criar (tarefaId nulo) ou editar; o servidor exige os campos todos.

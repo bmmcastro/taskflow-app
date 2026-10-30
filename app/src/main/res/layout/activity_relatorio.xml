@@ -6,6 +6,15 @@
     android:background="@color/fundo"
     android:orientation="vertical">
 
+    <!-- Indicador de carregamento: visível enquanto o relatório vem da API. -->
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="48dp"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
