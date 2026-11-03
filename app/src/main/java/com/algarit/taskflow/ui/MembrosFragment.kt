@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -39,7 +40,6 @@ class MembrosFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Sessao.carregar(requireContext())
 
-        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
         binding.botaoAdicionar.setOnClickListener {
             agendarDialogo = true
             viewModel.carregarCandidatos(args.projetoId)
@@ -50,6 +50,7 @@ class MembrosFragment : Fragment() {
         binding.listaMembros.adapter = MembrosAdapter()
 
         viewModel.membros.observe(viewLifecycleOwner) { lista ->
+            binding.loading.isVisible = false
             membros.clear(); membros.addAll(lista)
             binding.listaMembros.adapter?.notifyDataSetChanged()
         }
@@ -79,6 +80,7 @@ class MembrosFragment : Fragment() {
         }
 
         viewModel.carregar(args.projetoId)
+        binding.loading.isVisible = true
     }
 
     // Convidar por email: a API devolve o token do convite para partilharmos o link.

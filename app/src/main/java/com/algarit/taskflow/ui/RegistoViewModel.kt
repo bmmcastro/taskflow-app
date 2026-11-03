@@ -13,7 +13,8 @@ import kotlinx.coroutines.launch
 
 class RegistoViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val _estado = MutableLiveData<UiState<Unit>>(UiState.Sucesso(Unit))
+    // Idle: ainda nada aconteceu (não navega para lado nenhum).
+    private val _estado = MutableLiveData<UiState<Unit>>(UiState.Idle)
     val estado: LiveData<UiState<Unit>> = _estado
 
     fun registar(nome: String, email: String, password: String) {

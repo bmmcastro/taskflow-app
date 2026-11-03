@@ -33,7 +33,6 @@ class RelatorioFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
 
         viewModel.estado.observe(viewLifecycleOwner) { estado ->
             binding.loading.isVisible = estado is UiState.Loading

@@ -50,7 +50,6 @@ class DetalheTarefaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
         binding.botaoApagar.setOnClickListener { confirmarApagar() }
         binding.botaoEditar.setOnClickListener { dialogEditar() }
 
@@ -93,9 +92,9 @@ class DetalheTarefaFragment : Fragment() {
         binding.detalheResponsavel.text = t.responsavel
         binding.detalhePrazo.text = "Prazo: ${dataCurta(t.dataConclusao)}"
         binding.detalheEstado.text = t.status
-        binding.detalheEstado.setTextColor(when (t.status) {
-            Tarefa.EM_CURSO -> ContextCompat.getColor(requireContext(), R.color.azul)
-            Tarefa.CONCLUIDA -> ContextCompat.getColor(requireContext(), R.color.verde)
+        binding.detalheEstado.setTextColor(when (com.algarit.taskflow.model.EstadoTarefa.de(t.status)) {
+            com.algarit.taskflow.model.EstadoTarefa.EM_CURSO -> ContextCompat.getColor(requireContext(), R.color.azul)
+            com.algarit.taskflow.model.EstadoTarefa.CONCLUIDA -> ContextCompat.getColor(requireContext(), R.color.verde)
             else -> ContextCompat.getColor(requireContext(), R.color.texto_secundario)
         })
         if (t.link.isBlank()) binding.detalheLink.visibility = View.GONE
@@ -121,12 +120,12 @@ class DetalheTarefaFragment : Fragment() {
     private fun dialogEditar() {
         val t = tarefa ?: return
         val nomesMembros = viewModel.membros.value ?: emptyList()
-        val vista = layoutInflater.inflate(R.layout.dialog_tarefa, null)
-        val campoTitulo = vista.findViewById<EditText>(R.id.campo_titulo)
-        val campoDescricao = vista.findViewById<EditText>(R.id.campo_descricao)
-        val campoResponsavel = vista.findViewById<AutoCompleteTextView>(R.id.campo_responsavel)
-        val campoPrazo = vista.findViewById<EditText>(R.id.campo_prazo)
-        val campoLink = vista.findViewById<EditText>(R.id.campo_link)
+        val dialogo = layoutInflater.inflate(R.layout.dialog_tarefa, null)
+        val campoTitulo = dialogo.findViewById<EditText>(R.id.campo_titulo)
+        val campoDescricao = dialogo.findViewById<EditText>(R.id.campo_descricao)
+        val campoResponsavel = dialogo.findViewById<AutoCompleteTextView>(R.id.campo_responsavel)
+        val campoPrazo = dialogo.findViewById<EditText>(R.id.campo_prazo)
+        val campoLink = dialogo.findViewById<EditText>(R.id.campo_link)
 
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
         campoTitulo.setText(t.titulo)
@@ -148,13 +147,16 @@ class DetalheTarefaFragment : Fragment() {
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.editar_tarefa)
-            .setView(vista)
+            .setView(dialogo)
             .setPositiveButton(R.string.guardar) { _, _ ->
                 val titulo = campoTitulo.text.toString().trim()
                 val responsavel = campoResponsavel.text.toString().trim()
-                if (titulo.isBlank() || responsavel.isBlank() || prazoEscolhido.isBlank()) {
-                    aviso("Faltam campos obrigatórios"); return@setPositiveButton
-                }
+                // Validação com setError no próprio campo.
+                var valido = true
+                if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
+                if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
+                if (prazoEscolhido.isBlank()) { campoPrazo.error = getString(R.string.erro_prazo); valido = false }
+                if (!valido) return@setPositiveButton
                 viewModel.editar(
                     args.tarefaId,
                     TarefaPedido(

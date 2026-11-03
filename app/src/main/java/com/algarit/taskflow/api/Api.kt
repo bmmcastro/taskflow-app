@@ -29,18 +29,18 @@ object Api {
     }
 }
 
-// Converte as exceções das coroutines em mensagens para o utilizador.
-// O contexto vem da Application (com.algarit.taskflow.TaskFlowApp).
+// Converte as exceções das coroutines em mensagens distintas para o utilizador:
+// sem Internet, timeout ou erro do servidor não são a mesma coisa.
 fun erroAmigavel(t: Throwable): String {
     val contexto = com.algarit.taskflow.TaskFlowApp.contexto
     return when (t) {
-        is SocketTimeoutException -> contexto.getString(R.string.erro_rede)
+        is SocketTimeoutException -> contexto.getString(R.string.erro_timeout)
         is IOException -> contexto.getString(R.string.erro_rede)
         is HttpException -> {
             val corpo = try { t.response()?.errorBody()?.string()?.trim() } catch (_: Exception) { null }
             if (!corpo.isNullOrEmpty() && corpo.length <= 150 && !corpo.startsWith("<")) corpo
-            else contexto.getString(R.string.erro_rede)
+            else contexto.getString(R.string.erro_servidor)
         }
-        else -> t.message ?: contexto.getString(R.string.erro_rede)
+        else -> t.message ?: contexto.getString(R.string.erro_servidor)
     }
 }

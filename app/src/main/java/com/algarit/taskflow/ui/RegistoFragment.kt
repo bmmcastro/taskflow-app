@@ -31,9 +31,11 @@ class RegistoFragment : Fragment() {
             val nome = binding.campoNome.text.toString().trim()
             val email = binding.campoEmail.text.toString().trim()
             val password = binding.campoPassword.text.toString()
-            if (nome.isBlank() || email.isBlank() || password.isBlank()) {
-                aviso("Preenche todos os campos"); return@setOnClickListener
-            }
+            var valido = true
+            if (nome.isBlank()) { binding.campoNome.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+            if (email.isBlank()) { binding.campoEmail.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+            if (password.isBlank()) { binding.campoPassword.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+            if (!valido) return@setOnClickListener
             viewModel.registar(nome, email, password)
         }
 

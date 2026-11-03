@@ -22,6 +22,7 @@ import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.TarefasAdapter
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityQuadroBinding
+import com.algarit.taskflow.model.EstadoTarefa
 import com.algarit.taskflow.model.Tarefa
 import com.algarit.taskflow.model.TarefaPedido
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -38,7 +39,7 @@ class QuadroFragment : Fragment() {
     private val viewModel: QuadroViewModel by viewModels()
 
     private val tarefas = mutableListOf<Tarefa>()
-    private var estadoAtual = Tarefa.POR_FAZER
+    private var estadoAtual = EstadoTarefa.POR_FAZER
     private var filtroPessoa = ""
     private var prazoEscolhido = ""
 
@@ -60,7 +61,6 @@ class QuadroFragment : Fragment() {
         Sessao.carregar(requireContext())
         binding.tituloProjeto.text = args.projetoNome
 
-        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
         binding.botaoNovaTarefa.setOnClickListener { dialogTarefa(null) }
         binding.botaoMembros.setOnClickListener {
             findNavController().navigate(
@@ -87,7 +87,7 @@ class QuadroFragment : Fragment() {
             .forEach { tabs.addTab(tabs.newTab().setText(it)) }
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                estadoAtual = when (tab.position) { 0 -> Tarefa.POR_FAZER; 1 -> Tarefa.EM_CURSO; else -> Tarefa.CONCLUIDA }
+                estadoAtual = EstadoTarefa.entries[tab.position]
                 refrescar()
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -129,65 +129,66 @@ class QuadroFragment : Fragment() {
     // Mostra só as tarefas da coluna e pessoa escolhidas, ordenadas pelo prazo.
     private fun refrescar() {
         val visiveis = tarefas
-            .filter { it.status == estadoAtual && (filtroPessoa.isBlank() || it.responsavel == filtroPessoa) }
+            .filter { EstadoTarefa.de(it.status) == estadoAtual && (filtroPessoa.isBlank() || it.responsavel == filtroPessoa) }
             .sortedBy { it.dataConclusao ?: "9999-12-31" }
         adaptador.atualizar(visiveis)
         textoVazio.isVisible = visiveis.isEmpty()
 
-        tabs.getTabAt(0)?.text = "${getString(R.string.por_fazer)} (${tarefas.count { it.status == Tarefa.POR_FAZER }})"
-        tabs.getTabAt(1)?.text = "${getString(R.string.em_curso)} (${tarefas.count { it.status == Tarefa.EM_CURSO }})"
-        tabs.getTabAt(2)?.text = "${getString(R.string.concluida)} (${tarefas.count { it.status == Tarefa.CONCLUIDA }})"
+        tabs.getTabAt(0)?.text = "${getString(R.string.por_fazer)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.POR_FAZER }})"
+        tabs.getTabAt(1)?.text = "${getString(R.string.em_curso)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.EM_CURSO }})"
+        tabs.getTabAt(2)?.text = "${getString(R.string.concluida)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.CONCLUIDA }})"
     }
 
     // Criar tarefa nova (tarefa == null) ou editar uma existente.
     private fun dialogTarefa(tarefa: Tarefa?) {
-        val vista = layoutInflater.inflate(R.layout.dialog_tarefa, null)
-        val campoTitulo = vista.findViewById<EditText>(R.id.campo_titulo)
-        val campoDescricao = vista.findViewById<EditText>(R.id.campo_descricao)
-        val campoResponsavel = vista.findViewById<AutoCompleteTextView>(R.id.campo_responsavel)
-        val campoPrazo = vista.findViewById<EditText>(R.id.campo_prazo)
-        val campoLink = vista.findViewById<EditText>(R.id.campo_link)
+        // ViewBinding também nos diálogos: sem findViewById.
+        val dialogo = com.algarit.taskflow.databinding.DialogTarefaBinding.inflate(layoutInflater)
+        val campoTitulo = dialogo.campoTitulo
+        val campoResponsavel = dialogo.campoResponsavel
 
         val nomesMembros = viewModel.membros.value ?: emptyList()
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
         prazoEscolhido = tarefa?.dataConclusao ?: ""
         if (tarefa != null) {
             campoTitulo.setText(tarefa.titulo)
-            campoDescricao.setText(tarefa.descricao)
+            dialogo.campoDescricao.setText(tarefa.descricao)
             campoResponsavel.setText(tarefa.responsavel)
-            campoPrazo.setText(dataCurta(tarefa.dataConclusao))
-            campoLink.setText(tarefa.link)
+            dialogo.campoPrazo.setText(dataCurta(tarefa.dataConclusao))
+            dialogo.campoLink.setText(tarefa.link)
         }
 
-        campoPrazo.setOnClickListener {
+        dialogo.campoPrazo.setOnClickListener {
             val cal = Calendar.getInstance()
             DatePickerDialog(requireContext(), { _, ano, mes, dia ->
                 val m = if (mes + 1 < 10) "0${mes + 1}" else "${mes + 1}"
                 val d = if (dia < 10) "0$dia" else "$dia"
                 prazoEscolhido = "$ano-$m-$d"
-                campoPrazo.setText("$d/$m/$ano")
+                dialogo.campoPrazo.setText("$d/$m/$ano")
             }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
         }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (tarefa == null) R.string.nova_tarefa else R.string.editar_tarefa)
-            .setView(vista)
+            .setView(dialogo.root)
             .setPositiveButton(R.string.guardar) { _, _ ->
                 val titulo = campoTitulo.text.toString().trim()
                 val responsavel = campoResponsavel.text.toString().trim()
-                if (titulo.isBlank() || responsavel.isBlank() || prazoEscolhido.isBlank()) {
-                    aviso("Faltam campos obrigatórios"); return@setPositiveButton
-                }
+                // Validação com setError no próprio campo.
+                var valido = true
+                if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
+                if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
+                if (prazoEscolhido.isBlank()) { dialogo.campoPrazo.error = getString(R.string.erro_prazo); valido = false }
+                if (!valido) return@setPositiveButton
                 viewModel.guardar(
                     tarefaId = tarefa?.id,
                     pedido = TarefaPedido(
                         titulo = titulo,
-                        descricao = campoDescricao.text.toString().trim(),
+                        descricao = dialogo.campoDescricao.text.toString().trim(),
                         criador = tarefa?.criador ?: Sessao.nome,
                         responsavel = responsavel,
-                        status = tarefa?.status ?: Tarefa.POR_FAZER,
+                        status = tarefa?.status ?: EstadoTarefa.POR_FAZER.rotulo,
                         dataConclusao = prazoEscolhido,
-                        link = campoLink.text.toString().trim(),
+                        link = dialogo.campoLink.text.toString().trim(),
                         projetoId = null
                     ),
                     projetoId = args.projetoId
@@ -199,11 +200,11 @@ class QuadroFragment : Fragment() {
 
     // Tocar longo num cartão: escolher para que coluna mover.
     private fun moverTarefa(tarefa: Tarefa) {
-        val destinos = listOf(Tarefa.POR_FAZER, Tarefa.EM_CURSO, Tarefa.CONCLUIDA).filter { it != tarefa.status }
+        val destinos = EstadoTarefa.entries.filter { it.rotulo != tarefa.status }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.mover_para)
-            .setItems(destinos.toTypedArray()) { _, qual ->
-                viewModel.mover(tarefa, destinos[qual])
+            .setItems(destinos.map { it.rotulo }.toTypedArray()) { _, qual ->
+                viewModel.mover(tarefa, destinos[qual].rotulo)
             }
             .setNegativeButton(R.string.cancelar, null)
             .show()

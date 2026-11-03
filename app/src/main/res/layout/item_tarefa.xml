@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Cartão de tarefa do quadro, com o interior em ConstraintLayout
+     (hierarquia plana: avatar, textos e prazo ligados por restrições). -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
+    android:layout_marginStart="@dimen/margem"
+    android:layout_marginEnd="@dimen/margem"
     android:layout_marginTop="10dp"
     app:cardBackgroundColor="@color/cartao"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="@dimen/raio_cartao"
     app:cardElevation="0dp"
     app:strokeColor="@color/separador"
     app:strokeWidth="1dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="14dp">
+        android:padding="@dimen/margem">
 
         <TextView
             android:id="@+id/item_avatar"
@@ -27,40 +27,46 @@
             android:gravity="center"
             android:textColor="@color/roxo"
             android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/item_titulo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginStart="@dimen/margem_pequena"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/texto"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/item_prazo"
+            app:layout_constraintStart_toEndOf="@id/item_avatar"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/item_titulo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="@color/texto"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/item_responsavel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:textColor="@color/texto_secundario"
-                android:textSize="13sp" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/item_responsavel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margem_pequena"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/texto_secundario"
+            android:textSize="@dimen/texto_secundario"
+            app:layout_constraintEnd_toStartOf="@id/item_prazo"
+            app:layout_constraintStart_toEndOf="@id/item_avatar"
+            app:layout_constraintTop_toBottomOf="@id/item_titulo" />
 
         <TextView
             android:id="@+id/item_prazo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:layout_marginStart="@dimen/margem_pequena"
+            android:textSize="@dimen/texto_secundario"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -27,7 +27,6 @@ class PerfilFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Sessao.carregar(requireContext())
-        binding.botaoVoltar.setOnClickListener { findNavController().navigateUp() }
 
         mostrarDados()
 

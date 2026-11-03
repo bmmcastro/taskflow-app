@@ -65,6 +65,13 @@ class ConviteActivity : AppCompatActivity() {
     }
 
     private fun aceitarConvite() {
+        // Sem sessão iniciada o id seria -1: exigimos login antes de aceitar.
+        if (!Sessao.estaLogado()) {
+            aviso("Inicia sessão primeiro para aceitares o convite")
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
         lifecycleScope.launch {
             try {
                 Api.servico.aceitarConvite(token, MembroPedido(Sessao.utilizadorId))
