@@ -54,9 +54,10 @@ class LoginFragment : Fragment() {
     private fun entrar() {
         val email = binding.campoEmail.text.toString().trim()
         val password = binding.campoPassword.text.toString()
-        if (email.isBlank() || password.isBlank()) {
-            aviso("Preenche o email e a password"); return
-        }
+        var valido = true
+        if (email.isBlank()) { binding.campoEmail.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+        if (password.isBlank()) { binding.campoPassword.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+        if (!valido) return
         viewModel.entrar(email, password)
     }
 

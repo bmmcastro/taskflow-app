@@ -1,6 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.navigation.safeargs)
+}
+
+// As senhas da assinatura vivem no local.properties (fora do git),
+// nunca dentro do build script.
+val segredos = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 android {
     namespace = "com.algarit.taskflow"
@@ -21,9 +30,9 @@ android {
     signingConfigs {
         create("release") {
             storeFile = file("../taskflow.jks")
-            storePassword = "taskflow2026"
-            keyAlias = "taskflow"
-            keyPassword = "taskflow2026"
+            storePassword = segredos.getProperty("TF_STORE_PASSWORD") ?: ""
+            keyAlias = segredos.getProperty("TF_KEY_ALIAS") ?: "taskflow"
+            keyPassword = segredos.getProperty("TF_KEY_PASSWORD") ?: ""
         }
     }
     buildTypes {

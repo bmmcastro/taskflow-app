@@ -6,7 +6,9 @@
     <string name="guardar">Guardar</string>
     <string name="apagar">Apagar</string>
     <string name="a_carregar">A carregar…</string>
-    <string name="erro_rede">Não foi possível falar com o servidor. Verifica a ligação.</string>
+    <string name="erro_rede">Sem ligação à Internet. Verifica a rede e tenta de novo.</string>
+    <string name="erro_timeout">O servidor demorou a responder. Tenta outra vez.</string>
+    <string name="erro_servidor">Erro do servidor. Tenta mais tarde.</string>
     <string name="slogan">As tarefas da tua equipa, organizadas.</string>
     <string name="entrar">Entrar</string>
     <string name="email">Email</string>
@@ -60,4 +62,8 @@
     <string name="criador">Criador</string>
     <string name="editar_tarefa">Editar tarefa</string>
     <string name="tentar_de_novo">Tentar de novo</string>
+    <string name="erro_titulo">Escreve o título</string>
+    <string name="erro_responsavel">Escolhe o responsável</string>
+    <string name="erro_prazo">Escolhe o prazo</string>
+    <string name="erro_campos">Preenche todos os campos</string>
 </resources>

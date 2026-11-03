@@ -38,7 +38,7 @@ class TarefasAdapter(
         holder.binding.itemTitulo.text = tarefa.titulo
         holder.binding.itemResponsavel.text = tarefa.responsavel
         val hoje = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())
-        if (!tarefa.dataConclusao.isNullOrBlank() && tarefa.dataConclusao < hoje && tarefa.status != Tarefa.CONCLUIDA) {
+        if (!tarefa.dataConclusao.isNullOrBlank() && tarefa.dataConclusao < hoje && com.algarit.taskflow.model.EstadoTarefa.de(tarefa.status) != com.algarit.taskflow.model.EstadoTarefa.CONCLUIDA) {
             holder.binding.itemPrazo.setTextColor(ContextCompat.getColor(holder.binding.root.context, R.color.vermelho))
         } else {
             holder.binding.itemPrazo.setTextColor(ContextCompat.getColor(holder.binding.root.context, R.color.texto_secundario))

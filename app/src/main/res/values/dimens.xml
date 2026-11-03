@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dimensões partilhadas pelos layouts (nunca valores soltos nos XML). -->
+<resources>
+    <dimen name="margem">16dp</dimen>
+    <dimen name="margem_pequena">8dp</dimen>
+    <dimen name="margem_grande">24dp</dimen>
+    <dimen name="altura_botao">52dp</dimen>
+    <dimen name="raio_cartao">12dp</dimen>
+    <dimen name="avatar">40dp</dimen>
+    <dimen name="texto_titulo">20sp</dimen>
+    <dimen name="texto_normal">15sp</dimen>
+    <dimen name="texto_secundario">13sp</dimen>
+</resources>
