@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>TaskFlow — Manual de Utilizador</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; max-width: 780px; margin: 0 auto; padding: 26px 22px; color: #222; line-height: 1.5; font-size: 14px; }
+  h1 { color: #333; font-size: 21px; border-bottom: 3px solid #555; padding-bottom: 7px; margin-top: 0; }
+  h2 { color: #333; font-size: 17px; margin-top: 26px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
+  .meta { background: #f5f5f5; border-left: 4px solid #777; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
+  ol, ul { padding-left: 22px; } li { margin-bottom: 5px; }
+  .img { text-align: center; margin: 12px 0; }
+  .legenda { font-size: 11.5px; color: #666; margin-top: 3px; }
+  .nota { background: #f5f5f5; border-left: 4px solid #999; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
+  @media print { .img { page-break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>TaskFlow — Manual de Utilizador</h1>
+<div class="meta">
+  <strong>UC00609</strong> — Desenvolver aplicações móveis (plataforma Android) · Trabalho individual<br>
+  <strong>Nome:</strong> Bruno Castro · <strong>App:</strong> TaskFlow (Android, Kotlin)
+</div>
+
+<h2>1. O que é</h2>
+<p>A TaskFlow é a aplicação Android para gerir projetos e tarefas em equipa. Cada projeto tem um quadro com três colunas — <strong>Por fazer</strong>, <strong>Em curso</strong> e <strong>Concluída</strong> — e cada tarefa tem responsável, prazo e uma checklist de subtarefas. A app usa a mesma base de dados do site <strong>taskflow.algarit.pt</strong>: o que mudares na app aparece no site e vice-versa.</p>
+<div class="nota"><strong>Requisitos:</strong> telemóvel Android 7.0 ou superior com Internet. Conta de demonstração: <strong>demo@taskflow.pt / 1234</strong>.</div>
+
+<h2>2. Entrar</h2>
+<ol>
+  <li>Abre a TaskFlow. Se já tinhas sessão, entra direto nos projetos.</li>
+  <li>Escreve email e palavra-passe e toca em <strong>Entrar</strong> — ou toca em <strong>Usar conta de demonstração</strong>.</li>
+  <li>Se não tens conta, toca no link de registo, preenche nome/email/palavra-passe e cria a conta (é a mesma do site).</li>
+</ol>
+<p>Os campos obrigatórios avisam dentro do próprio campo se faltar alguma coisa.</p>
+<div class="img">[[IMG:nf-login.png]]<div class="legenda">Ecrã de entrada (login e conta de demonstração)</div></div>
+
+<h2>3. Os meus projetos</h2>
+<p>Depois de entrar vês os projetos onde és membro, com o teu cartão em cima. O botão <strong>+</strong> cria um projeto novo (nome e descrição); tocar num cartão abre o quadro; tocar longo num projeto teu dá o menu para o apagar (só o criador pode). O botão do canto abre o <strong>perfil</strong>. Puxa a lista para baixo para atualizar.</p>
+<div class="img">[[IMG:nf-pos-login-corrigido.png]]<div class="legenda">Lista de projetos (o projeto da própria app está no topo)</div></div>
+
+<h2>4. O quadro do projeto</h2>
+<p>O quadro tem <strong>três separadores</strong> (um por coluna) com a contagem de tarefas em cada um. Os <strong>chips</strong> por baixo filtram por pessoa ("Todas as pessoas" mostra tudo). Cada cartão mostra o avatar do responsável, o título e o prazo — <strong>a vermelho se estiver atrasado</strong>.</p>
+<ul>
+  <li><strong>Criar tarefa:</strong> botão <strong>+</strong> — título, descrição, responsável (escolhe da lista), prazo (calendário) e coluna. Tocar em <strong>Guardar</strong>.</li>
+  <li><strong>Abrir a tarefa:</strong> toca no cartão.</li>
+  <li><strong>Mover de coluna:</strong> tocar longo no cartão e escolher para onde.</li>
+</ul>
+<div class="img">[[IMG:nf-quadro-1seta.png]]<div class="legenda">Quadro com separadores, filtro por pessoa e cartões</div></div>
+
+<h2>5. O detalhe da tarefa</h2>
+<p>Aqui vês tudo da tarefa e:
+<ul>
+  <li><strong>Editar</strong> (botão do canto) abre o mesmo formulário da criação, já preenchido;</li>
+  <li><strong>Apagar</strong> pede confirmação;</li>
+  <li><strong>Subtarefas:</strong> escreve no campo de baixo e toca em <strong>+</strong> para acrescentar; toca numa subtarefa para marcar/desmarcar (texto riscado); tocar longo apaga. A <strong>barra de progresso</strong> atualiza-se com a percentagem concluída.</li>
+</ul>
+
+<h2>6. Membros e convites</h2>
+<p>No quadro, o botão de pessoas abre os <strong>membros</strong>: a lista de quem está no projeto (com a etiqueta "criador"), os convites pendentes, e dois botões — <strong>adicionar</strong> alguém que já tem conta (escolhe-se da lista) e <strong>convidar por email</strong> (a app cria o convite e mostra o link para enviares por mensagem). Quem receber o link abre a app, vai ao ecrã de convite no login, cola o link e aceita.</p>
+
+<h2>7. O relatório</h2>
+<p>O botão de gráfico no quadro mostra as contas do projeto: total, concluídas, em curso, atrasadas, a percentagem de progresso e as tarefas por pessoa. É o mesmo relatório do site.</p>
+
+<h2>8. Perfil e sessão</h2>
+<p>No perfil mudas o nome, o email e (opcionalmente) a palavra-passe. <strong>Terminar sessão</strong> sai da conta e volta ao login.</p>
+
+<h2>9. Se algo falhar</h2>
+<ul>
+  <li><strong>"Sem ligação à Internet"</strong> — verifica o WiFi/dados e tenta de novo (nos projetos aparece uma barra com <strong>Tentar de novo</strong>).</li>
+  <li><strong>"O servidor demorou a responder"</strong> — o site está lento; espera uns segundos.</li>
+  <li><strong>Esqueci-me da palavra-passe</strong> — recuperas no site taskflow.algarit.pt ou crias conta nova.</li>
+</ul>
+
+</body>
+</html>

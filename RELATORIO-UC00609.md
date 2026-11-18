@@ -15,9 +15,9 @@ A app cobre as funções principais do site:
 
 | Ecrã | Função |
 |---|---|
-| Login / Registo | entrar com a conta do site ou criar conta nova |
+| Login / Registo | entrar com a conta do site ou criar conta nova (com botão de conta de demonstração) |
 | Projetos | ver os projetos onde sou membro, criar, apagar (só o criador pode) |
-| Quadro | as três colunas (Por fazer, Em curso, Concluída); criar, editar e mover tarefas; filtrar por pessoa |
+| Quadro | as três colunas em tabs (Por fazer, Em curso, Concluída); criar, editar e mover tarefas; filtrar por pessoa com chips |
 | Detalhe da tarefa | ver e editar a tarefa, e gerir a checklist de subtarefas com barra de progresso |
 | Membros | quem está no projeto, adicionar utilizadores registados, convidar por email, ver convites pendentes |
 | Convite | quem recebe convite cola o link e aceita, ficando membro |
@@ -26,27 +26,32 @@ A app cobre as funções principais do site:
 
 ## 3. Como está organizada
 
-O projeto segue a organização habitual de uma app Android em Kotlin:
+A app segue a arquitetura **single-activity** com **Navigation (Jetpack)** e **MVVM**:
 
 ```
 app/src/main/java/com/algarit/taskflow/
-├── api/      Api.kt (todas as chamadas HTTP) e Sessao.kt (quem está com sessão iniciada)
-├── model/    Modelos.kt (Utilizador, Projeto, Tarefa, Subtarefa — um data class por tabela)
-├── ui/       Uma activity por ecrã + Ui.kt (funções de ajuda usadas em todos os ecrãs)
-└── adapter/  Os adaptadores das listas (RecyclerView)
+├── MainActivity.kt   a unica activity: Toolbar + NavHostFragment
+├── ConviteActivity   ponto de entrada de quem recebe um convite (fora do grafo)
+├── api/      ApiService.kt (interface Retrofit) e Api.kt (cliente + erros); Sessao.kt
+├── model/    data classes (Utilizador, Projeto, Tarefa, Subtarefa, Relatorio, pedidos) + EstadoTarefa (enum)
+├── data/     Repo.kt — camada de dados com coroutines (paralelismo do quadro)
+├── ui/       um Fragment + um ViewModel por ecra; UiState (sealed); Ui.kt (ajudas)
+└── adapter/  ListAdapter + DiffUtil das listas
 ```
 
-Escolhi separar assim para ser fácil de explicar e de mexer: quem quer perceber como a app fala com o servidor só tem de ler o `Api.kt`, e quem quer perceber um ecrã abre a activity correspondente.
+A navegacao vive num **grafo** (`res/navigation/nav_graph.xml`) com 8 destinos e acoes; os ids de projeto e tarefa viajam por **Safe Args**, que gera classes com o tipo certo (erro em compilacao em vez de erro em runtime). A **Toolbar esta ligada ao NavController**: o titulo vem do grafo e a seta de voltar aparece sozinha nos ecra secundarios.
+
+Cada ecra observa o seu ViewModel por **LiveData**, com um estado `UiState` (sealed class) em quatro casos: `Idle`, `Loading`, `Sucesso` e `Erro`. O `Idle` existe para os formularios: comecar em `Sucesso` fazia navegar assim que o ecra observasse o valor inicial (bug que o formador detetou e que corrigi).
 
 ## 4. A ligação à API
 
-Toda a comunicação passa por um único objeto, o `Api.kt`. Ele usa a biblioteca **Volley** (da Google) e expõe quatro métodos — `get`, `post`, `patch` e `delete` — que recebem o caminho, os dados, e uma função para entregar a resposta. Todas as activities usam estes quatro métodos, nunca falam com a rede diretamente.
+A comunicacao usa **Retrofit + Gson**: uma interface (`ApiService`) com todos os endpoints como funcoes **suspend**, e um cliente unico com timeouts (15 s de ligacao, 30 s de leitura). Os ViewModels chamam estas funcoes dentro de `viewModelScope.launch` — sem callbacks, e quando o ecra morre a coroutine e cancelada com ele.
 
-Um detalhe que me deu algum trabalho: a API da UC00605 não devolve sempre JSON. Os métodos que criam coisas devolvem objetos ou listas, mas os que apagam devolvem uma frase de texto ("Membro removido do projeto"). Por isso o `Api.kt` tenta interpretar a resposta como objeto JSON, depois como lista, e se não der entrega o texto como veio. Assim o resto da app recebe sempre o mesmo tipo `Resposta` e não tem de se preocupar com isso.
+Comecei o projeto com Volley e callback para cada pedido; migrei para Retrofit + coroutines quando chegamos a materia, e a diferenca nota-se: o codigo dos ecra ficou sequencial (parece sincrono mas nao bloqueia) e desapareceram os guardas de ciclo de vida que os callbacks exigiam.
 
-Sobre a autenticação: a API não usa tokens nem sessões — o site guarda o utilizador no `localStorage` e envia o id onde é preciso. Na app faço exatamente o mesmo, só que em `SharedPreferences`: depois do login guardo o id, nome e email, e é esse id que envio nos pedidos (por exemplo, `GET /projetos?utilizador_id=3`).
+Sobre a autenticao: a API nao usa tokens — o site guarda o utilizador no `localStorage` e envia o id onde e preciso. Na app faco o mesmo, em `SharedPreferences`.
 
-Os endpoints que a app usa são estes:
+Os endpoints que a app usa:
 
 | Ecrã | Endpoints |
 |---|---|
@@ -56,49 +61,66 @@ Os endpoints que a app usa são estes:
 | Detalhe | GET, POST, PATCH, DELETE /subtarefas (com ?tarefa_id=) |
 | Membros | GET, POST /projetos/:id/membros, POST /projetos/:id/convidar, GET /projetos/:id/convites |
 | Convite | GET /convites/:token, POST /convites/:token/aceitar |
-| Relatório | GET /tarefas/relatorio |
+| Relatorio | GET /tarefas/relatorio |
 | Perfil | PATCH /utilizadores/:id |
 
-## 5. Decisões que tomei
+## 5. Threads e coroutines (Sessão 11)
 
-**Views em XML em vez de Jetpack Compose.** O projeto começou no template de Views e a matéria da UC usa essa abordagem, por isso mantive. É mais verboso mas dá para seguir bem o que está a acontecer.
+- Tudo o que demora corre fora da main thread — nunca `Thread.sleep`, nunca `runBlocking`, nunca `GlobalScope`.
+- O quadro carrega membros e tarefas **em paralelo** com `async/await` dentro do `Repo.kt`, envolvido em `withContext(Dispatchers.IO)`: duas chamadas que custavam duas esperas passam a custar uma.
+- O `QuadroViewModel` guarda o `Job` do carregamento e cancela o anterior ao recarregar (cancelamento cooperativo; sem Jobs sobrepostos a escrever no mesmo LiveData).
+- Erros distintos para o utilizador: sem ligacao (`IOException`), timeout (`SocketTimeoutException`) e erro do servidor (`HttpException`) tem mensagens diferentes em `erroAmigavel`.
+- Ecras que carregam dados mostram ProgressBar (Relatorio, Detalhe, Membros) ou SwipeRefreshLayout (Projetos, Quadro), ligados ao estado `Loading`.
 
-**Volley em vez de Retrofit.** Para uma app deste tamanho, o Volley chega perfeitamente e tem menos configuração. Quatro métodos no `Api.kt` e está feito.
+## 6. Decisões que tomei
 
-**Sem base de dados local (Room).** A API já é a fonte da verdade e está sempre acessível (é HTTPS público). Guardar cópias locais só iria complicar. A app carrega sempre fresco, com pull-to-refresh nas listas.
+**Single-activity com Fragments em vez de Activities por ecra.** Foi a conversao que fiz quando chegamos a materia do Navigation: menos codigo repetido, transacoes e back stack geridos pelo NavController, Toolbar integrada. A `ConviteActivity` continua Activity de proposito — e o ponto de entrada de quem recebe um convite, fora do grafo.
 
-**Datas em ISO na rede, dd/mm/aaaa no ecrã.** A API espera `2026-11-02`; eu mostro `02/11/2026`. Para escolher a data uso o DatePickerDialog do sistema e converto para ISO antes de enviar.
+**Retrofit + coroutines em vez de Volley** (razoes em cima). **MVVM com um ViewModel por ecra**: a logica saiu dos ecra; o ViewModel sobrevive a rotação.
 
-**Prazo atrasado a vermelho.** Nas listas, uma tarefa cujo prazo já passou e que não está concluída mostra a data a vermelho — é um aviso rápido sem precisar de abrir a tarefa.
+**ListAdapter + DiffUtil nas listas**: submeter lista nova e so o que mudou e redesenhado, com animacoes. Cada modelo tem id estavel para o `areItemsTheSame`.
 
-**Convidar sem enviar email.** No site o convite é enviado por email. Na app, por agora, chamo o endpoint com `enviar_email: false` e mostro o link do convite para partilhar à mão (mensagem, etc.). Assim a app não depende do servidor de email durante a demonstração. É a única função que funciona de forma diferente do site.
+**Enum `EstadoTarefa`** em vez de constantes soltas: as tres colunas com rotulo, ordem e conversao a partir do texto da API.
 
-**Design simples.** Fundo cinzento claro, cartões brancos arredondados, títulos grandes e um único tom de roxo (a cor do site, #6D28D9) para os botões e destaques. Tema escuro incluído.
+**Sem base de dados local (Room).** A API e a fonte da verdade e esta sempre acessivel (HTTPS publico); a app carrega sempre fresco, com pull-to-refresh.
 
-## 6. Dificuldades que encontrei
+**Datas em ISO na rede, dd/mm/aaaa no ecra.** DatePickerDialog do sistema e conversao antes de enviar. **Prazo atrasado a vermelho** nas listas.
 
-A maior não foi da app em si, foi da ferramenta. Quando comecei a compilar fora do Android Studio (para ter a certeza que o projeto estava bem configurado), o build falhou com um erro estranho sobre um `jlink` que não existia. Demorei a perceber o que se passava, mas no fim eram três coisas em conjunto:
+**Convidar sem enviar email.** Chamo o endpoint com `enviar_email: false` e mostro o link do convite para partilhar a mao — a app nao depende do servidor de email na demonstracao. E a unica funcao que funciona de forma diferente do site.
 
-1. O meu JAVA_HOME apontava para um JDK com a barra final mal formatada, e o Gradle acabava por usar outro "Java" que encontrou no caminho — um JRE de uma extensão do VSCode, que não tem as ferramentas de JDK (por isso o jlink não existia).
-2. O Gradle deteta sozinho JVMs espalhadas pelo computador e escolheu essa.
-3. Para complicar, o Gradle guardou em cache a transformação que falhou, por isso mesmo depois de corrigir o Java o erro continuava igual.
+**Design simples.** Fundo cinzento claro, cartoes brancos arredondados, um tom de roxo (a cor do site) para botoes e destaques, tema escuro incluido.
 
-Resolvi fixando o JDK correto no `gradle.properties` (`org.gradle.java.home`), desligando a deteção automática de JVMs (`org.gradle.java.installations.auto-detect=false`) e limpando as caches de transformação do Gradle. Foi uma boa lição sobre toolchains: o problema nem sempre está onde parece estar.
+## 7. Qualidade, testes e publicação
 
-Na própria app, o outro desafio foi o `PATCH` das tarefas: a API exige que venham sempre o título, o responsável e o prazo, mesmo quando só quero mudar o estado. Por isso, mover uma tarefa de coluna reenvia a tarefa completa com o estado novo.
+- **Testes unitarios (JUnit), 9/9 a passar**: formatacao de datas e o mapeamento JSON→modelos pelo Gson (o mesmo caminho que o Retrofit usa em producao).
+- **Assinatura da build release**: keystore RSA 2048 criada para o projeto; as senhas vivem no `local.properties` (fora do git) e o `build.gradle.kts` le-as de la — nunca senhas no script versionado.
+- **Testada no emulador e num telemovel fisico** (Xiaomi, Android 16): instalacao por USB e fluxo completo verificado.
+- **Revisao do formador aplicada**: os tres erros que apontou (ciclo login-projetos pelo estado inicial `Sucesso`; convite aceite sem sessao; setas de voltar duplicadas) foram corrigidos, bem como as melhorias (enum do estado, mensagens de erro distintas, `setError` nas validacoes, `dimens.xml`, ConstraintLayout nos itens, ViewBinding tambem nos dialogos, senhas da keystore fora do build).
 
-## 7. Como testar
+## 8. Dificuldades que encontrei
 
-1. Abrir o projeto no Android Studio e fazer Run (emulador ou telemóvel, Android 7.0 ou superior).
-2. No login, usar a conta de demonstração: **demo@taskflow.pt / 1234** (ou criar conta — é a mesma base de dados do site).
-3. Verificar contra o site: criar uma tarefa na app e vê-la aparecer no quadro do site, e vice-versa.
+**A toolchain do Java (a maior).** Ao compilar fora do Android Studio, o build falhou com um erro de `jlink` inexistente. Causa: o Gradle detetou sozinho um JRE de uma extensao do VSCode (sem ferramentas de JDK) e usou-o, e ainda guardou a transformacao falhada em cache. Resolvi fixando o JDK no `gradle.properties`... e semanas depois o proprio fix me morreu: o Adoptium atualizou de versao, o caminho fixo deixou de existir e o projeto nao abria. Licao em dois tempos: (1) o problema nem sempre esta onde parece; (2) caminhos absolutos de JDK em projetos partilhados sao armadilha — a solucao final foi deixar o Gradle JDK do IDE (Embedded) mandar.
 
-## 8. Conclusão
+**O PATCH das tarefas.** A API exige titulo, responsavel e prazo em todos os PATCH, mesmo so para mudar o estado — mover uma tarefa reenvia-a completa com o estado novo.
 
-Ficou feita a app Android do TaskFlow, ligada à mesma API do projeto da UC00605, com as funções principais todas a funcionar: contas, projetos, quadro com as três colunas, tarefas com prazo e responsável, subtarefas com progresso, membros e convites, e relatório. Para além do resultado, o projeto deu-me prática real em consumir uma API REST em Android, em organizar um projeto com várias activities, e a resolver problemas de ferramentas que não são da app mas que fazem parte do trabalho de todos os dias.
+**O Gson e os valores por omissao.** Um teste falhou porque uma tarefa sem `status` no JSON ficava com null em vez de "Por fazer": o Gson, sem construtor sem argumentos, preenche o objeto a marcar todos os campos. Correcao: valores por omissao em todos os parametros da data class — assim o Gson usa o construtor e o default aplica-se.
 
-Como melhorias futuras ficam: arrastar cartões entre colunas em vez do menu, notificações para prazos a aproximarem-se, e enviar os convites por email diretamente da app.
+**UTF-8 na linha de comandos do Windows.** Ao criar o projeto desta app na API do TaskFlow (com curl), os textos acentuados ("Concluída") chegavam corrompidos ao servidor — o curl do Windows converte os argumentos pela code page ANSI. Correcao: enviar o JSON a partir de um ficheiro UTF-8 com `--data-binary @ficheiro`.
+
+**Safe Args e AGP 9.** A versao 2.9.x do plugin recusa-se a aplicar com o AGP 9 ("must be used with android plugin"); tive de subir para a 2.10.2.
+
+## 9. Como testar
+
+1. Abrir o projeto no Android Studio e fazer Run (emulador ou telemovel, Android 7.0 ou superior).
+2. No login, usar a conta de demonstracao: **demo@taskflow.pt / 1234** (ou criar conta — e a mesma base de dados do site).
+3. Verificar contra o site: criar uma tarefa na app e ve-la aparecer no quadro do site, e vice-versa.
+
+## 10. Conclusão
+
+Ficou feita a app Android do TaskFlow, ligada a mesma API do projeto da UC00605, com as funcoes principais todas a funcionar: contas, projetos, quadro com as tres colunas, tarefas com prazo e responsavel, subtarefas com progresso, membros e convites, e relatorio. Pelo caminho a app foi reescrita duas vezes por razoes certas: primeiro para a arquitetura single-activity com Navigation e Safe Args, depois de Volley para Retrofit com coroutines e MVVM — e ainda absorveu a materia da sessao 11 (paralelismo, dispatchers, cancelamento) e uma revisao completa do formador. Para alem do resultado, o projeto deu-me pratica real em consumir uma API REST em Android, em evoluir uma app sem a partir, e a resolver problemas de ferramentas que nao sao da app mas fazem parte do trabalho de todos os dias.
+
+Como melhorias futuras ficam: arrastar cartoes entre colunas em vez do menu, notificacoes para prazos a aproximarem-se, e enviar os convites por email diretamente da app.
 
 ---
 
-*Nota antes de entregar: reler este relatório, ajustar o que soar mal e acrescentar pormenores meus (por exemplo, algo que me tenha surpreendido no desenvolvimento) — na defesa quem responde sou eu.*
+*Nota antes de entregar: reler este relatorio, ajustar o que soar mal e acrescentar pormenores meus (por exemplo, algo que me tenha surpreendido no desenvolvimento) — na defesa quem responde sou eu.*
