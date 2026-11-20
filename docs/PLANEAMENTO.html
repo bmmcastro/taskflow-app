@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>TaskFlow — Planeamento (UC00609)</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 26px 22px; color: #222; line-height: 1.5; font-size: 14px; }
+  h1 { color: #333; font-size: 21px; border-bottom: 3px solid #555; padding-bottom: 7px; margin-top: 0; }
+  h2 { color: #333; font-size: 17px; margin-top: 24px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12.5px; }
+  th { background: #4a4a4a; color: #fff; text-align: left; padding: 6px 8px; }
+  td { border: 1px solid #ccc; padding: 5px 8px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f5f5; }
+  .meta { background: #f5f5f5; border-left: 4px solid #777; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
+  .nota { background: #f5f5f5; border-left: 4px solid #999; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
+  code { background: #efefef; padding: 0 4px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12.5px; }
+  ul, ol { padding-left: 22px; } li { margin-bottom: 4px; }
+  @media print { table { page-break-inside: avoid; } h2 { page-break-after: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>TaskFlow — Planeamento</h1>
+<div class="meta">
+  <strong>UC00609 — Desenvolver aplicações móveis (plataforma Android)</strong> · Trabalho individual<br>
+  <strong>Autor:</strong> Bruno Castro
+</div>
+
+<h2>1. A app</h2>
+<p><strong>Objetivo.</strong> Uma app Android em Kotlin para gerir projetos e tarefas em equipa, estilo Trello. É o cliente móvel do <strong>TaskFlow</strong> (projeto web da UC00605, em produção em <code>https://taskflow.algarit.pt</code>): a app consome a API REST do site, por isso uma tarefa movida no telemóvel aparece logo no site e vice-versa.</p>
+<p><strong>Público-alvo.</strong> Pequenas equipas com trabalho partilhado: trabalhos de escola, projetos de curso, pequenas empresas.</p>
+<p><strong>Porque este tema.</strong> As sugestões do enunciado usavam APIs públicas de demonstração; escolhi a API real do TaskFlow porque a conheço bem (fiz o recurso Tarefas no projeto web), tem casos reais (autenticação, validações, erros de negócio) e o resultado é útil de verdade.</p>
+<p><strong>API.</strong> REST, JSON, HTTPS. Autenticação por id do utilizador (a mesma que o site usa no browser). Conta de demonstração: <code>demo@taskflow.pt / 1234</code>.</p>
+
+<h2>2. User stories e priorização (MoSCoW)</h2>
+<table>
+  <tr><th>ID</th><th>User story</th><th>MoSCoW</th></tr>
+  <tr><td>US01</td><td>Como utilizador, quero entrar com a conta do site para aceder aos meus projetos.</td><td>Must</td></tr>
+  <tr><td>US02</td><td>Como utilizador, quero criar conta nova na app.</td><td>Must</td></tr>
+  <tr><td>US03</td><td>Como utilizador, quero ver os meus projetos e criar/apagar os meus.</td><td>Must</td></tr>
+  <tr><td>US04</td><td>Como membro, quero ver o quadro com as três colunas e filtrar por pessoa.</td><td>Must</td></tr>
+  <tr><td>US05</td><td>Como membro, quero criar, editar, mover e apagar tarefas com responsável e prazo.</td><td>Must</td></tr>
+  <tr><td>US06</td><td>Como membro, quero gerir a checklist de subtarefas com barra de progresso.</td><td>Must</td></tr>
+  <tr><td>US07</td><td>Como gestor, quero ver os membros, juntar utilizadores e convidar por email.</td><td>Should</td></tr>
+  <tr><td>US08</td><td>Como convidado, quero aceitar um convite a partir do link.</td><td>Should</td></tr>
+  <tr><td>US09</td><td>Como gestor, quero o relatório do projeto (contagens, percentagem, por pessoa).</td><td>Should</td></tr>
+  <tr><td>US10</td><td>Como utilizador, quero editar o meu perfil e terminar sessão.</td><td>Should</td></tr>
+  <tr><td>US11</td><td>Como utilizador, quero mensagens claras de erro (sem ligação, timeout, servidor) com repetição.</td><td>Should</td></tr>
+  <tr><td>US12</td><td>Como membro, quero ver o prazo atrasado destacado no cartão.</td><td>Could</td></tr>
+</table>
+<p><strong>Won't have (v1):</strong> base de dados local / modo offline, notificações push, envio de emails a partir da app (o convite gera o link; envia-se à mão), arrastar-e-largar cartões.</p>
+
+<h2>3. Kanban</h2>
+<p>Fluxo: <strong>Backlog → A fazer → Em curso (máx. 2) → Em revisão → Concluído</strong>. O quadro deste projeto está registado no próprio TaskFlow (projeto "App TaskFlow Android (UC00609)"):</p>
+<table>
+  <tr><th>Tarefa</th><th>Estado</th><th>Data</th></tr>
+  <tr><td>Fundação: API, sessão, login e registo</td><td>Concluída</td><td>21/10</td></tr>
+  <tr><td>Ecrã de projetos e quadro de tarefas</td><td>Concluída</td><td>24/10</td></tr>
+  <tr><td>Detalhe da tarefa com checklist</td><td>Concluída</td><td>25/10</td></tr>
+  <tr><td>Membros, convites, relatório e perfil</td><td>Concluída</td><td>26/10</td></tr>
+  <tr><td>Ícone da app e README</td><td>Concluída</td><td>26/10</td></tr>
+  <tr><td>Conversão para Navigation Jetpack (1 Activity + Fragments, Safe Args, Toolbar, ViewBinding, ListAdapter/DiffUtil)</td><td>Concluída</td><td>28/10</td></tr>
+  <tr><td>Retrofit com coroutines e MVVM (ViewModels, release assinado, testes)</td><td>Concluída</td><td>28/10</td></tr>
+  <tr><td>Sessão 11: paralelismo async/await, cancelamento, ProgressBars, Snackbar de retry</td><td>Concluída</td><td>30/10</td></tr>
+  <tr><td>Aplicar a revisão do formador (3 erros + melhorias)</td><td>Concluída</td><td>03/11</td></tr>
+  <tr><td>Redesign visual (paleta, modo noturno, slogans, acessibilidade) e teste instrumentado</td><td>Concluída</td><td>19/11</td></tr>
+  <tr><td>Atualizar relatório e manual</td><td>Concluída</td><td>20/11</td></tr>
+  <tr><td>Entregar no Moodle</td><td>Por fazer</td><td>20/11</td></tr>
+</table>
+
+<h2>4. Fluxo de navegação</h2>
+<p>Login → Projetos (home) → Quadro → Detalhe; do Quadro abrem-se Membros e Relatório; o Perfil abre dos Projetos; o Convite é ponto de entrada autónomo (Activity). Implementado num grafo de navegação com 8 destinos, argumentos por Safe Args, Toolbar ligada ao NavController e botão "voltar" do sistema sempre funcional.</p>
+
+<h2>5. Requisitos técnicos</h2>
+<table>
+  <tr><th>Exigência</th><th>Implementação</th></tr>
+  <tr><td>Kotlin, ViewBinding, ConstraintLayout</td><td>sim; binding em todos os ecrãs e diálogos; layouts com dimens em recursos</td></tr>
+  <tr><td>RecyclerView + ListAdapter + DiffUtil + cliques</td><td>projetos, tarefas, subtarefas e membros</td></tr>
+  <tr><td>Navigation + Fragments + Safe Args + voltar</td><td>single-activity, grafo, Toolbar integrada</td></tr>
+  <tr><td>MVVM (ViewModel por ecrã)</td><td>8 ViewModels + LiveData + UiState sealed (Idle/Loading/Sucesso/Erro)</td></tr>
+  <tr><td>Coroutines + ProgressBar</td><td>viewModelScope, async/await em paralelo, withContext(IO), cancelamento; indicadores em todos os ecrãs com dados</td></tr>
+  <tr><td>Networking + vários endpoints + erros</td><td>Retrofit + Gson; mensagens distintas sem-ligação / timeout / servidor</td></tr>
+  <tr><td>data class / enum / sealed class</td><td>modelos Gson; EstadoTarefa; UiState</td></tr>
+  <tr><td>Testes JUnit</td><td>9 testes unitários + 1 teste instrumentado (adapter)</td></tr>
+  <tr><td>Dispositivo físico + emulador</td><td>Xiaomi (Android 16) e emulador API 35</td></tr>
+  <tr><td>Publicação / normas</td><td>keystore própria, senhas no local.properties (fora do git); RGPD em baixo</td></tr>
+</table>
+<p><strong>RGPD:</strong> a app recolhe nome, email e palavra-passe (contas) e o conteúdo dos projetos — os mesmos dados do site, com o mesmo responsável (algarit.pt) e política de privacidade do site. No dispositivo guarda apenas o id/nome da sessão (SharedPreferences). Uma única permissão: <code>INTERNET</code>. <code>allowBackup="false"</code>.</p>
+
+<h2>6. Entregáveis</h2>
+<ol>
+  <li>Código-fonte: <strong>github.com/bmmcastro/taskflow-app</strong></li>
+  <li>Este documento de planeamento</li>
+  <li>Relatório técnico</li>
+  <li>Manual de utilizador (com screenshots)</li>
+</ol>
+
+</body>
+</html>

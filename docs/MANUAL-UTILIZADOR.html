@@ -12,7 +12,7 @@
   .img { text-align: center; margin: 12px 0; }
   .legenda { font-size: 11.5px; color: #666; margin-top: 3px; }
   .nota { background: #f5f5f5; border-left: 4px solid #999; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
-  @media print { .img { page-break-inside: avoid; } }
+  @media print { .img { page-break-inside: avoid; } h2 { page-break-after: avoid; } }
 </style>
 </head>
 <body>
@@ -29,46 +29,50 @@
 
 <h2>2. Entrar</h2>
 <ol>
-  <li>Abre a TaskFlow. Se já tinhas sessão, entra direto nos projetos.</li>
+  <li>Abre a TaskFlow ("Mais clareza. Menos esforço."). Se já tinhas sessão, entra direto nos projetos.</li>
   <li>Escreve email e palavra-passe e toca em <strong>Entrar</strong> — ou toca em <strong>Usar conta de demonstração</strong>.</li>
-  <li>Se não tens conta, toca no link de registo, preenche nome/email/palavra-passe e cria a conta (é a mesma do site).</li>
+  <li>Sem conta? <strong>Não tens conta? Regista-te</strong> → preenche nome, email e palavra-passe. Os campos obrigatórios avisam dentro do próprio campo se faltar algo.</li>
+  <li>Recebeste um convite? <strong>Tenho um convite</strong> → cola o link e aceita (precisas de sessão iniciada).</li>
 </ol>
-<p>Os campos obrigatórios avisam dentro do próprio campo se faltar alguma coisa.</p>
-<div class="img">[[IMG:nf-login.png]]<div class="legenda">Ecrã de entrada (login e conta de demonstração)</div></div>
+<div class="img">[[IMG:n1-login.png]]<div class="legenda">Ecrã de entrada, com acesso à conta de demonstração, registo e convite</div></div>
 
-<h2>3. Os meus projetos</h2>
-<p>Depois de entrar vês os projetos onde és membro, com o teu cartão em cima. O botão <strong>+</strong> cria um projeto novo (nome e descrição); tocar num cartão abre o quadro; tocar longo num projeto teu dá o menu para o apagar (só o criador pode). O botão do canto abre o <strong>perfil</strong>. Puxa a lista para baixo para atualizar.</p>
-<div class="img">[[IMG:nf-pos-login-corrigido.png]]<div class="legenda">Lista de projetos (o projeto da própria app está no topo)</div></div>
+<h2>3. Projetos — "O teu espaço de trabalho, organizado."</h2>
+<p>A lista mostra os projetos onde és membro. O botão <strong>+</strong> cria um projeto novo (nome e descrição); tocar num cartão abre o quadro; tocar longo num projeto teu permite apagá-lo (só o criador pode). O botão do canto abre <strong>O teu perfil</strong>. Puxa a lista para baixo para atualizar; se falhar a ligação aparece uma barra com <strong>Tentar de novo</strong>.</p>
+<div class="img">[[IMG:n2-projetos.png]]<div class="legenda">Lista de projetos (a app gere aqui o desenvolvimento de si própria)</div></div>
 
-<h2>4. O quadro do projeto</h2>
-<p>O quadro tem <strong>três separadores</strong> (um por coluna) com a contagem de tarefas em cada um. Os <strong>chips</strong> por baixo filtram por pessoa ("Todas as pessoas" mostra tudo). Cada cartão mostra o avatar do responsável, o título e o prazo — <strong>a vermelho se estiver atrasado</strong>.</p>
+<h2>4. O quadro — "Um passo de cada vez."</h2>
+<p>O quadro tem <strong>três separadores</strong> com a contagem de tarefas de cada coluna e <strong>chips</strong> para filtrar por pessoa ("Todas as pessoas" mostra tudo). Cada cartão mostra o responsável, o título e o prazo — <strong>a vermelho se estiver atrasado</strong>. Enquanto os dados carregam, o indicador de atualização roda no topo.</p>
 <ul>
-  <li><strong>Criar tarefa:</strong> botão <strong>+</strong> — título, descrição, responsável (escolhe da lista), prazo (calendário) e coluna. Tocar em <strong>Guardar</strong>.</li>
+  <li><strong>Nova tarefa</strong> (botão <strong>+</strong>): título, descrição, responsável (escolhe da lista), prazo (calendário) e coluna.</li>
   <li><strong>Abrir a tarefa:</strong> toca no cartão.</li>
   <li><strong>Mover de coluna:</strong> tocar longo no cartão e escolher para onde.</li>
 </ul>
-<div class="img">[[IMG:nf-quadro-1seta.png]]<div class="legenda">Quadro com separadores, filtro por pessoa e cartões</div></div>
+<div class="img">[[IMG:n3-quadro.png]]<div class="legenda">Quadro com separadores por estado, filtro por pessoa e cartões com prazo</div></div>
 
-<h2>5. O detalhe da tarefa</h2>
-<p>Aqui vês tudo da tarefa e:
+<h2>5. Detalhe da tarefa</h2>
+<p>Vês tudo da tarefa (responsável, prazo, estado, descrição e link) e:
 <ul>
-  <li><strong>Editar</strong> (botão do canto) abre o mesmo formulário da criação, já preenchido;</li>
+  <li><strong>Editar</strong> abre o mesmo formulário da criação, já preenchido;</li>
   <li><strong>Apagar</strong> pede confirmação;</li>
-  <li><strong>Subtarefas:</strong> escreve no campo de baixo e toca em <strong>+</strong> para acrescentar; toca numa subtarefa para marcar/desmarcar (texto riscado); tocar longo apaga. A <strong>barra de progresso</strong> atualiza-se com a percentagem concluída.</li>
+  <li><strong>Subtarefas:</strong> escreve no campo e toca em <strong>+</strong>; toca numa subtarefa para marcar/desmarcar (texto riscado); tocar longo apaga. A <strong>barra de progresso</strong> mostra a percentagem concluída.</li>
 </ul>
+<div class="img">[[IMG:n4-detalhe.png]]<div class="legenda">Detalhe com checklist e progresso</div></div>
 
-<h2>6. Membros e convites</h2>
-<p>No quadro, o botão de pessoas abre os <strong>membros</strong>: a lista de quem está no projeto (com a etiqueta "criador"), os convites pendentes, e dois botões — <strong>adicionar</strong> alguém que já tem conta (escolhe-se da lista) e <strong>convidar por email</strong> (a app cria o convite e mostra o link para enviares por mensagem). Quem receber o link abre a app, vai ao ecrã de convite no login, cola o link e aceita.</p>
+<h2>6. Membros — "As pessoas que fazem acontecer."</h2>
+<p>Pelo quadro, o botão de pessoas abre a lista de membros (com a etiqueta do criador) e os convites pendentes. <strong>Adicionar</strong> juntam-se utilizadores já registados; <strong>Convidar por email</strong> cria o convite e mostra o link para enviares por mensagem. Uma ProgressBar roda enquanto a lista carrega.</p>
+<div class="img">[[IMG:n6-membros.png]]<div class="legenda">Membros do projeto e convites</div></div>
 
-<h2>7. O relatório</h2>
-<p>O botão de gráfico no quadro mostra as contas do projeto: total, concluídas, em curso, atrasadas, a percentagem de progresso e as tarefas por pessoa. É o mesmo relatório do site.</p>
+<h2>7. Relatório — "Uma visão clara do teu progresso."</h2>
+<p>O botão de gráfico mostra as contas do projeto: total, concluídas, em curso, atrasadas, a percentagem de progresso e as tarefas por pessoa — o mesmo relatório do site, com ProgressBar durante o carregamento.</p>
+<div class="img">[[IMG:n5-relatorio.png]]<div class="legenda">Relatório do projeto</div></div>
 
-<h2>8. Perfil e sessão</h2>
-<p>No perfil mudas o nome, o email e (opcionalmente) a palavra-passe. <strong>Terminar sessão</strong> sai da conta e volta ao login.</p>
+<h2>8. Perfil — "Os teus dados. À tua maneira."</h2>
+<p>No perfil mudas o nome, o email e (opcionalmente) a palavra-passe, e <strong>terminas sessão</strong>.</p>
+<div class="img">[[IMG:n7-perfil.png]]<div class="legenda">Perfil e dados da conta</div></div>
 
 <h2>9. Se algo falhar</h2>
 <ul>
-  <li><strong>"Sem ligação à Internet"</strong> — verifica o WiFi/dados e tenta de novo (nos projetos aparece uma barra com <strong>Tentar de novo</strong>).</li>
+  <li><strong>"Sem ligação à Internet"</strong> — verifica o WiFi/dados e tenta de novo (nos projetos aparece <strong>Tentar de novo</strong>).</li>
   <li><strong>"O servidor demorou a responder"</strong> — o site está lento; espera uns segundos.</li>
   <li><strong>Esqueci-me da palavra-passe</strong> — recuperas no site taskflow.algarit.pt ou crias conta nova.</li>
 </ul>
