@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>TaskFlow — Relatório Técnico (UC00609)</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; max-width: 860px; margin: 0 auto; padding: 26px 22px; color: #222; line-height: 1.5; font-size: 14px; }
+  h1 { color: #333; font-size: 21px; border-bottom: 3px solid #555; padding-bottom: 7px; margin-top: 0; }
+  h2 { color: #333; font-size: 17px; margin-top: 24px; border-bottom: 1px solid #ccc; padding-bottom: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 12.5px; }
+  th { background: #4a4a4a; color: #fff; text-align: left; padding: 6px 8px; }
+  td { border: 1px solid #ccc; padding: 5px 8px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f5f5; }
+  .meta { background: #f5f5f5; border-left: 4px solid #777; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
+  code { background: #efefef; padding: 0 4px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12.5px; }
+  pre { background: #efefef; border: 1px solid #ccc; border-radius: 6px; padding: 9px 11px; font-family: Consolas, monospace; font-size: 11.5px; overflow-x: auto; }
+  ul, ol { padding-left: 22px; } li { margin-bottom: 4px; }
+  @media print { table, pre { page-break-inside: avoid; } h2 { page-break-after: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>TaskFlow — Relatório Técnico</h1>
+<div class="meta">
+  <strong>UC00609 — Desenvolver aplicações móveis (plataforma Android)</strong> · Trabalho individual<br>
+  <strong>Autor:</strong> Bruno Castro · <strong>Código:</strong> github.com/bmmcastro/taskflow-app
+</div>
+
+<h2>1. Introdução</h2>
+<p>Na UC00605 (Programar para a web, vertente servidor) a nossa equipa desenvolveu o TaskFlow: uma aplicação web de gestão de tarefas em equipa (Node.js + Express + PostgreSQL), publicada em <code>https://taskflow.algarit.pt</code>. Para esta UC decidi levar esse projeto para Android nativo em Kotlin: a app é um cliente da mesma API — mesma conta, mesmos dados, outra plataforma. O que muda num lado aparece no outro.</p>
+
+<h2>2. O que a app faz</h2>
+<table>
+  <tr><th>Ecrã</th><th>Função</th></tr>
+  <tr><td>Login / Registo</td><td>entrar com a conta do site, criar conta, conta de demonstração, aceitar convite</td></tr>
+  <tr><td>Projetos</td><td>ver os projetos onde sou membro, criar, apagar (só o criador), abrir o quadro</td></tr>
+  <tr><td>Quadro</td><td>três colunas em separadores com contagens; criar, editar, mover e apagar tarefas; filtrar por pessoa (chips); prazos atrasados a vermelho</td></tr>
+  <tr><td>Detalhe da tarefa</td><td>informação completa, edição, eliminação e checklist de subtarefas com barra de progresso</td></tr>
+  <tr><td>Membros</td><td>lista, adicionar utilizadores registados, convites por email (link), convites pendentes</td></tr>
+  <tr><td>Convite</td><td>colar o link/token do convite e aceitar (exige sessão iniciada)</td></tr>
+  <tr><td>Relatório</td><td>total, concluídas, em curso, atrasadas, percentagem e tarefas por pessoa</td></tr>
+  <tr><td>Perfil</td><td>mudar nome, email e password; terminar sessão</td></tr>
+</table>
+
+<h2>3. Arquitetura</h2>
+<p><strong>Single-activity</strong> com <strong>Navigation (Jetpack)</strong> e <strong>MVVM</strong>:</p>
+<pre>app/src/main/java/com/algarit/taskflow/
+├── MainActivity.kt   a única activity: Toolbar + NavHostFragment
+├── ConviteActivity   entrada de quem recebe convite (fora do grafo)
+├── api/      ApiService (interface Retrofit) + Api (cliente, erros) + Sessao
+├── model/    data classes Gson + enum EstadoTarefa
+├── data/     Repo — coroutines (paralelismo do quadro)
+├── ui/       um Fragment + um ViewModel por ecrã; UiState (sealed); Ui (ajudas)
+└── adapter/  ListAdapter + DiffUtil</pre>
+<ul>
+  <li><strong>Grafo de navegação</strong> com 8 destinos e ações; ids por <strong>Safe Args</strong> (erro de compilação em vez de runtime).</li>
+  <li><strong>Toolbar ligada ao NavController</strong>: título por destino e seta de voltar automática.</li>
+  <li><strong>UiState</strong> (Idle / Loading / Sucesso / Erro) observado por LiveData; o Idle existe para os formulários — começar em Sucesso fazia navegar sozinho ao observar o valor inicial (bug detetado na revisão do formador).</li>
+</ul>
+
+<h2>4. Ligação à API</h2>
+<p><strong>Retrofit + Gson</strong>: interface com todos os endpoints como funções <code>suspend</code>; cliente único com timeouts (15 s / 30 s). Os ViewModels chamam-nas dentro de <code>viewModelScope.launch</code> — sem callbacks, cancelamento automático com o ecrã. Comecei com Volley e migrei para Retrofit + coroutines quando chegámos à matéria: o código dos ecrãs ficou sequencial e desapareceram os guardas de ciclo de vida.</p>
+<p>Autenticação igual à do site (id do utilizador nos pedidos), guardada em SharedPreferences. Endpoints usados:</p>
+<table>
+  <tr><th>Área</th><th>Endpoints</th></tr>
+  <tr><td>Login / Registo / Perfil</td><td>POST /utilizadores/login · POST /utilizadores/registo · PATCH /utilizadores/:id</td></tr>
+  <tr><td>Projetos</td><td>GET, POST, DELETE /projetos</td></tr>
+  <tr><td>Tarefas</td><td>GET, POST, PATCH, DELETE /tarefas · GET /tarefas/relatorio</td></tr>
+  <tr><td>Subtarefas</td><td>GET, POST, PATCH, DELETE /subtarefas</td></tr>
+  <tr><td>Membros / Convites</td><td>GET, POST /projetos/:id/membros · DELETE /projetos/:id/membros/:uid · POST /projetos/:id/convidar · GET /projetos/:id/convites · GET /convites/:token · POST /convites/:token/aceitar</td></tr>
+</table>
+
+<h2>5. Threads e coroutines (Sessão 11)</h2>
+<ul>
+  <li>Nada bloqueia a main thread: nunca <code>Thread.sleep</code>, <code>runBlocking</code> ou <code>GlobalScope</code>.</li>
+  <li>O quadro carrega membros e tarefas <strong>em paralelo</strong> (async/await) dentro de <code>withContext(Dispatchers.IO)</code> no <code>Repo</code>.</li>
+  <li><strong>Cancelamento</strong>: o ViewModel guarda o Job e cancela o anterior ao recarregar.</li>
+  <li>Erros distintos: sem ligação / timeout / servidor (<code>erroAmigavel</code>).</li>
+  <li>Indicadores em todos os ecrãs com dados: ProgressBar (Relatório, Detalhe, Membros) e SwipeRefresh (Projetos, Quadro), ligados ao estado Loading.</li>
+</ul>
+
+<h2>6. Interface e recursos</h2>
+<ul>
+  <li>Views em XML com <strong>ViewBinding</strong> em todos os ecrãs e diálogos; listas com <strong>ListAdapter + DiffUtil</strong>.</li>
+  <li>Textos, cores, dimensões e temas em recursos; <strong>modo noturno</strong> (values-night).</li>
+  <li>Design próprio: cartões, separadores com contagens, chips de filtro, slogans por ecrã; prazo atrasado a vermelho.</li>
+  <li>Acessibilidade: contentDescription nos botões de imagem.</li>
+</ul>
+
+<h2>7. Qualidade e testes</h2>
+<ul>
+  <li><strong>9 testes unitários (JUnit)</strong> — formatação de datas e mapeamento JSON→modelos pelo Gson — todos a passar.</li>
+  <li><strong>1 teste instrumentado</strong> (androidTest): tocar na checkbox de uma subtarefa dispara a ação do adapter.</li>
+  <li><strong>Build release assinada</strong> com keystore própria (RSA 2048); senhas no <code>local.properties</code>, fora do git.</li>
+  <li>Testada no emulador (API 35) e em telemóvel físico (Xiaomi, Android 16).</li>
+  <li><strong>Revisão do formador aplicada</strong>: ciclo login-projetos (UiState.Idle), convite sem sessão, setas duplicadas, enum do estado, mensagens de erro distintas, setError nas validações, dimens.xml, ConstraintLayout nos itens, senhas fora do build.</li>
+</ul>
+
+<h2>8. Dificuldades encontradas</h2>
+<ul>
+  <li><strong>Toolchain do Java (em dois tempos).</strong> Primeiro um jlink inexistente: o Gradle detetou um JRE de extensão do VSCode sem JDK. Resolvi fixando o JDK no gradle.properties — e semanas depois o fix morreu (o Adoptium atualizou, o caminho desapareceu). Lição: caminhos absolutos de JDK em projetos partilhados são armadilha; o Gradle JDK do IDE resolve.</li>
+  <li><strong>Gson e valores por omissão.</strong> Tarefa sem status no JSON ficava null: o Gson, sem construtor sem argumentos, marca todos os campos. Correção: defaults em todos os parâmetros da data class.</li>
+  <li><strong>UTF-8 na linha de comandos.</strong> Ao registar dados por curl, acentos chegavam corrompidos (code page ANSI do Windows). Correção: JSON em ficheiro UTF-8 com --data-binary.</li>
+  <li><strong>Safe Args + AGP 9.</strong> A versão 2.9.x recusa-se a aplicar; subi para 2.10.2.</li>
+  <li><strong>PATCH das tarefas.</strong> A API exige título, responsável e prazo em todos os PATCH — mover uma tarefa reenvia-a completa com o estado novo.</li>
+</ul>
+
+<h2>9. Como testar</h2>
+<ol>
+  <li>Abrir o projeto no Android Studio e fazer Run (Android 7.0+).</li>
+  <li>Conta de demonstração: <strong>demo@taskflow.pt / 1234</strong> (mesma base de dados do site).</li>
+  <li>Criar uma tarefa na app e vê-la no site — e vice-versa.</li>
+</ol>
+
+<h2>10. Conclusão</h2>
+<p>Ficou feita a app Android do TaskFlow, ligada à API do projeto da UC00605, com as funções principais completas. Pelo caminho foi reescrita por razões certas: para a arquitetura single-activity com Navigation e Safe Args, de Volley para Retrofit com coroutines e MVVM, recebeu a matéria da sessão 11 (paralelismo, dispatchers, cancelamento), uma revisão completa do formador e, no fim, um redesenho visual com modo noturno e um teste instrumentado. Para além do resultado, deu-me prática real em consumir uma API REST em Android, em evoluir uma app sem a partir, e a resolver problemas de ferramentas que fazem parte do dia a dia.</p>
+<p><strong>Melhorias futuras:</strong> arrastar cartões entre colunas, notificações de prazos, envio de convites por email, sincronização offline.</p>
+
+</body>
+</html>
