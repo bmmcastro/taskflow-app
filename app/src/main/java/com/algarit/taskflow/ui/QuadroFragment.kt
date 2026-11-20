@@ -113,6 +113,9 @@ class QuadroFragment : Fragment() {
         viewModel.atualizar.observe(viewLifecycleOwner) { viewModel.carregarTudo(args.projetoId) }
         viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
 
+        // Filtro com Switch: ligado, esconde as tarefas concluídas.
+        binding.switchEsconderConcluidas.setOnCheckedChangeListener { _, _ -> refrescar() }
+
         viewModel.carregarTudo(args.projetoId)
     }
 
@@ -134,9 +137,12 @@ class QuadroFragment : Fragment() {
     }
 
     // Mostra só as tarefas da coluna e pessoa escolhidas, ordenadas pelo prazo.
+    // Com o switch ligado, as concluídas desaparecem de todas as colunas.
     private fun refrescar() {
+        val esconderConcluidas = binding.switchEsconderConcluidas.isChecked
         val visiveis = tarefas
             .filter { EstadoTarefa.de(it.status) == estadoAtual && (filtroPessoa.isBlank() || it.responsavel == filtroPessoa) }
+            .filter { !esconderConcluidas || EstadoTarefa.de(it.status) != EstadoTarefa.CONCLUIDA }
             .sortedBy { it.dataConclusao ?: "9999-12-31" }
         adaptador.atualizar(visiveis)
         textoVazio.isVisible = visiveis.isEmpty()

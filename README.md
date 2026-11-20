@@ -4,6 +4,16 @@ Aplicação Android em Kotlin para gerir projetos e tarefas em equipa. Usa a API
 TaskFlow da **UC00605 — Programar para a web (servidor)**, disponível em
 <https://taskflow.algarit.pt>. As contas e os dados são os mesmos do site.
 
+## Ferramentas e recursos de terceiros
+
+- **Bibliotecas** (todas open source, via version catalog): AndroidX
+  (Navigation, Lifecycle/ViewModel, RecyclerView), Material Components,
+  Retrofit + Converter Gson, kotlinx-coroutines, JUnit e androidx.test.
+- **Desenvolvimento apoiado por ferramentas de IA** (assistente de código),
+  ao abrigo da regra do enunciado que o permite com identificação.
+- **API e dados**: API TaskFlow própria (projeto da UC00605 da mesma equipa).
+  Ícone e gráficos: recursos próprios em XML vetorial.
+
 ## Abrir e executar
 
 1. No Android Studio, escolher **File → Open** e abrir esta pasta.
