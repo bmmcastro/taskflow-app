@@ -15,7 +15,8 @@ import androidx.core.view.WindowInsetsCompat
 fun aplicarInsetsEm(raiz: View) {
     ViewCompat.setOnApplyWindowInsetsListener(raiz) { v, insets ->
         val b = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(b.left, b.top, b.right, b.bottom)
+        val teclado = insets.getInsets(WindowInsetsCompat.Type.ime())
+        v.setPadding(b.left, b.top, b.right, maxOf(b.bottom, teclado.bottom))
         insets
     }
 }

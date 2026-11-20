@@ -9,6 +9,7 @@ import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.model.RegistoPedido
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class RegistoViewModel(app: Application) : AndroidViewModel(app) {
@@ -25,7 +26,9 @@ class RegistoViewModel(app: Application) : AndroidViewModel(app) {
                 val novo = Api.servico.registo(RegistoPedido(nome, email, password))
                 Sessao.guardar(getApplication(), novo.id, novo.nome, novo.email)
                 _estado.value = UiState.Sucesso(Unit)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }

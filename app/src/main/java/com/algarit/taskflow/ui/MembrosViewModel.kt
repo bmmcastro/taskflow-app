@@ -10,6 +10,7 @@ import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.model.ConvitePedido
 import com.algarit.taskflow.model.MembroPedido
 import com.algarit.taskflow.model.Utilizador
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class MembrosViewModel(app: Application) : AndroidViewModel(app) {
@@ -35,15 +36,19 @@ class MembrosViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 _membros.value = Api.servico.membros(projetoId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
             try {
                 val convites = Api.servico.convites(projetoId)
                 _convitesTexto.value = if (convites.isEmpty()) "Sem convites pendentes."
                 else convites.joinToString("\n") { "${it.emailConvidado} (${it.status})" }
-            } catch (t: Throwable) {
-                _convitesTexto.value = "Sem convites pendentes."
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
+                _convitesTexto.value = erroAmigavel(t)
             }
         }
     }
@@ -53,7 +58,9 @@ class MembrosViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val todos = Api.servico.utilizadores()
                 _candidatos.value = todos.filter { u -> _membros.value?.none { it.id == u.id } != false }
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -62,9 +69,11 @@ class MembrosViewModel(app: Application) : AndroidViewModel(app) {
     fun juntar(projetoId: Int, utilizadorId: Int) {
         viewModelScope.launch {
             try {
-                Api.servico.juntarMembro(projetoId, MembroPedido(utilizadorId))
+                Api.servico.juntarMembro(projetoId, MembroPedido(utilizadorId)).close()
                 carregar(projetoId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -73,9 +82,11 @@ class MembrosViewModel(app: Application) : AndroidViewModel(app) {
     fun remover(projetoId: Int, utilizadorId: Int) {
         viewModelScope.launch {
             try {
-                Api.servico.removerMembro(projetoId, utilizadorId)
+                Api.servico.removerMembro(projetoId, utilizadorId).close()
                 carregar(projetoId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -90,7 +101,9 @@ class MembrosViewModel(app: Application) : AndroidViewModel(app) {
                 )
                 _conviteCriado.value = resposta.token
                 carregar(projetoId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }

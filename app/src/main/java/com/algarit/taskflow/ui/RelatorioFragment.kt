@@ -44,6 +44,7 @@ class RelatorioFragment : Fragment() {
 
     private fun preencher(dados: com.algarit.taskflow.model.RelatorioProjeto) {
         binding.numeroPercentagem.text = "${dados.percentagem}%"
+        binding.progressoRelatorio.progress = dados.percentagem.coerceIn(0, 100)
         binding.numeroTotal.text = dados.total.toString()
         binding.numeroConcluidas.text = dados.concluidas.toString()
         binding.numeroEmCurso.text = dados.emCurso.toString()
@@ -53,7 +54,7 @@ class RelatorioFragment : Fragment() {
         binding.linhaPorPessoa.removeAllViews()
         if (dados.porPessoa.isEmpty()) {
             val vazio = TextView(requireContext())
-            vazio.text = getString(R.string.a_carregar)
+            vazio.text = getString(R.string.sem_atribuicoes)
             vazio.setTextColor(ContextCompat.getColor(requireContext(), R.color.texto_secundario))
             binding.linhaPorPessoa.addView(vazio)
             return
@@ -61,7 +62,8 @@ class RelatorioFragment : Fragment() {
         dados.porPessoa.entries.sortedByDescending { it.value }.forEach { (nome, quantidade) ->
             val linhaPessoa = LinearLayout(requireContext())
             linhaPessoa.orientation = LinearLayout.HORIZONTAL
-            linhaPessoa.setPadding(0, 12, 0, 12)
+            val margem = (12 * resources.displayMetrics.density).toInt()
+            linhaPessoa.setPadding(0, margem, 0, margem)
 
             val esquerda = TextView(requireContext())
             esquerda.text = nome

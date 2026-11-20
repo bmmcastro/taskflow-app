@@ -66,4 +66,16 @@
     <string name="erro_responsavel">Escolhe o responsável</string>
     <string name="erro_prazo">Escolhe o prazo</string>
     <string name="erro_campos">Preenche todos os campos</string>
+    <string name="slogan_login">Mais clareza. Menos esforço.</string>
+    <string name="registo_apoio">Um espaço para as tuas ideias e a tua equipa.</string>
+    <string name="projetos">Projetos</string>
+    <string name="projetos_apoio">O teu espaço de trabalho, organizado.</string>
+    <string name="quadro_apoio">Um passo de cada vez.</string>
+    <string name="perfil_apoio">Os teus dados. À tua maneira.</string>
+    <string name="dados_conta">Dados da conta</string>
+    <string name="membros_apoio">As pessoas que fazem acontecer.</string>
+    <string name="relatorio_apoio">Uma visão clara do teu progresso.</string>
+    <string name="progresso_projeto">Progresso do projeto</string>
+    <string name="convite_apoio">O próximo projeto começa com um convite.</string>
+    <string name="sem_atribuicoes">Ainda não há tarefas atribuídas.</string>
 </resources>

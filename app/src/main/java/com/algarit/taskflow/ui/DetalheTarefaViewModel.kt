@@ -12,6 +12,7 @@ import com.algarit.taskflow.model.SubtarefaEstado
 import com.algarit.taskflow.model.SubtarefaPedido
 import com.algarit.taskflow.model.Tarefa
 import com.algarit.taskflow.model.TarefaPedido
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
@@ -42,7 +43,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
                 } else {
                     _tarefa.value = UiState.Sucesso(encontrada)
                 }
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _tarefa.value = UiState.Erro(erroAmigavel(t))
             }
         }
@@ -52,7 +55,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 _subtarefas.value = UiState.Sucesso(Api.servico.subtarefas(tarefaId))
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _subtarefas.value = UiState.Erro(erroAmigavel(t))
             }
         }
@@ -62,7 +67,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 _membros.value = Api.servico.membros(projetoId).map { it.nome }
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _membros.value = emptyList()
             }
         }
@@ -73,7 +80,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 Api.servico.criarSubtarefa(SubtarefaPedido(tarefaId, descricao))
                 carregarSubtarefas(tarefaId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -84,7 +93,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 Api.servico.alternarSubtarefa(subtarefa.id, SubtarefaEstado(!subtarefa.concluida))
                 carregarSubtarefas(tarefaId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -93,9 +104,11 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
     fun apagarSubtarefa(subtarefa: Subtarefa, tarefaId: Int) {
         viewModelScope.launch {
             try {
-                Api.servico.apagarSubtarefa(subtarefa.id)
+                Api.servico.apagarSubtarefa(subtarefa.id).close()
                 carregarSubtarefas(tarefaId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -106,7 +119,9 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 Api.servico.editarTarefa(tarefaId, pedido)
                 carregarTarefa(argsProjetoId, tarefaId)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -115,9 +130,11 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
     fun apagar(tarefaId: Int) {
         viewModelScope.launch {
             try {
-                Api.servico.apagarTarefa(tarefaId)
+                Api.servico.apagarTarefa(tarefaId).close()
                 _eliminada.value = Unit
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }

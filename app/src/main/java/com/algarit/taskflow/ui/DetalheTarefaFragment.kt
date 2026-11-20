@@ -23,6 +23,7 @@ import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.SubtarefasAdapter
 import com.algarit.taskflow.databinding.ActivityDetalheTarefaBinding
 import com.algarit.taskflow.model.Tarefa
+import com.algarit.taskflow.model.Subtarefa
 import com.algarit.taskflow.model.TarefaPedido
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Calendar
@@ -74,7 +75,9 @@ class DetalheTarefaFragment : Fragment() {
         viewModel.subtarefas.observe(viewLifecycleOwner) { estado ->
             if (estado is UiState.Sucesso) {
                 adaptador.atualizar(estado.dados)
-                refrescarBarra()
+                refrescarBarra(estado.dados)
+            } else if (estado is UiState.Erro) {
+                aviso(estado.mensagem)
             }
         }
         viewModel.membros.observe(viewLifecycleOwner) { } // fica pronto para o diálogo de edição
@@ -108,9 +111,10 @@ class DetalheTarefaFragment : Fragment() {
         }
     }
 
-    private fun refrescarBarra() {
-        val total = adaptador.total()
-        val feitas = adaptador.concluidas()
+    private fun refrescarBarra(subtarefas: List<Subtarefa>) {
+        // Usamos a resposta da API, porque o DiffUtil atualiza a lista em segundo plano.
+        val total = subtarefas.size
+        val feitas = subtarefas.count { it.concluida }
         val percentagem = if (total == 0) 0 else (feitas * 100) / total
         binding.barraProgresso.progress = percentagem
         binding.textoPercentagem.text = "$feitas de $total concluídas ($percentagem%)"
@@ -128,6 +132,7 @@ class DetalheTarefaFragment : Fragment() {
         val campoLink = dialogo.findViewById<EditText>(R.id.campo_link)
 
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
+        campoResponsavel.setOnClickListener { campoResponsavel.showDropDown() }
         campoTitulo.setText(t.titulo)
         campoDescricao.setText(t.descricao)
         campoResponsavel.setText(t.responsavel)
@@ -145,34 +150,37 @@ class DetalheTarefaFragment : Fragment() {
             }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]).show()
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.editar_tarefa)
             .setView(dialogo)
-            .setPositiveButton(R.string.guardar) { _, _ ->
-                val titulo = campoTitulo.text.toString().trim()
-                val responsavel = campoResponsavel.text.toString().trim()
-                // Validação com setError no próprio campo.
-                var valido = true
-                if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
-                if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
-                if (prazoEscolhido.isBlank()) { campoPrazo.error = getString(R.string.erro_prazo); valido = false }
-                if (!valido) return@setPositiveButton
-                viewModel.editar(
-                    args.tarefaId,
-                    TarefaPedido(
-                        titulo = titulo,
-                        descricao = campoDescricao.text.toString().trim(),
-                        criador = t.criador,
-                        responsavel = responsavel,
-                        status = t.status,
-                        dataConclusao = prazoEscolhido,
-                        link = campoLink.text.toString().trim(),
-                        projetoId = null
-                    )
-                )
-            }
+            .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
+        // O listener é colocado depois do show para não fechar se faltarem campos.
+        alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val titulo = campoTitulo.text.toString().trim()
+            val responsavel = campoResponsavel.text.toString().trim()
+            // Validação com setError no próprio campo.
+            var valido = true
+            if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
+            if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
+            if (prazoEscolhido.isBlank()) { campoPrazo.error = getString(R.string.erro_prazo); valido = false }
+            if (!valido) return@setOnClickListener
+            viewModel.editar(
+                args.tarefaId,
+                TarefaPedido(
+                    titulo = titulo,
+                    descricao = campoDescricao.text.toString().trim(),
+                    criador = t.criador,
+                    responsavel = responsavel,
+                    status = t.status,
+                    dataConclusao = prazoEscolhido,
+                    link = campoLink.text.toString().trim(),
+                    projetoId = null
+                )
+            )
+            alerta.dismiss()
+        }
     }
 
     private fun confirmarApagar() {

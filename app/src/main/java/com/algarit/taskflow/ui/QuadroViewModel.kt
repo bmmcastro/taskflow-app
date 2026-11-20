@@ -12,6 +12,7 @@ import com.algarit.taskflow.data.Repo
 import com.algarit.taskflow.model.Tarefa
 import com.algarit.taskflow.model.TarefaPedido
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class QuadroViewModel(app: Application) : AndroidViewModel(app) {
@@ -42,12 +43,15 @@ class QuadroViewModel(app: Application) : AndroidViewModel(app) {
                 val dados = Repo.quadro(projetoId)
                 _membros.value = dados.nomesMembros
                 _tarefas.value = UiState.Sucesso(dados.tarefas)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 if (kotlinx.coroutines.currentCoroutineContext().isActive) {
                     _membros.value = emptyList()
                     _tarefas.value = UiState.Erro(erroAmigavel(t))
                 }
-            }        }
+            }
+        }
     }
 
     // Criar (tarefaId nulo) ou editar; o servidor exige os campos todos.
@@ -57,7 +61,9 @@ class QuadroViewModel(app: Application) : AndroidViewModel(app) {
                 if (tarefaId == null) Api.servico.criarTarefa(pedido.copy(projetoId = projetoId))
                 else Api.servico.editarTarefa(tarefaId, pedido)
                 _atualizar.value = Unit
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }
@@ -81,7 +87,9 @@ class QuadroViewModel(app: Application) : AndroidViewModel(app) {
                     )
                 )
                 _atualizar.value = Unit
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }

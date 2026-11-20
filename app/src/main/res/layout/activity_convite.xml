@@ -1,88 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fundo"
-    android:orientation="vertical"
-    android:paddingStart="28dp"
-    android:paddingEnd="28dp">
-
+    android:fillViewport="true"
+    android:clipToPadding="false">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingTop="12dp">
-
-        <ImageButton
-            android:id="@+id/botao_voltar"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/voltar"
-            android:src="@drawable/ic_voltar" />
-
-        <TextView
-            android:layout_width="0dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:focusableInTouchMode="true">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/botao_voltar"
+                style="@style/BotaoIcone"
+                android:src="@drawable/ic_voltar"
+                android:contentDescription="@string/voltar"/>
+        </LinearLayout>
+        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+        <TextView style="@style/TituloGrande" android:text="@string/aceitar_convite"/>
+        <TextView style="@style/TextoApoio" android:text="@string/convite_apoio"/>
+        <Space android:layout_width="1dp" android:layout_height="28dp"/>
+        <EditText
+            android:id="@+id/campo_convite"
+            style="@style/Campo"
+            android:hint="@string/colar_link_convite"
+            android:inputType="textUri"/>
+        <Space android:layout_width="1dp" android:layout_height="16dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/botao_ver"
+            style="@style/BotaoPrimario"
+            android:text="@string/ver_convite"/>
+        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+        <TextView
+            android:id="@+id/texto_convite"
+            style="@style/TextoApoio"
+            android:background="@drawable/bg_cartao"
+            android:padding="24dp"
+            android:visibility="gone"/>
+        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/botao_aceitar"
+            style="@style/BotaoPrimario"
             android:text="@string/aceitar_convite"
-            android:textColor="@color/texto"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:visibility="gone"/>
     </LinearLayout>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="24dp" />
-
-    <EditText
-        android:id="@+id/campo_convite"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:background="@drawable/bg_input"
-        android:hint="@string/colar_link_convite"
-        android:inputType="textUri"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textColor="@color/texto"
-        android:textColorHint="@color/texto_secundario"
-        android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/botao_ver"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_botao"
-        android:stateListAnimator="@null"
-        android:text="@string/ver_convite"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/texto_convite"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:textColor="@color/texto_secundario"
-        android:textSize="15sp"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/botao_aceitar"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_botao"
-        android:stateListAnimator="@null"
-        android:text="@string/aceitar_convite"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:visibility="gone" />
-</LinearLayout>
+</ScrollView>

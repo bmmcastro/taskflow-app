@@ -1,120 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fundo"
-    android:orientation="vertical">
-
+    android:fillViewport="true"
+    android:clipToPadding="false">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="4dp">
-
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="28dp"
+        android:focusableInTouchMode="true">
+        <TextView style="@style/TituloGrande" android:text="@string/o_teu_perfil"/>
+        <TextView style="@style/TextoApoio" android:text="@string/perfil_apoio"/>
+        <Space android:layout_width="1dp" android:layout_height="24dp"/>
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/o_teu_perfil"
-            android:textColor="@color/texto"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:id="@+id/perfil_avatar"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_avatar"
+            android:gravity="center"
+            android:textColor="@color/roxo"
+            android:textSize="34sp"
+            android:textStyle="bold"/>
+        <Space android:layout_width="1dp" android:layout_height="28dp"/>
+        <TextView style="@style/TituloSecao" android:text="@string/dados_conta"/>
+        <Space android:layout_width="1dp" android:layout_height="16dp"/>
+        <EditText
+            android:id="@+id/perfil_nome"
+            style="@style/Campo"
+            android:hint="@string/nome"
+            android:inputType="textPersonName"
+            android:autofillHints="name"/>
+        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+        <EditText
+            android:id="@+id/perfil_email"
+            style="@style/Campo"
+            android:hint="@string/email"
+            android:inputType="textEmailAddress"
+            android:autofillHints="emailAddress"/>
+        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+        <EditText
+            android:id="@+id/perfil_password"
+            style="@style/Campo"
+            android:hint="@string/password_opcional"
+            android:inputType="textPassword"
+            android:autofillHints="newPassword"/>
+        <Space android:layout_width="1dp" android:layout_height="24dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/botao_guardar_perfil"
+            style="@style/BotaoPrimario"
+            android:text="@string/guardar"/>
+        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/botao_terminar_sessao"
+            style="@style/BotaoTexto"
+            android:text="@string/terminar_sessao"
+            android:textColor="@color/vermelho"/>
     </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="28dp"
-            android:paddingEnd="28dp"
-            android:paddingBottom="32dp">
-
-            <TextView
-                android:id="@+id/perfil_avatar"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_avatar"
-                android:gravity="center"
-                android:textColor="@color/roxo"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/perfil_nome"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/bg_input"
-                android:hint="@string/nome"
-                android:inputType="textPersonName"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/texto"
-                android:textColorHint="@color/texto_secundario"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/perfil_email"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_input"
-                android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/texto"
-                android:textColorHint="@color/texto_secundario"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/perfil_password"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_input"
-                android:hint="@string/password_opcional"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="@color/texto"
-                android:textColorHint="@color/texto_secundario"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/botao_guardar_perfil"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/bg_botao"
-                android:stateListAnimator="@null"
-                android:text="@string/guardar"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/botao_terminar_sessao"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
-                android:padding="12dp"
-                android:text="@string/terminar_sessao"
-                android:textColor="@color/vermelho"
-                android:textSize="15sp" />
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+</ScrollView>

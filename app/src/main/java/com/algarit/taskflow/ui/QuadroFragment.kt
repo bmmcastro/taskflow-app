@@ -58,6 +58,12 @@ class QuadroFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (savedInstanceState != null) {
+            estadoAtual = EstadoTarefa.entries.getOrElse(savedInstanceState.getInt("estado")) {
+                EstadoTarefa.POR_FAZER
+            }
+            filtroPessoa = savedInstanceState.getString("filtro_pessoa") ?: ""
+        }
         Sessao.carregar(requireContext())
         binding.tituloProjeto.text = args.projetoNome
 
@@ -85,6 +91,7 @@ class QuadroFragment : Fragment() {
         tabs = binding.tabsEstado
         listOf(getString(R.string.por_fazer), getString(R.string.em_curso), getString(R.string.concluida))
             .forEach { tabs.addTab(tabs.newTab().setText(it)) }
+        tabs.getTabAt(estadoAtual.ordinal)?.select()
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 estadoAtual = EstadoTarefa.entries[tab.position]
@@ -148,6 +155,7 @@ class QuadroFragment : Fragment() {
 
         val nomesMembros = viewModel.membros.value ?: emptyList()
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
+        campoResponsavel.setOnClickListener { campoResponsavel.showDropDown() }
         prazoEscolhido = tarefa?.dataConclusao ?: ""
         if (tarefa != null) {
             campoTitulo.setText(tarefa.titulo)
@@ -167,35 +175,38 @@ class QuadroFragment : Fragment() {
             }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
         }
 
-        MaterialAlertDialogBuilder(requireContext())
+        val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(if (tarefa == null) R.string.nova_tarefa else R.string.editar_tarefa)
             .setView(dialogo.root)
-            .setPositiveButton(R.string.guardar) { _, _ ->
-                val titulo = campoTitulo.text.toString().trim()
-                val responsavel = campoResponsavel.text.toString().trim()
-                // Validação com setError no próprio campo.
-                var valido = true
-                if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
-                if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
-                if (prazoEscolhido.isBlank()) { dialogo.campoPrazo.error = getString(R.string.erro_prazo); valido = false }
-                if (!valido) return@setPositiveButton
-                viewModel.guardar(
-                    tarefaId = tarefa?.id,
-                    pedido = TarefaPedido(
-                        titulo = titulo,
-                        descricao = dialogo.campoDescricao.text.toString().trim(),
-                        criador = tarefa?.criador ?: Sessao.nome,
-                        responsavel = responsavel,
-                        status = tarefa?.status ?: EstadoTarefa.POR_FAZER.rotulo,
-                        dataConclusao = prazoEscolhido,
-                        link = dialogo.campoLink.text.toString().trim(),
-                        projetoId = null
-                    ),
-                    projetoId = args.projetoId
-                )
-            }
+            .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
+        // Mantém o formulário aberto enquanto houver campos por preencher.
+        alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val titulo = campoTitulo.text.toString().trim()
+            val responsavel = campoResponsavel.text.toString().trim()
+            // Validação com setError no próprio campo.
+            var valido = true
+            if (titulo.isBlank()) { campoTitulo.error = getString(R.string.erro_titulo); valido = false }
+            if (responsavel.isBlank()) { campoResponsavel.error = getString(R.string.erro_responsavel); valido = false }
+            if (prazoEscolhido.isBlank()) { dialogo.campoPrazo.error = getString(R.string.erro_prazo); valido = false }
+            if (!valido) return@setOnClickListener
+            viewModel.guardar(
+                tarefaId = tarefa?.id,
+                pedido = TarefaPedido(
+                    titulo = titulo,
+                    descricao = dialogo.campoDescricao.text.toString().trim(),
+                    criador = tarefa?.criador ?: Sessao.nome,
+                    responsavel = responsavel,
+                    status = tarefa?.status ?: EstadoTarefa.POR_FAZER.rotulo,
+                    dataConclusao = prazoEscolhido,
+                    link = dialogo.campoLink.text.toString().trim(),
+                    projetoId = null
+                ),
+                projetoId = args.projetoId
+            )
+            alerta.dismiss()
+        }
     }
 
     // Tocar longo num cartão: escolher para que coluna mover.
@@ -211,12 +222,19 @@ class QuadroFragment : Fragment() {
     }
 
     private fun abrirDetalhe(tarefa: Tarefa) {
+        if (findNavController().currentDestination?.id != R.id.quadroFragment) return
         findNavController().navigate(
             QuadroFragmentDirections.actionQuadroToDetalhe(tarefaId = tarefa.id, projetoId = args.projetoId)
         )
     }
 
     private fun aviso(mensagem: String) = requireContext().aviso(mensagem)
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("estado", estadoAtual.ordinal)
+        outState.putString("filtro_pessoa", filtroPessoa)
+        super.onSaveInstanceState(outState)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

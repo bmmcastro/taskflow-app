@@ -1,5 +1,6 @@
 package com.algarit.taskflow.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,6 +44,9 @@ class ProjetosFragment : Fragment() {
 
         binding.swipeProjetos.setOnRefreshListener { viewModel.carregar() }
         binding.botaoNovo.setOnClickListener { dialogNovoProjeto() }
+        binding.botaoConvite.setOnClickListener {
+            startActivity(Intent(requireContext(), ConviteActivity::class.java))
+        }
         binding.botaoPerfil.setOnClickListener {
             findNavController().navigate(ProjetosFragmentDirections.actionProjetosToPerfil())
         }
@@ -67,7 +71,13 @@ class ProjetosFragment : Fragment() {
             }
         }
 
-        carregar()
+        // Depois do login (ou registo), retomamos o convite que ficou por aceitar.
+        val convitePendente = requireActivity().intent.getStringExtra("convite_pendente")
+        if (!convitePendente.isNullOrBlank()) {
+            requireActivity().intent.removeExtra("convite_pendente")
+            startActivity(Intent(requireContext(), ConviteActivity::class.java)
+                .putExtra("token", convitePendente))
+        }
     }
 
     // Ao voltar de outros ecrãs, recarregamos para mostrar as novidades.
@@ -80,16 +90,21 @@ class ProjetosFragment : Fragment() {
 
     private fun dialogNovoProjeto() {
         val dialogBinding = DialogNovoProjetoBinding.inflate(layoutInflater)
-        MaterialAlertDialogBuilder(requireContext())
+        val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.novo_projeto)
             .setView(dialogBinding.root)
-            .setPositiveButton(R.string.guardar) { _, _ ->
-                val nome = dialogBinding.dialogNome.text.toString().trim()
-                if (nome.isBlank()) { aviso("Dá um nome ao projeto"); return@setPositiveButton }
-                viewModel.criar(nome, dialogBinding.dialogDescricao.text.toString().trim())
-            }
+            .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
+        alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val nome = dialogBinding.dialogNome.text.toString().trim()
+            if (nome.isBlank()) {
+                dialogBinding.dialogNome.error = "Dá um nome ao projeto"
+                return@setOnClickListener
+            }
+            viewModel.criar(nome, dialogBinding.dialogDescricao.text.toString().trim())
+            alerta.dismiss()
+        }
     }
 
     private fun menuDoProjeto(projeto: Projeto) {
@@ -104,6 +119,8 @@ class ProjetosFragment : Fragment() {
 
     // Safe Args: o id e o nome do projeto viajam com o tipo certo para o quadro.
     private fun abrirQuadro(projeto: Projeto) {
+        // Um segundo toque durante a transição já não pertence a este ecrã.
+        if (findNavController().currentDestination?.id != R.id.projetosFragment) return
         findNavController().navigate(
             ProjetosFragmentDirections.actionProjetosToQuadro(
                 projetoId = projeto.id,

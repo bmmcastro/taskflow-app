@@ -25,10 +25,6 @@ class SubtarefasAdapter(
 
     fun atualizar(lista: List<Subtarefa>) = submitList(lista)
 
-    // Contagens para a barra de progresso do detalhe.
-    fun concluidas() = currentList.count { it.concluida }
-    fun total() = currentList.size
-
     class VH(val binding: ItemSubtarefaBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH =
@@ -38,6 +34,11 @@ class SubtarefasAdapter(
         val subtarefa = getItem(pos)
         holder.binding.itemFeito.isChecked = subtarefa.concluida
         holder.binding.itemFeito.isEnabled = true
+        holder.binding.itemFeito.setOnClickListener {
+            // O estado mostrado só muda depois de a API confirmar.
+            holder.binding.itemFeito.isChecked = subtarefa.concluida
+            aoAlternar(subtarefa)
+        }
         holder.binding.itemDescricao.text = subtarefa.descricao
         if (subtarefa.concluida) {
             holder.binding.itemDescricao.paintFlags = holder.binding.itemDescricao.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
