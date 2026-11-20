@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Cartão de projeto da lista, interior em ConstraintLayout. -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -9,53 +10,74 @@
     android:layout_marginEnd="20dp"
     android:layout_marginBottom="12dp"
     android:focusable="true">
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
         android:padding="20dp">
+
         <ImageView
+            android:id="@+id/item_icone"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/bg_botao"
+            android:importantForAccessibility="no"
             android:padding="9dp"
             android:src="@drawable/ic_taskflow"
-            android:importantForAccessibility="no"/>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="12dp"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/item_nome"
-                style="@style/TituloSecao"
-                android:textSize="18sp"
-                android:maxLines="2"
-                android:ellipsize="end"/>
-            <TextView
-                android:id="@+id/item_descricao"
-                style="@style/TextoApoio"
-                android:textSize="14sp"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginTop="4dp"/>
-            <TextView
-                android:id="@+id/item_tag_criador"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_chip"
-                android:text="@string/criado_por_ti"
-                android:textColor="@color/roxo"
-                android:textSize="12sp"/>
-        </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <ImageView
+            android:id="@+id/item_seta"
             android:layout_width="16dp"
             android:layout_height="20dp"
+            android:importantForAccessibility="no"
             android:src="@drawable/ic_seta"
-            android:importantForAccessibility="no"/>
-    </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_nome"
+            style="@style/TituloSecao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@id/item_seta"
+            app:layout_constraintStart_toEndOf="@id/item_icone"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_descricao"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/item_seta"
+            app:layout_constraintStart_toEndOf="@id/item_icone"
+            app:layout_constraintTop_toBottomOf="@id/item_nome" />
+
+        <TextView
+            android:id="@+id/item_tag_criador"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_chip"
+            android:text="@string/criado_por_ti"
+            android:textColor="@color/roxo"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@id/item_icone"
+            app:layout_constraintTop_toBottomOf="@id/item_descricao" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

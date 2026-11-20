@@ -79,6 +79,17 @@
             android:paddingTop="16dp"
             android:paddingBottom="8dp"/>
     </HorizontalScrollView>
+
+    <!-- Filtro extra: ligado, esconde as tarefas concluídas em todas as colunas. -->
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switch_esconder_concluidas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/esconder_concluidas"
+        android:textColor="@color/texto_secundario"
+        android:textSize="13sp"/>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_quadro"
         android:layout_width="match_parent"

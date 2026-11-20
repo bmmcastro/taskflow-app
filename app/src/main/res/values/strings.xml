@@ -78,4 +78,5 @@
     <string name="progresso_projeto">Progresso do projeto</string>
     <string name="convite_apoio">O próximo projeto começa com um convite.</string>
     <string name="sem_atribuicoes">Ainda não há tarefas atribuídas.</string>
+    <string name="esconder_concluidas">Esconder concluídas</string>
 </resources>
