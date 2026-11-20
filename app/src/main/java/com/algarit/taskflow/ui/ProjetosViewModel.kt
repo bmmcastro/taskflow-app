@@ -10,6 +10,7 @@ import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.model.Projeto
 import com.algarit.taskflow.model.ProjetoPedido
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class ProjetosViewModel(app: Application) : AndroidViewModel(app) {
@@ -23,7 +24,9 @@ class ProjetosViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val lista = Api.servico.projetos(Sessao.utilizadorId)
                 _estado.value = UiState.Sucesso(lista)
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }
@@ -34,7 +37,9 @@ class ProjetosViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 Api.servico.criarProjeto(ProjetoPedido(nome, descricao, Sessao.utilizadorId))
                 carregar()
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }
@@ -43,9 +48,11 @@ class ProjetosViewModel(app: Application) : AndroidViewModel(app) {
     fun apagar(id: Int) {
         viewModelScope.launch {
             try {
-                Api.servico.apagarProjeto(id, Sessao.utilizadorId)
+                Api.servico.apagarProjeto(id, Sessao.utilizadorId).close()
                 carregar()
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }

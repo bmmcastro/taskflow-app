@@ -1,72 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Cartão de tarefa do quadro, com o interior em ConstraintLayout
-     (hierarquia plana: avatar, textos e prazo ligados por restrições). -->
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Cartao"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/margem"
-    android:layout_marginEnd="@dimen/margem"
-    android:layout_marginTop="10dp"
-    app:cardBackgroundColor="@color/cartao"
-    app:cardCornerRadius="@dimen/raio_cartao"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/separador"
-    app:strokeWidth="1dp">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="20dp"
+    android:layout_marginTop="12dp"
+    android:focusable="true">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/margem">
-
-        <TextView
-            android:id="@+id/item_avatar"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/bg_avatar"
-            android:gravity="center"
-            android:textColor="@color/roxo"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
+        android:orientation="vertical"
+        android:padding="20dp">
         <TextView
             android:id="@+id/item_titulo"
-            android:layout_width="0dp"
+            style="@style/TituloSecao"
+            android:textSize="18sp"
+            android:maxLines="3"
+            android:ellipsize="end"/>
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margem_pequena"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:textColor="@color/texto"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/item_prazo"
-            app:layout_constraintStart_toEndOf="@id/item_avatar"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/item_responsavel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margem_pequena"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/texto_secundario"
-            android:textSize="@dimen/texto_secundario"
-            app:layout_constraintEnd_toStartOf="@id/item_prazo"
-            app:layout_constraintStart_toEndOf="@id/item_avatar"
-            app:layout_constraintTop_toBottomOf="@id/item_titulo" />
-
-        <TextView
-            android:id="@+id/item_prazo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margem_pequena"
-            android:textSize="@dimen/texto_secundario"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/item_avatar"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_avatar"
+                android:gravity="center"
+                android:textColor="@color/roxo"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/item_responsavel"
+                style="@style/TextoApoio"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="12dp"
+                android:textSize="13sp"
+                android:maxLines="1"
+                android:ellipsize="end"/>
+            <TextView
+                android:id="@+id/item_prazo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/texto_secundario"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

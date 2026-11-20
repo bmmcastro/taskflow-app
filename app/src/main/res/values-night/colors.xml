@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="roxo">#75B5FF</color>
+    <color name="roxo_suave">#172E49</color>
     <color name="fundo">#000000</color>
     <color name="cartao">#1C1C1E</color>
     <color name="separador">#38383A</color>
-    <color name="texto">#FFFFFF</color>
-    <color name="texto_secundario">#8E8E93</color>
-    <color name="fundo_input">#2C2C2E</color>
-    <color name="roxo_suave">#3B2A63</color>
+    <color name="texto">#F5F5F7</color>
+    <color name="texto_secundario">#AAAAB2</color>
+    <color name="fundo_input">#1C1C1E</color>
+    <color name="azul">#75B5FF</color>
+    <color name="verde">#65D580</color>
+    <color name="vermelho">#FF827C</color>
     <color name="cinza_chip">#2C2C2E</color>
 </resources>

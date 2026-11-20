@@ -10,6 +10,7 @@ import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.model.LoginPedido
 import com.algarit.taskflow.model.RegistoPedido
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class LoginViewModel(app: Application) : AndroidViewModel(app) {
@@ -31,7 +32,9 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
                 } else {
                     _estado.value = UiState.Erro(resposta.mensagem ?: "Não foi possível entrar")
                 }
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }

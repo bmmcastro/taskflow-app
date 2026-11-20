@@ -5,8 +5,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.algarit.taskflow.databinding.ActivityMainBinding
 
@@ -28,15 +28,19 @@ class MainActivity : AppCompatActivity() {
         val navHost = supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
         val navController = navHost.navController
         binding.toolbar.setupWithNavController(navController)
+        navController.addOnDestinationChangedListener { _, destino, _ ->
+            // Os ecrãs iniciais já têm o seu título grande no próprio layout.
+            binding.toolbar.isVisible = destino.id != R.id.loginFragment &&
+                destino.id != R.id.registoFragment && destino.id != R.id.projetosFragment
+            binding.toolbar.title = getString(R.string.voltar)
+        }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { vista, insets ->
             val barras = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            vista.setPadding(barras.left, barras.top, barras.right, barras.bottom)
+            val teclado = insets.getInsets(WindowInsetsCompat.Type.ime())
+            vista.setPadding(barras.left, barras.top, barras.right, maxOf(barras.bottom, teclado.bottom))
             insets
         }
 
-        // Convite aceite: a sessão já está guardada, saltamos direto para os projetos.
-        if (intent.getBooleanExtra("abrir_projetos", false)) {
-            navController.navigate(com.algarit.taskflow.R.id.action_login_to_projetos)
-        }
+        // O LoginFragment trata da sessão e abre os projetos quando já estamos ligados.
     }
 }

@@ -55,7 +55,10 @@ class MembrosFragment : Fragment() {
             binding.listaMembros.adapter?.notifyDataSetChanged()
         }
         viewModel.convitesTexto.observe(viewLifecycleOwner) { binding.textoConvites.text = it }
-        viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
+        viewModel.erro.observe(viewLifecycleOwner) {
+            binding.loading.isVisible = false
+            aviso(it)
+        }
         viewModel.conviteCriado.observe(viewLifecycleOwner) { token ->
             if (token != null) {
                 MaterialAlertDialogBuilder(requireContext())
@@ -79,8 +82,8 @@ class MembrosFragment : Fragment() {
                 .show()
         }
 
-        viewModel.carregar(args.projetoId)
         binding.loading.isVisible = true
+        viewModel.carregar(args.projetoId)
     }
 
     // Convidar por email: a API devolve o token do convite para partilharmos o link.
@@ -88,16 +91,23 @@ class MembrosFragment : Fragment() {
         if (args.criadorId != Sessao.utilizadorId) { aviso("Só o criador pode convidar"); return }
         val campo = EditText(requireContext())
         campo.hint = getString(R.string.email)
-        campo.inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        campo.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         campo.setPadding(48, 24, 48, 24)
-        MaterialAlertDialogBuilder(requireContext())
+        val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.convidar_por_email)
             .setView(campo)
-            .setPositiveButton(R.string.guardar) { _, _ ->
-                viewModel.convidar(args.projetoId, campo.text.toString().trim().lowercase(), Sessao.utilizadorId)
-            }
+            .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
+        alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val email = campo.text.toString().trim()
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                campo.error = "Escreve um email válido"
+                return@setOnClickListener
+            }
+            viewModel.convidar(args.projetoId, email, Sessao.utilizadorId)
+            alerta.dismiss()
+        }
     }
 
     private fun aviso(mensagem: String) = requireContext().aviso(mensagem)

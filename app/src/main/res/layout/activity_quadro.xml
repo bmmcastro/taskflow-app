@@ -1,106 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fundo"
     android:orientation="vertical">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="4dp">
-
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp">
         <TextView
             android:id="@+id/titulo_projeto"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textColor="@color/texto"
-            android:textSize="17sp"
-            android:textStyle="bold" />
-
+            style="@style/TituloGrande"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+        <TextView style="@style/TextoApoio" android:text="@string/quadro_apoio"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end|center_vertical"
+        android:padding="20dp">
         <ImageButton
             android:id="@+id/botao_relatorio"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/relatorio"
-            android:src="@drawable/ic_grafico" />
-
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_grafico"
+            android:contentDescription="@string/relatorio"/>
         <ImageButton
             android:id="@+id/botao_membros"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_pessoas"
             android:contentDescription="@string/membros"
-            android:src="@drawable/ic_pessoas" />
-
+            android:layout_marginStart="8dp"/>
         <ImageButton
             android:id="@+id/botao_nova_tarefa"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_adicionar"
             android:contentDescription="@string/nova_tarefa"
-            android:src="@drawable/ic_adicionar" />
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_botao"
+            app:tint="@android:color/white"/>
     </LinearLayout>
-
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabs_estado"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_segmentos"
+        app:tabBackground="@android:color/transparent"
+        app:tabIndicator="@drawable/bg_segmento"
+        app:tabIndicatorGravity="stretch"
+        app:tabIndicatorFullWidth="true"
+        app:tabIndicatorColor="@color/cartao"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabTextAppearance="@style/TextoSegmento"
+        app:tabTextColor="@color/texto_secundario"
+        app:tabSelectedTextColor="@color/texto"
+        app:tabPaddingStart="2dp"
+        app:tabPaddingEnd="2dp"/>
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:clipToPadding="false"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:scrollbars="none">
-
         <LinearLayout
             android:id="@+id/linha_filtros"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp" />
+            android:paddingTop="16dp"
+            android:paddingBottom="8dp"/>
     </HorizontalScrollView>
-
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs_estado"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@null" />
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_quadro"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_tarefas"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="24dp" />
-
+                android:paddingBottom="24dp"/>
             <TextView
                 android:id="@+id/texto_vazio"
-                android:layout_width="match_parent"
+                style="@style/TextoApoio"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:padding="32dp"
-                android:text="@string/sem_tarefas"
-                android:textColor="@color/texto_secundario"
-                android:textSize="15sp" />
+                android:text="@string/sem_tarefas"/>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

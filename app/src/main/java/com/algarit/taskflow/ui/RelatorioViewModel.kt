@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.model.RelatorioProjeto
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class RelatorioViewModel(app: Application) : AndroidViewModel(app) {
@@ -20,7 +21,9 @@ class RelatorioViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             try {
                 _estado.value = UiState.Sucesso(Api.servico.relatorio(projetoId))
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _estado.value = UiState.Erro(erroAmigavel(t))
             }
         }

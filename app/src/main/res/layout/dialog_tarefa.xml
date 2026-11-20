@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,11 +11,10 @@
         android:paddingEnd="24dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
-
         <EditText
             android:id="@+id/campo_titulo"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:background="@drawable/bg_input"
             android:hint="@string/titulo"
             android:inputType="textCapSentences"
@@ -23,12 +22,11 @@
             android:paddingEnd="16dp"
             android:textColor="@color/texto"
             android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp" />
-
+            android:textSize="16sp"/>
         <EditText
             android:id="@+id/campo_descricao"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_input"
             android:hint="@string/descricao"
@@ -37,12 +35,11 @@
             android:paddingEnd="16dp"
             android:textColor="@color/texto"
             android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp" />
-
+            android:textSize="16sp"/>
         <AutoCompleteTextView
             android:id="@+id/campo_responsavel"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_input"
             android:completionThreshold="1"
@@ -52,12 +49,11 @@
             android:paddingEnd="16dp"
             android:textColor="@color/texto"
             android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp" />
-
+            android:textSize="16sp"/>
         <EditText
             android:id="@+id/campo_prazo"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_input"
             android:focusable="false"
@@ -67,12 +63,11 @@
             android:paddingEnd="16dp"
             android:textColor="@color/texto"
             android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp" />
-
+            android:textSize="16sp"/>
         <EditText
             android:id="@+id/campo_link"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_input"
             android:hint="@string/link_opcional"
@@ -81,6 +76,6 @@
             android:paddingEnd="16dp"
             android:textColor="@color/texto"
             android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
     </LinearLayout>
 </ScrollView>

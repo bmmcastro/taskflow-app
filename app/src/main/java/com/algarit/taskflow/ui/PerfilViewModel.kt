@@ -10,6 +10,7 @@ import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.api.erroAmigavel
 import com.algarit.taskflow.model.PerfilPedido
 import com.algarit.taskflow.model.Utilizador
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class PerfilViewModel(app: Application) : AndroidViewModel(app) {
@@ -29,7 +30,9 @@ class PerfilViewModel(app: Application) : AndroidViewModel(app) {
                 )
                 Sessao.guardar(getApplication(), atualizado.id, atualizado.nome, atualizado.email)
                 _atualizado.value = atualizado
-            } catch (t: Throwable) {
+            } catch (t: CancellationException) {
+                throw t
+            } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
             }
         }

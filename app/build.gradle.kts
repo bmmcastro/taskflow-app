@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.coroutines.android)
     implementation(libs.lifecycle.viewmodel.ktx)
-    testImplementation(libs.org.json)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

@@ -1,73 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/fundo"
     android:orientation="vertical">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="20dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp">
-
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp">
         <TextView
+            style="@style/TextoApoio"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/os_teus_projetos"
-            android:textColor="@color/texto"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <ImageButton
-            android:id="@+id/botao_novo"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/novo_projeto"
-            android:src="@drawable/ic_adicionar" />
-
+            android:text="@string/app_name"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"/>
         <ImageButton
             android:id="@+id/botao_perfil"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/o_teu_perfil"
-            android:src="@drawable/ic_perfil" />
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_perfil"
+            android:contentDescription="@string/o_teu_perfil"/>
     </LinearLayout>
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="12dp">
+        <TextView
+            style="@style/TituloGrande"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/projetos"/>
+        <ImageButton
+            android:id="@+id/botao_novo"
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_adicionar"
+            android:contentDescription="@string/novo_projeto"
+            android:background="@drawable/bg_botao"
+            app:tint="@android:color/white"/>
+    </LinearLayout>
+    <TextView
+        style="@style/TextoApoio"
+        android:text="@string/projetos_apoio"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="16dp"/>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_projetos"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_projetos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="24dp" />
-
+                android:paddingBottom="20dp"/>
             <TextView
                 android:id="@+id/texto_vazio"
-                android:layout_width="match_parent"
+                style="@style/TextoApoio"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:padding="32dp"
-                android:text="@string/sem_projetos"
-                android:textColor="@color/texto_secundario"
-                android:textSize="15sp" />
+                android:padding="36dp"
+                android:text="@string/sem_projetos"/>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/botao_convite"
+        style="@style/BotaoTexto"
+        android:text="@string/tenho_convite"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="8dp"/>
 </LinearLayout>
