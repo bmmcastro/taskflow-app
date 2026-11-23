@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>TaskFlow — Wireframes 1/2</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; margin: 0; padding: 16px 22px 14px; background: #fff; color: #222; }
+  .grid { display: grid; grid-template-columns: repeat(3, 272px); gap: 22px 20px; justify-content: center; }
+  .item { text-align: center; }
+  .legenda { margin-top: 8px; font-size: 12.5px; }
+  .legenda b { color: #222; }
+  .legenda span { display: block; color: #666; font-size: 11.5px; line-height: 1.35; }
+
+  .phone { width: 250px; height: 520px; background: #f4f4f4; border: 3px solid #333; border-radius: 22px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 4px 12px rgba(0,0,0,.15); position: relative; }
+  .status { height: 18px; background: #e6e6e6; font-size: 8.5px; color: #555; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+  .barra-topo { height: 34px; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 8px; font-size: 12px; font-weight: 600; color: #333; gap: 8px; }
+  .conteudo { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .t-grande { font-size: 21px; font-weight: bold; color: #333; line-height: 1.1; }
+  .apoio { font-size: 10.5px; color: #777; margin-top: -5px; }
+  .campo { background: #fff; border: 1px solid #c4c4c4; border-radius: 8px; height: 30px; display: flex; align-items: center; padding: 0 9px; font-size: 10.5px; color: #888; }
+  .campo.seta { justify-content: space-between; }
+  .botao { background: #555; color: #fff; border-radius: 8px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .botao.texto { background: transparent; color: #444; border: 1px dashed #aaa; }
+  .cartao { background: #fff; border: 1px solid #d5d5d5; border-radius: 12px; padding: 9px 10px; font-size: 10.5px; color: #444; }
+  .cartao b { font-size: 11.5px; color: #222; display: block; }
+  .sub { color: #888; font-size: 9.5px; }
+  .avatar { width: 22px; height: 22px; border-radius: 50%; background: #b5b5b5; color: #fff; font-size: 9px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .avatar.g { width: 46px; height: 46px; font-size: 15px; }
+  .linha { display: flex; align-items: center; gap: 7px; }
+  .entre { display: flex; justify-content: space-between; align-items: center; }
+  .segmentos { display: flex; background: #e3e3e3; border-radius: 9px; padding: 3px; font-size: 8.8px; color: #666; }
+  .seg { flex: 1; text-align: center; padding: 5px 0; border-radius: 7px; white-space: nowrap; }
+  .seg.on { background: #fff; color: #222; font-weight: 600; }
+  .chips { display: flex; gap: 5px; }
+  .chip { border: 1px solid #bbb; border-radius: 14px; padding: 3px 8px; font-size: 9px; color: #555; white-space: nowrap; }
+  .chip.on { background: #555; color: #fff; border-color: #555; }
+  .switch { display: flex; justify-content: space-between; align-items: center; font-size: 9.5px; color: #666; padding: 0 2px; }
+  .trilho { width: 28px; height: 15px; border-radius: 8px; background: #ccc; position: relative; }
+  .trilho::after { content: ""; position: absolute; width: 11px; height: 11px; border-radius: 50%; background: #fff; top: 2px; left: 2px; box-shadow: 0 0 0 1px #aaa; }
+  .progresso { height: 5px; background: #ddd; border-radius: 3px; overflow: hidden; }
+  .progresso i { display: block; height: 100%; background: #777; }
+  .check { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #d5d5d5; border-radius: 7px; padding: 5px 8px; font-size: 10px; color: #444; }
+  .check.feito span:last-child { text-decoration: line-through; color: #999; }
+  .caixa { width: 12px; height: 12px; border: 1.5px solid #888; border-radius: 3px; flex-shrink: 0; }
+  .caixa.on { background: #555; border-color: #555; }
+  .etiqueta { border: 1px solid #bbb; border-radius: 6px; padding: 2px 6px; font-size: 8.5px; font-weight: bold; color: #555; white-space: nowrap; }
+  .logo { width: 44px; height: 44px; border-radius: 11px; background: #666; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
+  .logo.p { width: 34px; height: 34px; border-radius: 9px; font-size: 11px; flex-shrink: 0; }
+  .icone { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #bbb; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; flex-shrink: 0; }
+  .icone.f { background: #555; color: #fff; border-color: #555; }
+  .espaco { height: 6px; }
+</style>
+</head>
+<body>
+<div class="grid">
+
+  <!-- 1. LOGIN -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="conteudo" style="justify-content:center; gap:9px">
+        <div class="logo">TF</div>
+        <div class="t-grande" style="font-size:26px">TaskFlow</div>
+        <div class="apoio" style="margin-top:-5px">Mais clareza. Menos esforço.</div>
+        <div style="height:8px"></div>
+        <div style="font-weight:bold;font-size:12px">Entrar</div>
+        <div class="campo">Email</div>
+        <div class="campo">••••••••</div>
+        <div class="botao">Entrar</div>
+        <div class="botao texto">Usar conta de demonstração</div>
+        <div class="sub" style="text-align:center">As tarefas da tua equipa, organizadas.</div>
+        <div class="botao texto">Não tens conta? Regista-te</div>
+        <div class="botao texto">Tenho um convite</div>
+      </div>
+    </div>
+    <div class="legenda"><b>1 · Login</b><span>LoginFragment · US01 · EditText com validação (setError) · ProgressBar durante o pedido</span></div>
+  </div>
+
+  <!-- 2. REGISTO -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo" style="justify-content:center">
+        <div class="t-grande">Criar conta</div>
+        <div class="apoio">Um espaço para as tuas ideias e a tua equipa.</div>
+        <div style="height:10px"></div>
+        <div class="campo">Nome</div>
+        <div class="campo">Email</div>
+        <div class="campo">Password</div>
+        <div style="height:8px"></div>
+        <div class="botao">Criar conta</div>
+        <div class="botao texto">Já tens conta? Entrar</div>
+      </div>
+    </div>
+    <div class="legenda"><b>2 · Registo</b><span>RegistoFragment · US02 · voltar pela toolbar (NavController)</span></div>
+  </div>
+
+  <!-- 3. CONVITE -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="conteudo">
+        <div class="icone">←</div>
+        <div class="t-grande" style="margin-top:6px">Aceitar convite</div>
+        <div class="apoio">O próximo projeto começa com um convite.</div>
+        <div style="height:8px"></div>
+        <div class="campo">Cola aqui o link do convite</div>
+        <div class="botao">Ver convite</div>
+        <div class="cartao" style="margin-top:8px">
+          Projeto: Website da escola<br>Convidado por: Ana Costa<br>Para o email: bruno@…<br>Estado: pendente
+        </div>
+        <div class="botao">Aceitar convite</div>
+      </div>
+    </div>
+    <div class="legenda"><b>3 · Convite</b><span>ConviteActivity (ponto de entrada fora do grafo) · US12 · botão voltar próprio</span></div>
+  </div>
+
+  <!-- 4. PROJETOS -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="conteudo">
+        <div class="entre"><span style="font-size:10px;font-weight:bold;letter-spacing:1px">TASKFLOW</span><span class="icone">☺</span></div>
+        <div class="entre"><div class="t-grande">Projetos</div><span class="icone f">＋</span></div>
+        <div class="apoio">O teu espaço de trabalho, organizado.</div>
+        <div class="cartao linha" style="margin-top:6px">
+          <div class="logo p">TF</div>
+          <div style="flex:1"><b>Website da escola</b><span class="sub">Páginas e conteúdo</span></div>
+          <span class="sub">›</span>
+        </div>
+        <div class="cartao linha">
+          <div class="logo p">TF</div>
+          <div style="flex:1"><b>Projeto de curso</b><span class="sub">Entrega em janeiro</span></div>
+          <span class="sub">›</span>
+        </div>
+        <div class="cartao linha">
+          <div class="logo p">TF</div>
+          <div style="flex:1"><b>App TaskFlow Android</b></div>
+          <span class="sub">›</span>
+        </div>
+        <div style="flex:1"></div>
+        <div class="botao texto">Tenho um convite</div>
+      </div>
+    </div>
+    <div class="legenda"><b>4 · Projetos (home)</b><span>ProjetosFragment · US03/US04 · RecyclerView + ListAdapter · toque abre, toque longo apaga · Snackbar se falhar</span></div>
+  </div>
+
+  <!-- 5. QUADRO -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo" style="gap:7px">
+        <div class="t-grande" style="font-size:17px">Website da escola</div>
+        <div class="apoio">Um passo de cada vez.</div>
+        <div class="linha" style="justify-content:flex-end;gap:6px">
+          <span class="icone">▥</span><span class="icone">☻</span><span class="icone f">＋</span>
+        </div>
+        <div class="segmentos"><span class="seg on">Por fazer (3)</span><span class="seg">Em curso (2)</span><span class="seg">Concluída (4)</span></div>
+        <div class="chips"><span class="chip on">Todas as pessoas</span><span class="chip">Ana Costa</span><span class="chip">…</span></div>
+        <div class="switch"><span>Esconder concluídas</span><span class="trilho"></span></div>
+        <div class="cartao">
+          <b>Escrever os textos</b>
+          <div class="linha" style="margin-top:6px"><span class="avatar">A</span><span class="sub" style="flex:1">Ana Costa</span><span class="sub">12/12/2026</span></div>
+        </div>
+        <div class="cartao">
+          <b>Preparar imagens</b>
+          <div class="linha" style="margin-top:6px"><span class="avatar">B</span><span class="sub" style="flex:1">Bruno Castro</span><span class="sub" style="color:#c00;font-weight:bold">20/11/2026</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="legenda"><b>5 · Quadro</b><span>QuadroFragment · US05–US08 · separadores de estado, chips de filtro, Switch, cartões (tocar = detalhe, tocar longo = mover)</span></div>
+  </div>
+
+  <!-- 6. DETALHE -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo" style="gap:9px">
+        <div class="entre"><div class="t-grande" style="font-size:17px">Detalhe da tarefa</div><span class="icone">🗑</span></div>
+        <div class="cartao">
+          <b style="font-size:13px">Preparar imagens</b>
+          <div class="sub" style="margin-top:2px">Escolher e tratar as fotos da página inicial.</div>
+          <div class="linha" style="margin-top:9px"><span class="avatar">B</span><span style="flex:1;font-size:10.5px">Bruno Castro</span><span class="etiqueta">Em curso</span></div>
+          <div class="sub" style="margin-top:7px">Prazo: 20/11/2026</div>
+          <div class="botao texto" style="margin-top:8px">Editar tarefa</div>
+        </div>
+        <div class="cartao">
+          <b>Subtarefas</b>
+          <div class="progresso" style="margin-top:7px"><i style="width:33%"></i></div>
+          <div class="sub" style="margin-top:4px">1 de 3 concluídas (33%)</div>
+          <div class="check feito" style="margin-top:7px"><span class="caixa on"></span><span>Escolher as fotos</span></div>
+          <div class="check" style="margin-top:5px"><span class="caixa"></span><span>Redimensionar</span></div>
+          <div class="linha" style="margin-top:7px"><div class="campo" style="flex:1">Adicionar subtarefa…</div><span class="icone">＋</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="legenda"><b>6 · Detalhe da tarefa</b><span>DetalheTarefaFragment · US09/US10 · checklist com barra de progresso (LinearProgressIndicator)</span></div>
+  </div>
+
+</div>
+</body>
+</html>

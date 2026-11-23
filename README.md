@@ -50,8 +50,8 @@ Também é possível criar uma conta no ecrã de registo.
 |---|---|
 | Login e registo | Entrar ou criar uma conta |
 | Projetos | Consultar e criar projetos; apagar os projetos de que se é criador |
-| Quadro | Ver tarefas por estado, filtrar por responsável e criar tarefas |
-| Detalhe da tarefa | Consultar, editar e apagar a tarefa; gerir a checklist de subtarefas |
+| Quadro | Ver tarefas por estado, filtrar por responsável, esconder as concluídas (Switch) e criar tarefas |
+| Detalhe da tarefa | Consultar, editar (incluindo a coluna) e apagar a tarefa; gerir a checklist de subtarefas |
 | Membros | Consultar e gerir membros; criar um convite associado a um email |
 | Convite | Colar o link ou token e aceitar o convite depois de iniciar sessão |
 | Relatório | Ver totais, estados, atrasos, percentagem e tarefas por pessoa |
@@ -60,6 +60,10 @@ Também é possível criar uma conta no ecrã de registo.
 No quadro, um toque abre a tarefa e um toque longo permite mudar o estado.
 As tarefas aparecem ordenadas pelo prazo. Na checklist, tocar na caixa ou na
 linha altera o estado; um toque longo na linha apaga a subtarefa.
+No formulário da tarefa, a coluna escolhe-se num Spinner. Guardar com campos
+em falta deixa o formulário aberto, com o erro no próprio campo. Quando um
+pedido falha, a mensagem distingue falta de ligação, timeout, resposta
+inválida e erro do servidor.
 
 O botão **Tenho um convite** existe no login e nos projetos. Se for necessário
 iniciar sessão ou criar conta, o convite é retomado a seguir. Os convites são
@@ -76,7 +80,8 @@ app/src/main/java/com/algarit/taskflow/
 ├── data/            Repo: carregamento dos dados do quadro
 ├── model/           Modelos dos dados, pedidos e estados das tarefas
 ├── ui/              Fragments, ViewModels, UiState e ConviteActivity
-└── adapter/         Listas de projetos, tarefas e subtarefas
+└── adapter/         Cinco listas com ListAdapter + DiffUtil (projetos, tarefas,
+                     subtarefas, membros e tarefas por pessoa)
 ```
 
 Os layouts estão em `res/layout` e o grafo de navegação em
@@ -94,16 +99,21 @@ visuais adicionais. Os estilos comuns ficam em `res/values/themes.xml`.
 
 ## Decisões técnicas
 
-- **Interface:** XML, Material 3 e ViewBinding, com cores para tema claro e escuro.
+- **Interface:** XML com ConstraintLayout, Material 3 e ViewBinding em todos os
+  ecrãs e diálogos, com cores para tema claro e escuro. Textos, cores e dimensões
+  ficam em recursos (`strings.xml`, `colors.xml`, `dimens.xml`, `themes.xml`).
 - **Navegação:** Navigation Component e Safe Args para passar os identificadores.
 - **Dados dos ecrãs:** os ViewModels usam coroutines e expõem LiveData. O
-  `UiState` representa os estados parado, a carregar, sucesso e erro.
+  `UiState` (sealed class) representa os estados parado, a carregar, sucesso e erro.
 - **Rede:** Retrofit e Gson para pedidos e respostas JSON. Os endpoints que
   devolvem texto usam `ResponseBody`, fechado depois do pedido.
-- **Quadro:** o `Repo` carrega membros e tarefas em paralelo com `async/await`.
-  Os restantes ViewModels chamam diretamente o serviço Retrofit.
-- **Listas:** os adaptadores de projetos, tarefas e subtarefas usam
-  `ListAdapter` e `DiffUtil` para atualizar os itens que mudaram.
+- **Carregamento em paralelo:** o `Repo` carrega membros e tarefas do quadro com
+  `async/await`; o ecrã de Membros faz o mesmo com membros e convites. Os
+  restantes pedidos chamam diretamente o serviço Retrofit.
+- **Listas:** os cinco adaptadores usam `ListAdapter` e `DiffUtil` para
+  atualizar apenas os itens que mudaram.
+- **Modelos:** os campos que a API pode devolver a `null` (o link e a data de
+  conclusão de uma tarefa) são anuláveis e tratados com `isNullOrBlank`/`orEmpty`.
 - **Datas:** seguem o formato ISO na API e aparecem como `dd/MM/aaaa` na app.
   Os prazos ultrapassados aparecem a vermelho quando a tarefa não está concluída.
 
@@ -122,10 +132,11 @@ não está neste repositório.
 
 ## Testes
 
-Os testes unitários verificam a formatação de datas e o mapeamento JSON dos
-modelos. Existe também um teste instrumentado da checklist, para confirmar
-que tocar na checkbox chama a ação de guardar e que uma linha reutilizada
-mostra o estado da subtarefa correta.
+Os 10 testes unitários verificam a formatação de datas, o mapeamento JSON dos
+modelos (incluindo campos que a API devolve a `null`) e a conversão do texto da
+API para o enum do estado. Há ainda 2 testes instrumentados da checklist, para
+confirmar que tocar na checkbox chama a ação de guardar e que uma linha
+reutilizada mostra o estado da subtarefa correta.
 
 Para executar os testes instrumentados, ligar um dispositivo ou iniciar um
 emulador e executar:

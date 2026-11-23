@@ -1,12 +1,15 @@
 package com.algarit.taskflow.ui
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.algarit.taskflow.R
 import com.algarit.taskflow.databinding.ActivityRegistoBinding
 
 // Criar conta nova (o mesmo registo do site).
@@ -31,15 +34,19 @@ class RegistoFragment : Fragment() {
             val nome = binding.campoNome.text.toString().trim()
             val email = binding.campoEmail.text.toString().trim()
             val password = binding.campoPassword.text.toString()
+            // Validação com setError no próprio campo.
             var valido = true
-            if (nome.isBlank()) { binding.campoNome.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
-            if (email.isBlank()) { binding.campoEmail.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
-            if (password.isBlank()) { binding.campoPassword.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+            if (nome.isBlank()) { binding.campoNome.error = getString(R.string.erro_campos); valido = false }
+            if (email.isBlank()) { binding.campoEmail.error = getString(R.string.erro_campos); valido = false }
+            else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { binding.campoEmail.error = getString(R.string.erro_email); valido = false }
+            if (password.isBlank()) { binding.campoPassword.error = getString(R.string.erro_campos); valido = false }
             if (!valido) return@setOnClickListener
             viewModel.registar(nome, email, password)
         }
 
         viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            // ProgressBar visível enquanto a conta está a ser criada.
+            binding.loading.isVisible = estado is UiState.Loading
             binding.botaoCriar.isEnabled = estado !is UiState.Loading
             if (estado is UiState.Sucesso) {
                 // A sessão já foi guardada pelo ViewModel: direto aos projetos.

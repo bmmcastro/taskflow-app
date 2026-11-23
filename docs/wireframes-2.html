@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>TaskFlow — Wireframes 2/2</title>
+<style>
+  body { font-family: 'Segoe UI', Calibri, Arial, sans-serif; margin: 0; padding: 16px 22px 14px; background: #fff; color: #222; }
+  .grid { display: grid; grid-template-columns: repeat(3, 272px); gap: 22px 20px; justify-content: center; }
+  .item { text-align: center; }
+  .legenda { margin-top: 8px; font-size: 12.5px; }
+  .legenda b { color: #222; }
+  .legenda span { display: block; color: #666; font-size: 11.5px; line-height: 1.35; }
+
+  .phone { width: 250px; height: 520px; background: #f4f4f4; border: 3px solid #333; border-radius: 22px; margin: 0 auto; overflow: hidden; display: flex; flex-direction: column; box-shadow: 2px 4px 12px rgba(0,0,0,.15); position: relative; }
+  .status { height: 18px; background: #e6e6e6; font-size: 8.5px; color: #555; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
+  .barra-topo { height: 34px; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 8px; font-size: 12px; font-weight: 600; color: #333; gap: 8px; }
+  .conteudo { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+  .t-grande { font-size: 21px; font-weight: bold; color: #333; line-height: 1.1; }
+  .apoio { font-size: 10.5px; color: #777; margin-top: -5px; }
+  .campo { background: #fff; border: 1px solid #c4c4c4; border-radius: 8px; height: 30px; display: flex; align-items: center; padding: 0 9px; font-size: 10.5px; color: #888; }
+  .campo.seta { justify-content: space-between; }
+  .campo.preenchido { color: #333; }
+  .rotulo { font-size: 10px; color: #777; }
+  .spinner { display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #888; height: 24px; font-size: 10.5px; color: #333; }
+  .botao { background: #555; color: #fff; border-radius: 8px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .botao.texto { background: transparent; color: #444; border: 1px dashed #aaa; }
+  .cartao { background: #fff; border: 1px solid #d5d5d5; border-radius: 12px; padding: 9px 10px; font-size: 10.5px; color: #444; }
+  .cartao b { font-size: 11.5px; color: #222; display: block; }
+  .sub { color: #888; font-size: 9.5px; }
+  .avatar { width: 22px; height: 22px; border-radius: 50%; background: #b5b5b5; color: #fff; font-size: 9px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .avatar.g { width: 46px; height: 46px; font-size: 15px; }
+  .linha { display: flex; align-items: center; gap: 7px; }
+  .entre { display: flex; justify-content: space-between; align-items: center; }
+  .progresso { height: 5px; background: #ddd; border-radius: 3px; overflow: hidden; }
+  .progresso i { display: block; height: 100%; background: #777; }
+  .etiqueta { border: 1px solid #bbb; border-radius: 6px; padding: 2px 6px; font-size: 8.5px; font-weight: bold; color: #555; white-space: nowrap; }
+  .icone { width: 26px; height: 26px; border-radius: 50%; border: 1px solid #bbb; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; flex-shrink: 0; }
+  .icone.f { background: #555; color: #fff; border-color: #555; }
+  .bloco { background: #fff; border: 1px solid #d5d5d5; border-radius: 10px; padding: 7px; text-align: center; }
+  .bloco b { font-size: 17px; display: block; color: #333; line-height: 1.1; }
+  .bloco span { font-size: 8.5px; color: #777; }
+  .duas { display: flex; gap: 6px; } .duas > * { flex: 1; }
+  .mascara { position: absolute; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; }
+  .caixa-dialogo { width: 86%; background: #fff; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .caixa-dialogo > b { font-size: 12.5px; margin-bottom: 2px; }
+  .caixa-dialogo .campo { height: 26px; font-size: 10px; }
+  .acoes { display: flex; justify-content: flex-end; gap:14px; font-size: 11px; font-weight: 600; color: #555; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="grid">
+
+  <!-- 7. NOVA TAREFA (diálogo) -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo" style="gap:7px">
+        <div class="t-grande" style="font-size:17px">Website da escola</div>
+        <div class="apoio">Um passo de cada vez.</div>
+        <div class="segmentos" style="display:flex;background:#e3e3e3;border-radius:9px;padding:3px;font-size:8.8px;color:#666">
+          <span style="flex:1;text-align:center;padding:5px 0;border-radius:7px;background:#fff;color:#222;font-weight:600">Por fazer (4)</span>
+          <span style="flex:1;text-align:center;padding:5px 0">Em curso (2)</span>
+          <span style="flex:1;text-align:center;padding:5px 0">Concluída (4)</span>
+        </div>
+        <div class="cartao"><b>Escrever os textos</b><div class="linha" style="margin-top:6px"><span class="avatar">A</span><span class="sub" style="flex:1">Ana Costa</span><span class="sub">12/12/2026</span></div></div>
+        <div class="cartao"><b>Preparar imagens</b><div class="linha" style="margin-top:6px"><span class="avatar">B</span><span class="sub" style="flex:1">Bruno Castro</span><span class="sub">20/11/2026</span></div></div>
+      </div>
+      <div class="mascara">
+        <div class="caixa-dialogo">
+          <b>Nova tarefa</b>
+          <div class="campo">Título</div>
+          <div class="campo">Descrição (opcional)</div>
+          <div class="campo seta"><span>Responsável</span><span>▾</span></div>
+          <div class="rotulo">Coluna</div>
+          <div class="spinner"><span>Por fazer</span><span>▾</span></div>
+          <div class="campo">Prazo</div>
+          <div class="campo">Link (opcional)</div>
+          <div class="acoes"><span>Cancelar</span><span style="color:#222">Guardar</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="legenda"><b>7 · Nova / Editar tarefa (diálogo)</b><span>dialog_tarefa · US07 · EditText com validação, lista de responsáveis e <b>Spinner</b> para a coluna · DatePicker para o prazo</span></div>
+  </div>
+
+  <!-- 8. MEMBROS -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo">
+        <div class="t-grande">Membros</div>
+        <div class="apoio">As pessoas que fazem acontecer.</div>
+        <div class="linha" style="justify-content:flex-end;gap:6px"><span class="icone">✉</span><span class="icone f">＋</span></div>
+        <div class="cartao">
+          <div class="linha"><span class="avatar">A</span><div style="flex:1;text-align:left"><b>Ana Costa</b><span class="sub">ana@…</span></div><span class="etiqueta">Criador</span></div>
+          <div class="linha" style="margin-top:8px"><span class="avatar">B</span><div style="flex:1;text-align:left"><b>Bruno Castro</b><span class="sub">bruno@…</span></div></div>
+          <div class="linha" style="margin-top:8px"><span class="avatar">R</span><div style="flex:1;text-align:left"><b>Rui Mendes</b><span class="sub">rui@…</span></div></div>
+        </div>
+        <div style="font-weight:bold;font-size:12px;margin-top:8px">Convites pendentes</div>
+        <div class="cartao">Sofia Lima (pendente)</div>
+      </div>
+    </div>
+    <div class="legenda"><b>8 · Membros</b><span>MembrosFragment · US11 · RecyclerView + ListAdapter · juntar utilizador registado ou convidar por email (toque longo remove)</span></div>
+  </div>
+
+  <!-- 9. RELATÓRIO -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo" style="gap:8px">
+        <div class="t-grande">Relatório</div>
+        <div class="apoio">Uma visão clara do teu progresso.</div>
+        <div class="cartao">
+          <b>Progresso do projeto</b>
+          <div style="font-size:30px;font-weight:bold;color:#444;line-height:1.15">40%</div>
+          <div class="progresso"><i style="width:40%"></i></div>
+          <div class="sub">Concluídas</div>
+        </div>
+        <div class="duas"><div class="bloco"><b>10</b><span>Total</span></div><div class="bloco"><b>4</b><span>Concluídas</span></div></div>
+        <div class="duas"><div class="bloco"><b>2</b><span>Em curso</span></div><div class="bloco"><b>3</b><span>Por fazer</span></div></div>
+        <div class="bloco" style="text-align:left"><b style="display:inline">1</b> <span style="text-transform:none;margin-left:6px">Atrasadas</span></div>
+        <div style="font-weight:bold;font-size:12px;margin-top:6px">Tarefas por pessoa</div>
+        <div class="cartao">
+          <div class="entre"><span>Ana Costa</span><b style="display:inline">5</b></div>
+          <div class="entre" style="margin-top:6px"><span>Bruno Castro</span><b style="display:inline">4</b></div>
+          <div class="entre" style="margin-top:6px"><span>Rui Mendes</span><b style="display:inline">1</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="legenda"><b>9 · Relatório</b><span>RelatorioFragment · US13 · contagens, percentagem com barra de progresso e lista por pessoa (RecyclerView)</span></div>
+  </div>
+
+  <!-- 10. PERFIL -->
+  <div class="item">
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▲ ▮</span></div>
+      <div class="barra-topo">←&nbsp; Voltar</div>
+      <div class="conteudo">
+        <div class="t-grande">O teu perfil</div>
+        <div class="apoio">Os teus dados. À tua maneira.</div>
+        <div class="avatar g" style="margin:6px auto 0">B</div>
+        <div style="font-weight:bold;font-size:12px;margin-top:8px">Dados da conta</div>
+        <div class="campo preenchido">Bruno Castro</div>
+        <div class="campo preenchido">bruno@…</div>
+        <div class="campo">Nova password (opcional)</div>
+        <div style="height:6px"></div>
+        <div class="botao">Guardar</div>
+        <div class="botao texto">Terminar sessão</div>
+      </div>
+    </div>
+    <div class="legenda"><b>10 · Perfil</b><span>PerfilFragment · US14 · alterar nome, email e password; terminar sessão volta ao Login</span></div>
+  </div>
+
+  <!-- Nota -->
+  <div class="item" style="grid-column: span 2; text-align:left; align-self:end; font-size:13px; line-height:1.55; color:#333; padding:0 6px 26px">
+    <div style="border-left:4px solid #777; background:#f5f5f5; padding:10px 14px">
+      <b>Como ler os wireframes.</b> Estão em tons de cinzento, como é regra em wireframes: mostram a <b>estrutura</b> de cada ecrã (o que existe e onde está), não as cores nem o estilo final — esses definem-se no tema da app (<code>themes.xml</code> e <code>colors.xml</code>, com modo claro e escuro).<br>
+      Em todos os ecrãs que pedem dados à API, aparece uma <b>ProgressBar</b> enquanto carregam; nos ecrãs a partir do Quadro, a barra superior traz o <b>botão “Voltar”</b> (seta ligada ao NavController), para além do botão de voltar do sistema.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

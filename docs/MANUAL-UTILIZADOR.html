@@ -34,29 +34,43 @@
   <li>Sem conta? <strong>Não tens conta? Regista-te</strong> → preenche nome, email e palavra-passe. Os campos obrigatórios avisam dentro do próprio campo se faltar algo.</li>
   <li>Recebeste um convite? <strong>Tenho um convite</strong> → cola o link e aceita (precisas de sessão iniciada).</li>
 </ol>
+<p>Enquanto o login é validado aparece uma barra de progressão a rodar por baixo da palavra-passe.</p>
 <div class="img">[[IMG:n1-login.png]]<div class="legenda">Ecrã de entrada, com acesso à conta de demonstração, registo e convite</div></div>
 
+<h3>Criar conta</h3>
+<p>Em <strong>Não tens conta? Regista-te</strong> preenche nome, email e palavra-passe. Se faltar algum campo ou o email não tiver formato válido, o próprio campo mostra o aviso. Com a conta criada entras direto nos projetos.</p>
+<div class="img">[[IMG:n9-registo.png]]<div class="legenda">Registo: os três campos são obrigatórios</div></div>
+
+<h3>Aceitar um convite</h3>
+<p>Cola o link que te enviaram e toca em <strong>Ver convite</strong>: aparece o projeto, quem convidou, para que email e o estado. Depois toca em <strong>Aceitar convite</strong>. Se ainda não tiveres sessão, a app pede o login e retoma o convite a seguir.</p>
+<div class="img">[[IMG:n8-convite.png]]<div class="legenda">Ecrã de convite, com o botão de voltar no canto superior</div></div>
+
 <h2>3. Projetos — "O teu espaço de trabalho, organizado."</h2>
-<p>A lista mostra os projetos onde és membro. O botão <strong>+</strong> cria um projeto novo (nome e descrição); tocar num cartão abre o quadro; tocar longo num projeto teu permite apagá-lo (só o criador pode). O botão do canto abre <strong>O teu perfil</strong>. Puxa a lista para baixo para atualizar; se falhar a ligação aparece uma barra com <strong>Tentar de novo</strong>.</p>
+<p>A lista mostra os projetos onde és membro. Enquanto carrega, uma barra de progressão roda ao centro. O botão <strong>+</strong> cria um projeto novo (nome e descrição); tocar num cartão abre o quadro; tocar longo num projeto teu permite apagá-lo (só o criador pode). O botão do canto abre <strong>O teu perfil</strong>. Puxa a lista para baixo para atualizar; se falhar a ligação aparece uma barra com <strong>Tentar de novo</strong>.</p>
 <div class="img">[[IMG:n2-projetos.png]]<div class="legenda">Lista de projetos (a app gere aqui o desenvolvimento de si própria)</div></div>
 
 <h2>4. O quadro — "Um passo de cada vez."</h2>
-<p>O quadro tem <strong>três separadores</strong> com a contagem de tarefas de cada coluna e <strong>chips</strong> para filtrar por pessoa ("Todas as pessoas" mostra tudo). Cada cartão mostra o responsável, o título e o prazo — <strong>a vermelho se estiver atrasado</strong>. Enquanto os dados carregam, o indicador de atualização roda no topo.</p>
+<p>O quadro tem <strong>três separadores</strong> com a contagem de tarefas de cada coluna e <strong>chips</strong> para filtrar por pessoa ("Todas as pessoas" mostra tudo). Cada cartão mostra o responsável, o título e o prazo — <strong>a vermelho se estiver atrasado</strong>. Enquanto os dados carregam, uma barra de progressão roda ao centro (e o indicador do topo quando puxas para atualizar).</p>
 <ul>
-  <li><strong>Nova tarefa</strong> (botão <strong>+</strong>): título, descrição, responsável (escolhe da lista), prazo (calendário) e coluna.</li>
+  <li><strong>Nova tarefa</strong> (botão <strong>+</strong>): título, descrição, responsável (escolhe da lista), coluna (um menu pendente com as três colunas), prazo (calendário) e link (opcional).</li>
+  <li><strong>Validação:</strong> se tocares em Guardar sem título, responsável ou prazo, o formulário fica aberto e os campos em falta ficam assinalados com um ponto de exclamação.</li>
   <li><strong>Abrir a tarefa:</strong> toca no cartão.</li>
   <li><strong>Mover de coluna:</strong> tocar longo no cartão e escolher para onde.</li>
   <li><strong>Esconder concluídas</strong> (interruptor por baixo dos filtros): ligado, as tarefas concluídas desaparecem — útil para focar no que falta.</li>
 </ul>
-<div class="img">[[IMG:n3-quadro.png]]<div class="legenda">Quadro com separadores por estado, filtro por pessoa e cartões com prazo</div></div>
+<div class="img">[[IMG:n3-quadro.png]]<div class="legenda">Quadro com separadores por estado, filtro por pessoa, interruptor e cartões com prazo</div></div>
+<div class="img">[[IMG:n3b-dialogo-nova-tarefa.png]]<div class="legenda">Formulário de nova tarefa; a coluna escolhe-se no menu pendente</div></div>
+<div class="img">[[IMG:n3c-spinner.png]]<div class="legenda">Menu pendente com as três colunas do quadro</div></div>
+<div class="img">[[IMG:n3d-validacao.png]]<div class="legenda">Guardar sem preencher: os campos obrigatórios ficam assinalados e o formulário continua aberto</div></div>
 
 <h2>5. Detalhe da tarefa</h2>
 <p>Vês tudo da tarefa (responsável, prazo, estado, descrição e link) e:
 <ul>
-  <li><strong>Editar</strong> abre o mesmo formulário da criação, já preenchido;</li>
+  <li><strong>Editar</strong> abre o mesmo formulário da criação, já preenchido (podes mudar a coluna);</li>
   <li><strong>Apagar</strong> pede confirmação;</li>
   <li><strong>Subtarefas:</strong> escreve no campo e toca em <strong>+</strong>; toca numa subtarefa para marcar/desmarcar (texto riscado); tocar longo apaga. A <strong>barra de progresso</strong> mostra a percentagem concluída.</li>
 </ul>
+<p>O link só aparece quando a tarefa tem um.</p>
 <div class="img">[[IMG:n4-detalhe.png]]<div class="legenda">Detalhe com checklist e progresso</div></div>
 
 <h2>6. Membros — "As pessoas que fazem acontecer."</h2>
@@ -72,11 +86,15 @@
 <div class="img">[[IMG:n7-perfil.png]]<div class="legenda">Perfil e dados da conta</div></div>
 
 <h2>9. Se algo falhar</h2>
+<p>A app distingue quatro situações e mostra uma mensagem diferente para cada uma:</p>
 <ul>
   <li><strong>"Sem ligação à Internet"</strong> — verifica o WiFi/dados e tenta de novo (nos projetos aparece <strong>Tentar de novo</strong>).</li>
   <li><strong>"O servidor demorou a responder"</strong> — o site está lento; espera uns segundos.</li>
+  <li><strong>"A resposta do servidor veio num formato inválido"</strong> — o servidor respondeu, mas com dados que a app não consegue ler; tenta outra vez.</li>
+  <li><strong>"Erro do servidor"</strong> — falha do lado do site; tenta mais tarde.</li>
   <li><strong>Esqueci-me da palavra-passe</strong> — recuperas no site taskflow.algarit.pt ou crias conta nova.</li>
 </ul>
+<div class="img">[[IMG:n10-sem-ligacao.png]]<div class="legenda">Sem ligação: os projetos continuam no ecrã e aparece a barra com Tentar de novo</div></div>
 
 </body>
 </html>

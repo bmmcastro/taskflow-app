@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Registo: ConstraintLayout com uma cadeia vertical compactada
+     (o conteúdo fica centrado quando cabe no ecrã). -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,45 +10,113 @@
     android:background="@color/fundo"
     android:fillViewport="true"
     android:clipToPadding="false">
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="28dp"
-        android:gravity="center_vertical"
+        android:padding="@dimen/margem_grande"
         android:focusableInTouchMode="true">
-        <TextView style="@style/TituloGrande" android:text="@string/criar_conta"/>
-        <TextView style="@style/TextoApoio" android:text="@string/registo_apoio"/>
-        <Space android:layout_width="1dp" android:layout_height="32dp"/>
+
+        <TextView
+            android:id="@+id/titulo_registo"
+            style="@style/TituloGrande"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/criar_conta"
+            app:layout_constraintBottom_toTopOf="@id/texto_apoio_registo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"/>
+
+        <TextView
+            android:id="@+id/texto_apoio_registo"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/registo_apoio"
+            app:layout_constraintBottom_toTopOf="@id/campo_nome"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_registo"/>
+
         <EditText
             android:id="@+id/campo_nome"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_32"
             android:hint="@string/nome"
             android:inputType="textPersonName"
-            android:autofillHints="name"/>
-        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            android:autofillHints="name"
+            app:layout_constraintBottom_toTopOf="@id/campo_email"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_apoio_registo"/>
+
         <EditText
             android:id="@+id/campo_email"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:autofillHints="emailAddress"/>
-        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            android:autofillHints="emailAddress"
+            app:layout_constraintBottom_toTopOf="@id/campo_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_nome"/>
+
         <EditText
             android:id="@+id/campo_password"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:hint="@string/password"
             android:inputType="textPassword"
-            android:autofillHints="newPassword"/>
-        <Space android:layout_width="1dp" android:layout_height="24dp"/>
+            android:autofillHints="newPassword"
+            app:layout_constraintBottom_toTopOf="@id/loading"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_email"/>
+
+        <!-- Indicador de carregamento: visível enquanto a conta é criada. -->
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="@dimen/altura_indicador"
+            android:layout_height="@dimen/altura_indicador"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/botao_criar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_password"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_criar"
             style="@style/BotaoPrimario"
-            android:text="@string/criar_conta"/>
-        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_24"
+            android:text="@string/criar_conta"
+            app:layout_constraintBottom_toTopOf="@id/botao_entrar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loading"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_entrar"
             style="@style/BotaoTexto"
-            android:text="@string/ja_tens_conta"/>
-    </LinearLayout>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem"
+            android:text="@string/ja_tens_conta"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_criar"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

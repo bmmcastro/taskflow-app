@@ -6,9 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -17,11 +14,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.algarit.taskflow.R
 import com.algarit.taskflow.adapter.TarefasAdapter
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityQuadroBinding
+import com.algarit.taskflow.databinding.DialogTarefaBinding
 import com.algarit.taskflow.model.EstadoTarefa
 import com.algarit.taskflow.model.Tarefa
 import com.algarit.taskflow.model.TarefaPedido
@@ -44,10 +41,6 @@ class QuadroFragment : Fragment() {
     private var prazoEscolhido = ""
 
     private lateinit var adaptador: TarefasAdapter
-    private lateinit var swipe: SwipeRefreshLayout
-    private lateinit var textoVazio: TextView
-    private lateinit var linhaFiltros: LinearLayout
-    private lateinit var tabs: TabLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -83,12 +76,12 @@ class QuadroFragment : Fragment() {
         binding.listaTarefas.layoutManager = LinearLayoutManager(requireContext())
         binding.listaTarefas.adapter = adaptador
 
-        swipe = binding.swipeQuadro
-        swipe.setOnRefreshListener { viewModel.carregarTudo(args.projetoId) }
-        textoVazio = binding.textoVazio
-        linhaFiltros = binding.linhaFiltros
+        binding.swipeQuadro.setOnRefreshListener { viewModel.carregarTudo(args.projetoId) }
 
-        tabs = binding.tabsEstado
+        // Filtro com Switch: ligado, esconde as tarefas concluídas.
+        binding.switchEsconderConcluidas.setOnCheckedChangeListener { _, _ -> refrescar() }
+
+        val tabs = binding.tabsEstado
         listOf(getString(R.string.por_fazer), getString(R.string.em_curso), getString(R.string.concluida))
             .forEach { tabs.addTab(tabs.newTab().setText(it)) }
         tabs.getTabAt(estadoAtual.ordinal)?.select()
@@ -103,23 +96,37 @@ class QuadroFragment : Fragment() {
 
         viewModel.membros.observe(viewLifecycleOwner) { construirChips(it) }
         viewModel.tarefas.observe(viewLifecycleOwner) { estado ->
-            swipe.isRefreshing = estado is UiState.Loading
+            // ProgressBar visível enquanto os dados são obtidos (e o indicador de
+            // atualização no topo, para quem puxou a lista para atualizar).
+            binding.loading.isVisible = estado is UiState.Loading
+            binding.swipeQuadro.isRefreshing = estado is UiState.Loading
             when (estado) {
-                is UiState.Sucesso -> { tarefas.clear(); tarefas.addAll(estado.dados); refrescar() }
-                is UiState.Erro -> { textoVazio.isVisible = true; aviso(estado.mensagem) }
+                is UiState.Sucesso -> {
+                    tarefas.clear(); tarefas.addAll(estado.dados)
+                    // O texto de "sem tarefas" volta ao normal (podia estar a mostrar um erro).
+                    binding.textoVazio.setText(R.string.sem_tarefas)
+                    refrescar()
+                }
+                is UiState.Erro -> {
+                    // Com tarefas já no ecrã, elas ficam como estão: o texto de "sem tarefas"
+                    // só se mostra se ainda não houver nada, e nesse caso com o motivo do erro.
+                    if (adaptador.itemCount == 0) {
+                        binding.textoVazio.text = estado.mensagem
+                        binding.textoVazio.isVisible = true
+                    }
+                    aviso(estado.mensagem)
+                }
                 else -> Unit
             }
         }
         viewModel.atualizar.observe(viewLifecycleOwner) { viewModel.carregarTudo(args.projetoId) }
         viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
 
-        // Filtro com Switch: ligado, esconde as tarefas concluídas.
-        binding.switchEsconderConcluidas.setOnCheckedChangeListener { _, _ -> refrescar() }
-
         viewModel.carregarTudo(args.projetoId)
     }
 
     private fun construirChips(nomesMembros: List<String>) {
+        val linhaFiltros = binding.linhaFiltros
         linhaFiltros.removeAllViews()
         val opcoes = listOf(getString(R.string.todas_as_pessoas)) + nomesMembros
         opcoes.forEach { nome ->
@@ -145,40 +152,41 @@ class QuadroFragment : Fragment() {
             .filter { !esconderConcluidas || EstadoTarefa.de(it.status) != EstadoTarefa.CONCLUIDA }
             .sortedBy { it.dataConclusao ?: "9999-12-31" }
         adaptador.atualizar(visiveis)
-        textoVazio.isVisible = visiveis.isEmpty()
+        binding.textoVazio.isVisible = visiveis.isEmpty()
 
-        tabs.getTabAt(0)?.text = "${getString(R.string.por_fazer)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.POR_FAZER }})"
-        tabs.getTabAt(1)?.text = "${getString(R.string.em_curso)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.EM_CURSO }})"
-        tabs.getTabAt(2)?.text = "${getString(R.string.concluida)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.CONCLUIDA }})"
+        binding.tabsEstado.getTabAt(0)?.text = "${getString(R.string.por_fazer)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.POR_FAZER }})"
+        binding.tabsEstado.getTabAt(1)?.text = "${getString(R.string.em_curso)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.EM_CURSO }})"
+        binding.tabsEstado.getTabAt(2)?.text = "${getString(R.string.concluida)} (${tarefas.count { EstadoTarefa.de(it.status) == EstadoTarefa.CONCLUIDA }})"
     }
 
     // Criar tarefa nova (tarefa == null) ou editar uma existente.
     private fun dialogTarefa(tarefa: Tarefa?) {
         // ViewBinding também nos diálogos: sem findViewById.
-        val dialogo = com.algarit.taskflow.databinding.DialogTarefaBinding.inflate(layoutInflater)
+        val dialogo = DialogTarefaBinding.inflate(layoutInflater)
         val campoTitulo = dialogo.campoTitulo
         val campoResponsavel = dialogo.campoResponsavel
 
         val nomesMembros = viewModel.membros.value ?: emptyList()
         campoResponsavel.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, nomesMembros))
         campoResponsavel.setOnClickListener { campoResponsavel.showDropDown() }
+        // Spinner com as colunas do quadro: ao editar começa na coluna atual.
+        dialogo.spinnerEstado.mostrarEstados(EstadoTarefa.de(tarefa?.status))
         prazoEscolhido = tarefa?.dataConclusao ?: ""
         if (tarefa != null) {
             campoTitulo.setText(tarefa.titulo)
             dialogo.campoDescricao.setText(tarefa.descricao)
             campoResponsavel.setText(tarefa.responsavel)
             dialogo.campoPrazo.setText(dataCurta(tarefa.dataConclusao))
-            dialogo.campoLink.setText(tarefa.link)
+            dialogo.campoLink.setText(tarefa.link.orEmpty())
         }
 
         dialogo.campoPrazo.setOnClickListener {
             val cal = Calendar.getInstance()
             DatePickerDialog(requireContext(), { _, ano, mes, dia ->
-                val m = if (mes + 1 < 10) "0${mes + 1}" else "${mes + 1}"
-                val d = if (dia < 10) "0$dia" else "$dia"
-                prazoEscolhido = "$ano-$m-$d"
-                dialogo.campoPrazo.setText("$d/$m/$ano")
-            }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show()
+                prazoEscolhido = String.format(java.util.Locale.US, "%04d-%02d-%02d", ano, mes + 1, dia)
+                dialogo.campoPrazo.setText("$dia/${mes + 1}/$ano")
+                dialogo.campoPrazo.error = null
+            }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]).show()
         }
 
         val alerta = MaterialAlertDialogBuilder(requireContext())
@@ -204,7 +212,7 @@ class QuadroFragment : Fragment() {
                     descricao = dialogo.campoDescricao.text.toString().trim(),
                     criador = tarefa?.criador ?: Sessao.nome,
                     responsavel = responsavel,
-                    status = tarefa?.status ?: EstadoTarefa.POR_FAZER.rotulo,
+                    status = dialogo.spinnerEstado.estadoEscolhido.rotulo,
                     dataConclusao = prazoEscolhido,
                     link = dialogo.campoLink.text.toString().trim(),
                     projetoId = null

@@ -1,11 +1,11 @@
 package com.algarit.taskflow.ui
 
 import android.os.Bundle
+import android.text.InputType
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,8 +13,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.algarit.taskflow.R
+import com.algarit.taskflow.adapter.MembrosAdapter
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityMembrosBinding
+import com.algarit.taskflow.databinding.DialogEmailBinding
 import com.algarit.taskflow.model.Utilizador
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -26,7 +28,7 @@ class MembrosFragment : Fragment() {
     private val args: MembrosFragmentArgs by navArgs()
     private val viewModel: MembrosViewModel by viewModels()
 
-    private val membros = mutableListOf<Utilizador>()
+    private lateinit var adaptador: MembrosAdapter
     private var agendarDialogo = false
 
     override fun onCreateView(
@@ -40,19 +42,20 @@ class MembrosFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Sessao.carregar(requireContext())
 
+        adaptador = MembrosAdapter(aoSegurar = { confirmarRemover(it) })
+        adaptador.criadorId = args.criadorId
+        binding.listaMembros.layoutManager = LinearLayoutManager(requireContext())
+        binding.listaMembros.adapter = adaptador
+
         binding.botaoAdicionar.setOnClickListener {
             agendarDialogo = true
             viewModel.carregarCandidatos(args.projetoId)
         }
         binding.botaoConvidar.setOnClickListener { dialogConvidar() }
 
-        binding.listaMembros.layoutManager = LinearLayoutManager(requireContext())
-        binding.listaMembros.adapter = MembrosAdapter()
-
         viewModel.membros.observe(viewLifecycleOwner) { lista ->
             binding.loading.isVisible = false
-            membros.clear(); membros.addAll(lista)
-            binding.listaMembros.adapter?.notifyDataSetChanged()
+            adaptador.atualizar(lista)
         }
         viewModel.convitesTexto.observe(viewLifecycleOwner) { binding.textoConvites.text = it }
         viewModel.erro.observe(viewLifecycleOwner) {
@@ -63,19 +66,20 @@ class MembrosFragment : Fragment() {
             if (token != null) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.convites_pendentes)
-                    .setMessage("Envia este link:\nhttps://taskflow.algarit.pt/#convite/$token")
+                    .setMessage(getString(R.string.link_convite, token))
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
             }
         }
         viewModel.candidatos.observe(viewLifecycleOwner) { candidatos ->
+            // Só abrimos o diálogo quando o pedido foi mesmo pedido (e não ao voltar ao ecrã).
             if (!agendarDialogo || !isAdded) return@observe
             agendarDialogo = false
-            if (candidatos.isEmpty()) { aviso("Não há mais utilizadores registados"); return@observe }
-            val nomes = candidatos.map { "${it.nome} (${it.email})" }.toTypedArray()
+            if (candidatos.isEmpty()) { aviso(getString(R.string.sem_candidatos)); return@observe }
+            val opcoes = candidatos.map { getString(R.string.candidato_opcao, it.nome, it.email) }.toTypedArray()
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.adicionar_membro)
-                .setItems(nomes) { _, qual ->
+                .setItems(opcoes) { _, qual ->
                     viewModel.juntar(args.projetoId, candidatos[qual].id)
                 }
                 .setNegativeButton(R.string.cancelar, null)
@@ -88,21 +92,21 @@ class MembrosFragment : Fragment() {
 
     // Convidar por email: a API devolve o token do convite para partilharmos o link.
     private fun dialogConvidar() {
-        if (args.criadorId != Sessao.utilizadorId) { aviso("Só o criador pode convidar"); return }
-        val campo = EditText(requireContext())
-        campo.hint = getString(R.string.email)
-        campo.inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-        campo.setPadding(48, 24, 48, 24)
+        if (args.criadorId != Sessao.utilizadorId) { aviso(getString(R.string.so_criador_convida)); return }
+        // ViewBinding também nos diálogos: sem criar vistas nem findViewById no código.
+        val dialogo = DialogEmailBinding.inflate(layoutInflater)
+        dialogo.campoEmail.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.convidar_por_email)
-            .setView(campo)
+            .setView(dialogo.root)
             .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
         alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val email = campo.text.toString().trim()
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                campo.error = "Escreve um email válido"
+            val email = dialogo.campoEmail.text.toString().trim()
+            // Validação do formato do email com setError no próprio campo.
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                dialogo.campoEmail.error = getString(R.string.erro_email)
                 return@setOnClickListener
             }
             viewModel.convidar(args.projetoId, email, Sessao.utilizadorId)
@@ -110,41 +114,16 @@ class MembrosFragment : Fragment() {
         }
     }
 
-    private fun aviso(mensagem: String) = requireContext().aviso(mensagem)
-
-    // Lista simples dos membros, com o toque longo a remover.
-    inner class MembrosAdapter : androidx.recyclerview.widget.RecyclerView.Adapter<MembrosAdapter.VH>() {
-        inner class VH(v: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(v) {
-            val avatar: TextView = v.findViewById(R.id.item_avatar)
-            val nome: TextView = v.findViewById(R.id.item_nome)
-            val email: TextView = v.findViewById(R.id.item_email)
-            val tag: TextView = v.findViewById(R.id.item_tag_criador)
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            VH(LayoutInflater.from(parent.context).inflate(R.layout.item_membro, parent, false))
-
-        override fun getItemCount() = membros.size
-
-        override fun onBindViewHolder(h: VH, pos: Int) {
-            val m = membros[pos]
-            h.avatar.text = m.nome.trim().take(1).uppercase()
-            h.nome.text = m.nome
-            h.email.text = m.email
-            h.tag.visibility = if (m.id == args.criadorId) View.VISIBLE else View.GONE
-            if (m.id == args.criadorId) h.tag.text = getString(R.string.criador)
-            h.itemView.setOnLongClickListener { confirmarRemover(m); true }
-        }
-    }
-
-    private fun confirmarRemover(m: Utilizador) {
+    private fun confirmarRemover(membro: Utilizador) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.remover_do_projeto)
-            .setMessage("Remover ${m.nome} do projeto?")
-            .setPositiveButton(R.string.apagar) { _, _ -> viewModel.remover(args.projetoId, m.id) }
+            .setMessage(getString(R.string.remover_membro_pergunta, membro.nome))
+            .setPositiveButton(R.string.apagar) { _, _ -> viewModel.remover(args.projetoId, membro.id) }
             .setNegativeButton(R.string.cancelar, null)
             .show()
     }
+
+    private fun aviso(mensagem: String) = requireContext().aviso(mensagem)
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -1,12 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Dimensões partilhadas: margens, espaçamentos, alturas e tamanhos de letra.
+     Os layouts e os estilos usam estes valores em vez de números soltos. -->
 <resources>
+    <!-- Margens laterais -->
+    <dimen name="margem_ecra">24dp</dimen>
     <dimen name="margem">20dp</dimen>
-    <dimen name="margem_pequena">12dp</dimen>
     <dimen name="margem_grande">28dp</dimen>
+    <dimen name="margem_pequena">12dp</dimen>
+    <dimen name="margem_mini">8dp</dimen>
+
+    <!-- Espaçamentos entre elementos -->
+    <dimen name="espaco_4">4dp</dimen>
+    <dimen name="espaco_6">6dp</dimen>
+    <dimen name="espaco_8">8dp</dimen>
+    <dimen name="espaco_16">16dp</dimen>
+    <dimen name="espaco_22">22dp</dimen>
+    <dimen name="espaco_24">24dp</dimen>
+    <dimen name="espaco_32">32dp</dimen>
+
+    <!-- Alturas -->
     <dimen name="altura_botao">56dp</dimen>
+    <dimen name="altura_botao_icone">48dp</dimen>
+    <dimen name="altura_indicador">28dp</dimen>
+
+    <!-- Cantos arredondados -->
     <dimen name="raio_cartao">22dp</dimen>
+    <dimen name="raio_botao">16dp</dimen>
+
+    <!-- Avatares e logótipo -->
     <dimen name="avatar">44dp</dimen>
-    <dimen name="texto_titulo">22sp</dimen>
-    <dimen name="texto_normal">16sp</dimen>
+    <dimen name="avatar_pequeno">36dp</dimen>
+    <dimen name="avatar_perfil">88dp</dimen>
+    <dimen name="logo">72dp</dimen>
+
+    <!-- Tamanhos de letra -->
+    <dimen name="texto_mini">12sp</dimen>
     <dimen name="texto_secundario">13sp</dimen>
+    <dimen name="texto_apoio">15sp</dimen>
+    <dimen name="texto_normal">16sp</dimen>
+    <dimen name="texto_botao">17sp</dimen>
+    <dimen name="texto_secao">20sp</dimen>
+    <dimen name="texto_titulo">34sp</dimen>
+    <dimen name="texto_numero">32sp</dimen>
+    <dimen name="texto_logo">42sp</dimen>
 </resources>

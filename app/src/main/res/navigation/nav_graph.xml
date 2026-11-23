@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Grafo de navegação (Aula 8): um destino por ecrã, ações com Safe Args
-     para passar os ids com o tipo certo. -->
+     para passar os ids com o tipo certo. Os rótulos vêm dos recursos de texto. -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
@@ -9,7 +9,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.algarit.taskflow.ui.LoginFragment"
-        android:label="TaskFlow">
+        android:label="@string/app_name">
         <action
             android:id="@+id/action_login_to_registo"
             app:destination="@id/registoFragment" />
@@ -23,7 +23,7 @@
     <fragment
         android:id="@+id/registoFragment"
         android:name="com.algarit.taskflow.ui.RegistoFragment"
-        android:label="Criar conta">
+        android:label="@string/criar_conta">
         <action
             android:id="@+id/action_registo_to_projetos"
             app:destination="@id/projetosFragment"
@@ -34,7 +34,7 @@
     <fragment
         android:id="@+id/projetosFragment"
         android:name="com.algarit.taskflow.ui.ProjetosFragment"
-        android:label="Os meus projetos">
+        android:label="@string/os_meus_projetos">
         <action
             android:id="@+id/action_projetos_to_quadro"
             app:destination="@id/quadroFragment" />
@@ -51,7 +51,7 @@
     <fragment
         android:id="@+id/quadroFragment"
         android:name="com.algarit.taskflow.ui.QuadroFragment"
-        android:label="Quadro">
+        android:label="@string/quadro">
         <argument
             android:name="projetoId"
             app:argType="integer" />
@@ -75,7 +75,7 @@
     <fragment
         android:id="@+id/detalheTarefaFragment"
         android:name="com.algarit.taskflow.ui.DetalheTarefaFragment"
-        android:label="Tarefa">
+        android:label="@string/tarefa">
         <argument
             android:name="tarefaId"
             app:argType="integer" />
@@ -87,7 +87,7 @@
     <fragment
         android:id="@+id/membrosFragment"
         android:name="com.algarit.taskflow.ui.MembrosFragment"
-        android:label="Membros">
+        android:label="@string/membros">
         <argument
             android:name="projetoId"
             app:argType="integer" />
@@ -99,7 +99,7 @@
     <fragment
         android:id="@+id/relatorioFragment"
         android:name="com.algarit.taskflow.ui.RelatorioFragment"
-        android:label="Relatório">
+        android:label="@string/relatorio">
         <argument
             android:name="projetoId"
             app:argType="integer" />
@@ -108,7 +108,7 @@
     <fragment
         android:id="@+id/perfilFragment"
         android:name="com.algarit.taskflow.ui.PerfilFragment"
-        android:label="A minha conta">
+        android:label="@string/a_minha_conta">
         <action
             android:id="@+id/action_perfil_to_login"
             app:destination="@id/loginFragment"

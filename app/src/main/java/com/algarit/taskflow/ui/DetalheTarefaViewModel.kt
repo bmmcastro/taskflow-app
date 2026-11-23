@@ -39,7 +39,7 @@ class DetalheTarefaViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 val encontrada = Api.servico.tarefas(projetoId).firstOrNull { it.id == tarefaId }
                 if (encontrada == null) {
-                    _tarefa.value = UiState.Erro("Tarefa não encontrada")
+                    _tarefa.value = UiState.Erro(getApplication<Application>().getString(com.algarit.taskflow.R.string.erro_tarefa))
                 } else {
                     _tarefa.value = UiState.Sucesso(encontrada)
                 }

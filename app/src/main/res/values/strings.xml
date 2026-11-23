@@ -6,9 +6,58 @@
     <string name="guardar">Guardar</string>
     <string name="apagar">Apagar</string>
     <string name="a_carregar">A carregar…</string>
+
+    <!-- Erros de rede e do servidor (cada caso tem a sua mensagem) -->
     <string name="erro_rede">Sem ligação à Internet. Verifica a rede e tenta de novo.</string>
     <string name="erro_timeout">O servidor demorou a responder. Tenta outra vez.</string>
+    <string name="erro_resposta">A resposta do servidor veio num formato inválido. Tenta outra vez.</string>
     <string name="erro_servidor">Erro do servidor. Tenta mais tarde.</string>
+
+    <!-- Validação dos formulários (setError no próprio campo) -->
+    <string name="erro_campos">Preenche este campo</string>
+    <string name="erro_email">Escreve um email válido</string>
+    <string name="erro_titulo">Escreve o título</string>
+    <string name="erro_responsavel">Escolhe o responsável</string>
+    <string name="erro_prazo">Escolhe o prazo</string>
+    <string name="erro_subtarefa">Escreve a subtarefa</string>
+    <string name="erro_nome_projeto">Dá um nome ao projeto</string>
+    <string name="erro_colar_convite">Cola o link do convite</string>
+
+    <!-- Avisos -->
+    <string name="erro_login">Não foi possível entrar</string>
+    <string name="erro_tarefa">Tarefa não encontrada</string>
+    <string name="erro_link">Link inválido</string>
+    <string name="erro_ver_convite">Carrega em Ver convite antes de aceitar</string>
+    <string name="erro_sessao_convite">Inicia sessão primeiro para aceitares o convite</string>
+    <string name="convite_aceite">Agora és membro do projeto!</string>
+    <string name="so_criador_apaga">Só o criador pode apagar o projeto</string>
+    <string name="so_criador_convida">Só o criador pode convidar</string>
+    <string name="sem_candidatos">Não há mais utilizadores registados</string>
+    <string name="conta_atualizada">Conta atualizada</string>
+    <string name="tentar_de_novo">Tentar de novo</string>
+
+    <!-- Convites -->
+    <string name="sem_convites">Sem convites pendentes.</string>
+    <string name="convite_pendente">%1$s (%2$s)</string>
+    <string name="candidato_opcao">%1$s (%2$s)</string>
+    <string name="link_convite">Envia este link:\nhttps://taskflow.algarit.pt/#convite/%1$s</string>
+    <string name="convite_detalhe">Projeto: %1$s\nConvidado por: %2$s\nPara o email: %3$s\nEstado: %4$s</string>
+
+    <!-- Textos com valores -->
+    <string name="prazo_label">Prazo: %1$s</string>
+    <string name="percentagem_valor">%1$d%%</string>
+    <string name="subtarefas_concluidas">%1$d de %2$d concluídas (%3$d%%)</string>
+    <string name="remover_membro_pergunta">Remover %1$s do projeto?</string>
+
+    <!-- Formulário da tarefa -->
+    <string name="coluna">Coluna</string>
+
+    <!-- Rótulos dos ecrãs no grafo de navegação -->
+    <string name="os_meus_projetos">Os meus projetos</string>
+    <string name="quadro">Quadro</string>
+    <string name="tarefa">Tarefa</string>
+    <string name="a_minha_conta">A minha conta</string>
+
     <string name="slogan">As tarefas da tua equipa, organizadas.</string>
     <string name="entrar">Entrar</string>
     <string name="email">Email</string>
@@ -61,11 +110,6 @@
     <string name="criado_por_ti">Criado por ti</string>
     <string name="criador">Criador</string>
     <string name="editar_tarefa">Editar tarefa</string>
-    <string name="tentar_de_novo">Tentar de novo</string>
-    <string name="erro_titulo">Escreve o título</string>
-    <string name="erro_responsavel">Escolhe o responsável</string>
-    <string name="erro_prazo">Escolhe o prazo</string>
-    <string name="erro_campos">Preenche todos os campos</string>
     <string name="slogan_login">Mais clareza. Menos esforço.</string>
     <string name="registo_apoio">Um espaço para as tuas ideias e a tua equipa.</string>
     <string name="projetos">Projetos</string>

@@ -13,9 +13,11 @@
   tr:nth-child(even) td { background: #f5f5f5; }
   .meta { background: #f5f5f5; border-left: 4px solid #777; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
   .nota { background: #f5f5f5; border-left: 4px solid #999; padding: 9px 13px; margin: 12px 0; font-size: 13px; }
-  code { background: #efefef; padding: 0 4px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12.5px; }
+  code { background: #efefef; padding: 0 4px; border-radius: 3px; font-family: Consolas, monospace; font-size: 12px; }
   ul, ol { padding-left: 22px; } li { margin-bottom: 4px; }
-  @media print { table { page-break-inside: avoid; } h2 { page-break-after: avoid; } }
+  .img { text-align: center; margin: 12px 0; }
+  .legenda { font-size: 11.5px; color: #666; margin-top: 3px; }
+  @media print { table { page-break-inside: avoid; } h2 { page-break-after: avoid; } .img { page-break-inside: avoid; } }
 </style>
 </head>
 <body>
@@ -23,37 +25,56 @@
 <h1>TaskFlow — Planeamento</h1>
 <div class="meta">
   <strong>UC00609 — Desenvolver aplicações móveis (plataforma Android)</strong> · Trabalho individual<br>
-  <strong>Autor:</strong> Bruno Castro
+  <strong>Autor:</strong> Bruno Castro · <strong>Data:</strong> 23/11/2026
 </div>
 
 <h2>1. A app</h2>
 <p><strong>Objetivo.</strong> Uma app Android em Kotlin para gerir projetos e tarefas em equipa, estilo Trello. É o cliente móvel do <strong>TaskFlow</strong> (projeto web da UC00605, em produção em <code>https://taskflow.algarit.pt</code>): a app consome a API REST do site, por isso uma tarefa movida no telemóvel aparece logo no site e vice-versa.</p>
 <p><strong>Público-alvo.</strong> Pequenas equipas com trabalho partilhado: trabalhos de escola, projetos de curso, pequenas empresas.</p>
-<p><strong>Porque este tema.</strong> As sugestões do enunciado usavam APIs públicas de demonstração; escolhi a API real do TaskFlow porque a conheço bem (fiz o recurso Tarefas no projeto web), tem casos reais (autenticação, validações, erros de negócio) e o resultado é útil de verdade.</p>
-<p><strong>API.</strong> REST, JSON, HTTPS. Autenticação por id do utilizador (a mesma que o site usa no browser). Conta de demonstração: <code>demo@taskflow.pt / 1234</code>.</p>
+<p><strong>Porque este tema.</strong> As sugestões do enunciado usavam APIs públicas de demonstração; escolhi a API real do TaskFlow porque a conheço bem (fiz o recurso Tarefas no projeto web), tem casos reais (autenticação, validações, erros de negócio, campos que vêm a <code>null</code>) e o resultado é útil de verdade.</p>
+<p><strong>API.</strong> REST, JSON, HTTPS, em <code>https://taskflow.algarit.pt</code>. A app usa 23 endpoints (<code>GET</code>, <code>POST</code>, <code>PATCH</code>, <code>DELETE</code>) de utilizadores, projetos, membros, convites, tarefas, subtarefas e relatório. Conta de demonstração: <code>demo@taskflow.pt / 1234</code>.</p>
 
-<h2>2. User stories e priorização (MoSCoW)</h2>
+<h2>2. User stories com critérios de aceitação (MoSCoW)</h2>
+<p>Cada story segue o formato <em>Como &lt;utilizador&gt;, quero &lt;ação&gt;, para &lt;benefício&gt;</em> e só dá por concluída quando todos os critérios de aceitação passam.</p>
 <table>
-  <tr><th>ID</th><th>User story</th><th>MoSCoW</th></tr>
-  <tr><td>US01</td><td>Como utilizador, quero entrar com a conta do site para aceder aos meus projetos.</td><td>Must</td></tr>
-  <tr><td>US02</td><td>Como utilizador, quero criar conta nova na app.</td><td>Must</td></tr>
-  <tr><td>US03</td><td>Como utilizador, quero ver os meus projetos e criar/apagar os meus.</td><td>Must</td></tr>
-  <tr><td>US04</td><td>Como membro, quero ver o quadro com as três colunas e filtrar por pessoa.</td><td>Must</td></tr>
-  <tr><td>US05</td><td>Como membro, quero criar, editar, mover e apagar tarefas com responsável e prazo.</td><td>Must</td></tr>
-  <tr><td>US06</td><td>Como membro, quero gerir a checklist de subtarefas com barra de progresso.</td><td>Must</td></tr>
-  <tr><td>US07</td><td>Como gestor, quero ver os membros, juntar utilizadores e convidar por email.</td><td>Should</td></tr>
-  <tr><td>US08</td><td>Como convidado, quero aceitar um convite a partir do link.</td><td>Should</td></tr>
-  <tr><td>US09</td><td>Como gestor, quero o relatório do projeto (contagens, percentagem, por pessoa).</td><td>Should</td></tr>
-  <tr><td>US10</td><td>Como utilizador, quero editar o meu perfil e terminar sessão.</td><td>Should</td></tr>
-  <tr><td>US11</td><td>Como utilizador, quero mensagens claras de erro (sem ligação, timeout, servidor) com repetição.</td><td>Should</td></tr>
-  <tr><td>US12</td><td>Como membro, quero ver o prazo atrasado destacado no cartão.</td><td>Could</td></tr>
+  <tr><th style="width:6%">ID</th><th style="width:34%">User story</th><th style="width:50%">Critérios de aceitação</th><th style="width:10%">MoSCoW</th></tr>
+  <tr><td>US01</td><td>Como utilizador registado, quero entrar com o email e a palavra-passe do site, para aceder aos meus projetos no telemóvel sem criar outra conta.</td>
+      <td>1. Com credenciais certas abre a lista de projetos.<br>2. Com um campo vazio ou email sem formato, o campo mostra o erro e não é feito pedido.<br>3. Com credenciais erradas aparece a razão dada pelo servidor e o botão volta a ficar ativo.</td><td>Must</td></tr>
+  <tr><td>US02</td><td>Como visitante, quero criar conta na app, para passar a ter projetos e tarefas meus.</td>
+      <td>1. Nome, email e password são obrigatórios (erro no próprio campo).<br>2. O email tem de ter formato válido.<br>3. Conta criada → entra direto nos projetos.<br>4. Email já usado → mensagem do servidor.</td><td>Must</td></tr>
+  <tr><td>US03</td><td>Como membro de equipa, quero ver a lista dos projetos onde estou e criar projetos novos, para organizar o trabalho por projeto.</td>
+      <td>1. A lista vem da API e mostra uma ProgressBar enquanto carrega.<br>2. O botão + abre o formulário; o nome é obrigatório.<br>3. O projeto criado aparece na lista.<br>4. Tocar num projeto abre o quadro.<br>5. Sem ligação aparece uma Snackbar com “Tentar de novo”; puxar a lista para baixo atualiza.</td><td>Must</td></tr>
+  <tr><td>US04</td><td>Como criador do projeto, quero apagar um projeto meu, para retirar trabalho que já não faz sentido.</td>
+      <td>1. Toque longo num projeto meu pede confirmação.<br>2. “Apagar” remove-o da lista e do site.<br>3. Num projeto de outro criador é recusado com aviso.</td><td>Should</td></tr>
+  <tr><td>US05</td><td>Como membro, quero ver as tarefas do projeto por coluna (Por fazer, Em curso, Concluída), para saber o estado do trabalho.</td>
+      <td>1. Três separadores com a contagem de cada coluna.<br>2. Tocar num separador mostra só as tarefas dessa coluna, por ordem de prazo.<br>3. Cada cartão mostra responsável, título e prazo; prazo ultrapassado aparece a vermelho.<br>4. ProgressBar enquanto carrega.</td><td>Must</td></tr>
+  <tr><td>US06</td><td>Como membro, quero filtrar o quadro por responsável e esconder as concluídas, para ver só o que me interessa.</td>
+      <td>1. Chips com “Todas as pessoas” e os membros do projeto.<br>2. Escolher uma pessoa filtra em todas as colunas.<br>3. O Switch “Esconder concluídas” ligado esconde as concluídas em qualquer coluna; desligado, voltam.</td><td>Should</td></tr>
+  <tr><td>US07</td><td>Como membro, quero criar e editar tarefas com título, descrição, responsável, prazo e coluna, para atribuir trabalho com clareza.</td>
+      <td>1. O botão + abre o formulário; guardar sem título, responsável ou prazo mantém o formulário aberto com o erro no campo.<br>2. O responsável é escolhido da lista de membros.<br>3. A coluna é escolhida num Spinner.<br>4. A tarefa criada aparece na coluna escolhida.<br>5. Editar a partir do detalhe altera os dados no site.</td><td>Must</td></tr>
+  <tr><td>US08</td><td>Como membro, quero mover uma tarefa de coluna, para refletir o progresso.</td>
+      <td>1. Toque longo no cartão abre “Mover para…” com as outras duas colunas.<br>2. A tarefa muda de separador e as contagens atualizam.</td><td>Must</td></tr>
+  <tr><td>US09</td><td>Como membro, quero consultar o detalhe de uma tarefa e poder apagá-la, para rever ou limpar trabalho.</td>
+      <td>1. Tocar num cartão abre o detalhe com responsável, prazo, estado, descrição e link (quando existe).<br>2. O link abre no browser.<br>3. “Apagar” pede confirmação e volta ao quadro sem a tarefa.</td><td>Must</td></tr>
+  <tr><td>US10</td><td>Como membro, quero gerir uma checklist de subtarefas, para acompanhar o trabalho até ao fim.</td>
+      <td>1. Adicionar exige descrição.<br>2. Tocar marca/desmarca e o texto fica riscado.<br>3. A barra de progresso mostra a percentagem.<br>4. Toque longo apaga.</td><td>Must</td></tr>
+  <tr><td>US11</td><td>Como gestor do projeto, quero ver os membros, juntar utilizadores registados e convidar por email, para formar a equipa.</td>
+      <td>1. Lista de membros com a etiqueta “Criador”.<br>2. O botão + lista os utilizadores registados que ainda não são membros; escolher um adiciona-o.<br>3. “Convidar por email” valida o formato e devolve o link do convite.<br>4. Só o criador convida.<br>5. Toque longo remove um membro, com confirmação.</td><td>Should</td></tr>
+  <tr><td>US12</td><td>Como convidado, quero aceitar um convite a partir do link, para entrar no projeto.</td>
+      <td>1. Colar o link e “Ver convite” mostra projeto, quem convidou, email e estado.<br>2. “Aceitar” adiciona ao projeto e abre os projetos.<br>3. Sem sessão, pede o login e retoma o convite a seguir.<br>4. Link inválido mostra mensagem de erro.</td><td>Should</td></tr>
+  <tr><td>US13</td><td>Como gestor, quero ver o relatório do projeto, para perceber o progresso sem ler tarefa a tarefa.</td>
+      <td>1. Total, concluídas, em curso, por fazer e atrasadas.<br>2. Percentagem com barra de progresso.<br>3. Lista por pessoa ordenada por quantidade.<br>4. ProgressBar enquanto carrega.</td><td>Should</td></tr>
+  <tr><td>US14</td><td>Como utilizador, quero editar o meu perfil e terminar sessão, para manter os dados corretos e poder partilhar o telemóvel.</td>
+      <td>1. Nome e email vêm preenchidos; são obrigatórios e o email tem de ser válido.<br>2. Guardar atualiza a sessão e avisa.<br>3. A password só muda se for preenchida.<br>4. Terminar sessão volta ao login.</td><td>Should</td></tr>
+  <tr><td>US15</td><td>Como utilizador, quero mensagens claras quando algo falha, para saber o que fazer a seguir.</td>
+      <td>1. Sem Internet → “Sem ligação à Internet”.<br>2. Sem resposta em 15/30 s → “O servidor demorou a responder”.<br>3. Resposta em formato inválido → mensagem de resposta inválida.<br>4. Outro erro do servidor → mensagem genérica, sem texto técnico.</td><td>Should</td></tr>
 </table>
-<p><strong>Won't have (v1):</strong> base de dados local / modo offline, notificações push, envio de emails a partir da app (o convite gera o link; envia-se à mão), arrastar-e-largar cartões.</p>
+<p><strong>Won't have (v1):</strong> base de dados local / modo offline, notificações push, envio automático de emails a partir da app (o convite gera o link; envia-se à mão), arrastar-e-largar cartões.</p>
 
 <h2>3. Kanban</h2>
-<p>Fluxo: <strong>Backlog → A fazer → Em curso (máx. 2) → Em revisão → Concluído</strong>. O quadro deste projeto está registado no próprio TaskFlow (projeto "App TaskFlow Android (UC00609)"):</p>
+<p>Fluxo: <strong>Backlog → A fazer → Em curso (máx. 2) → Em revisão → Concluído</strong>. O quadro deste projeto está registado no próprio TaskFlow (projeto “App TaskFlow Android (UC00609)”):</p>
 <table>
-  <tr><th>Tarefa</th><th>Estado</th><th>Data</th></tr>
+  <tr><th>Tarefa</th><th style="width:22%">Estado</th><th style="width:16%">Data</th></tr>
   <tr><td>Fundação: API, sessão, login e registo</td><td>Concluída</td><td>21/10</td></tr>
   <tr><td>Ecrã de projetos e quadro de tarefas</td><td>Concluída</td><td>24/10</td></tr>
   <tr><td>Detalhe da tarefa com checklist</td><td>Concluída</td><td>25/10</td></tr>
@@ -61,38 +82,65 @@
   <tr><td>Ícone da app e README</td><td>Concluída</td><td>26/10</td></tr>
   <tr><td>Conversão para Navigation Jetpack (1 Activity + Fragments, Safe Args, Toolbar, ViewBinding, ListAdapter/DiffUtil)</td><td>Concluída</td><td>28/10</td></tr>
   <tr><td>Retrofit com coroutines e MVVM (ViewModels, release assinado, testes)</td><td>Concluída</td><td>28/10</td></tr>
-  <tr><td>Sessão 11: paralelismo async/await, cancelamento, ProgressBars, Snackbar de retry</td><td>Concluída</td><td>30/10</td></tr>
+  <tr><td>Aula 11: paralelismo async/await, cancelamento, ProgressBars, Snackbar de retry</td><td>Concluída</td><td>30/10</td></tr>
   <tr><td>Aplicar a revisão do formador (3 erros + melhorias)</td><td>Concluída</td><td>03/11</td></tr>
   <tr><td>Redesign visual (paleta, modo noturno, slogans, acessibilidade) e teste instrumentado</td><td>Concluída</td><td>19/11</td></tr>
   <tr><td>Atualizar relatório e manual</td><td>Concluída</td><td>20/11</td></tr>
-  <tr><td>Entregar no Moodle</td><td>Por fazer</td><td>20/11</td></tr>
+  <tr><td>Verificação contra o enunciado: Spinner no formulário, erro de resposta inválida, ConstraintLayout em todos os ecrãs, dimensões em recursos, ViewModel do Convite, ListAdapter em todas as listas, wireframes e critérios de aceitação</td><td>Concluída</td><td>23/11</td></tr>
+  <tr><td>Entregar no Moodle</td><td>Por fazer</td><td>23/11</td></tr>
 </table>
 
 <h2>4. Fluxo de navegação</h2>
-<p>Login → Projetos (home) → Quadro → Detalhe; do Quadro abrem-se Membros e Relatório; o Perfil abre dos Projetos; o Convite é ponto de entrada autónomo (Activity). Implementado num grafo de navegação com 8 destinos, argumentos por Safe Args, Toolbar ligada ao NavController e botão "voltar" do sistema sempre funcional.</p>
-
-<h2>5. Requisitos técnicos</h2>
+<div class="img">[[IMG:img/fluxo.png]]<div class="legenda">Fluxo entre os ecrãs da app (grafo do Jetpack Navigation e a Activity de convite)</div></div>
+<p>A app tem <strong>uma Activity</strong> com o NavHost e <strong>oito Fragments</strong>, mais a Activity do Convite. Os argumentos passam por <strong>Safe Args</strong> (com tipo) e o botão <strong>Voltar</strong> da barra superior está ligado ao NavController.</p>
 <table>
-  <tr><th>Exigência</th><th>Implementação</th></tr>
-  <tr><td>Kotlin, ViewBinding, ConstraintLayout</td><td>sim; binding em todos os ecrãs e diálogos; layouts com dimens em recursos</td></tr>
-  <tr><td>RecyclerView + ListAdapter + DiffUtil + cliques</td><td>projetos, tarefas, subtarefas e membros</td></tr>
-  <tr><td>Navigation + Fragments + Safe Args + voltar</td><td>single-activity, grafo, Toolbar integrada</td></tr>
-  <tr><td>MVVM (ViewModel por ecrã)</td><td>8 ViewModels + LiveData + UiState sealed (Idle/Loading/Sucesso/Erro)</td></tr>
-  <tr><td>Coroutines + ProgressBar</td><td>viewModelScope, async/await em paralelo, withContext(IO), cancelamento; indicadores em todos os ecrãs com dados</td></tr>
-  <tr><td>Networking + vários endpoints + erros</td><td>Retrofit + Gson; mensagens distintas sem-ligação / timeout / servidor</td></tr>
-  <tr><td>data class / enum / sealed class</td><td>modelos Gson; EstadoTarefa; UiState</td></tr>
-  <tr><td>Testes JUnit</td><td>9 testes unitários + 1 teste instrumentado (adapter)</td></tr>
-  <tr><td>Dispositivo físico + emulador</td><td>Xiaomi (Android 16) e emulador API 35</td></tr>
-  <tr><td>Publicação / normas</td><td>keystore própria, senhas no local.properties (fora do git); RGPD em baixo</td></tr>
+  <tr><th style="width:26%">Ecrã de origem → destino</th><th style="width:30%">Argumentos</th><th>O que acontece</th></tr>
+  <tr><td>Registo ↔ Login</td><td>—</td><td>“Regista-te” abre o registo; voltar ou “Já tens conta? Entrar” regressa. Conta criada vai direto aos projetos.</td></tr>
+  <tr><td>Login → Projetos</td><td>—</td><td>Login aceite; o login sai da pilha (<code>popUpTo</code>).</td></tr>
+  <tr><td>Projetos ↔ Quadro</td><td><code>projetoId</code> (int), <code>projetoNome</code> (String), <code>criadorId</code> (int)</td><td>Tocar num projeto abre o seu quadro.</td></tr>
+  <tr><td>Quadro → Detalhe da tarefa</td><td><code>tarefaId</code> (int), <code>projetoId</code> (int)</td><td>Tocar num cartão abre o detalhe.</td></tr>
+  <tr><td>Quadro → Membros</td><td><code>projetoId</code>, <code>criadorId</code></td><td>Botão de pessoas.</td></tr>
+  <tr><td>Quadro → Relatório</td><td><code>projetoId</code></td><td>Botão de gráfico.</td></tr>
+  <tr><td>Projetos ↔ Perfil</td><td>—</td><td>Botão do perfil; “Terminar sessão” volta ao login.</td></tr>
+  <tr><td>Login / Projetos → Convite (Activity)</td><td><code>token</code> (extra do Intent)</td><td>Ponto de entrada de quem recebeu um link; aceitar leva aos projetos.</td></tr>
 </table>
-<p><strong>RGPD:</strong> a app recolhe nome, email e palavra-passe (contas) e o conteúdo dos projetos — os mesmos dados do site, com o mesmo responsável (algarit.pt) e política de privacidade do site. No dispositivo guarda apenas o id/nome da sessão (SharedPreferences). Uma única permissão: <code>INTERNET</code>. <code>allowBackup="false"</code>.</p>
 
-<h2>6. Entregáveis</h2>
+<h2>5. Wireframes</h2>
+<p>Os wireframes estão em tons de cinzento, como é regra: mostram a <strong>estrutura</strong> de cada ecrã (o que existe e onde está), não a paleta final — essa está no tema da app, com modo claro e escuro.</p>
+<div class="img">[[IMG:img/wireframes-1.png]]<div class="legenda">Wireframes 1 a 6: Login, Registo, Convite, Projetos, Quadro e Detalhe da tarefa</div></div>
+<div class="img">[[IMG:img/wireframes-2.png]]<div class="legenda">Wireframes 7 a 10: diálogo Nova tarefa (com o Spinner da coluna), Membros, Relatório e Perfil</div></div>
+
+<h2>6. Requisitos técnicos: onde estão</h2>
+<table>
+  <tr><th style="width:38%">Exigência do enunciado</th><th>Implementação</th></tr>
+  <tr><td>Modelo de dados: data class, enum class, sealed class</td><td><code>model/Modelos.kt</code> (data classes lidas pelo Gson), <code>model/EstadoTarefa.kt</code> (enum com as três colunas), <code>ui/UiState.kt</code> (sealed class: Idle, Loading, Sucesso, Erro).</td></tr>
+  <tr><td>Null safety (<code>?.</code>, <code>?:</code>, tipos anuláveis), sem <code>!!</code> injustificados</td><td><code>Tarefa.link</code> e <code>dataConclusao</code> são <code>String?</code> (a API devolve <code>null</code>), tratados com <code>isNullOrBlank</code>, <code>orEmpty</code> e <code>?:</code>; <code>firstOrNull</code> na pesquisa da tarefa. O único <code>!!</code> é o padrão do binding nos Fragments.</td></tr>
+  <tr><td>Coleções, operações funcionais e lambdas</td><td><code>filter</code>, <code>map</code>, <code>sortedBy</code>, <code>sortedByDescending</code>, <code>count</code>, <code>joinToString</code> e <code>forEach</code> no quadro, no relatório e nos membros; lambdas nos listeners e nos adapters.</td></tr>
+  <tr><td><code>when</code>, funções de âmbito, <code>lateinit</code> ou <code>by lazy</code></td><td><code>when</code> em <code>erroAmigavel</code> e nos observadores do <code>UiState</code>; <code>apply</code>; <code>lateinit var binding</code> nos ecrãs; <code>Api.servico by lazy</code>.</td></tr>
+  <tr><td>Layouts XML com ConstraintLayout</td><td>18 dos 19 layouts (ecrãs, diálogos e itens de lista); o 19.º é uma <code>TextView</code> simples sem contentor.</td></tr>
+  <tr><td>Elementos de UI nativos variados</td><td><code>EditText</code> com validação (<code>setError</code>) em todos os formulários; <code>Switch</code> “Esconder concluídas” no quadro; <code>Spinner</code> da coluna no formulário da tarefa; <code>ImageView</code> (logótipo e ícones); <code>Toast</code> nos avisos; <code>Snackbar</code> com “Tentar de novo” nos projetos; <code>DatePickerDialog</code> para o prazo.</td></tr>
+  <tr><td>Textos, cores e dimensões em recursos</td><td><code>strings.xml</code> (todo o texto visível), <code>colors.xml</code> (com <code>values-night</code>), <code>themes.xml</code>, <code>dimens.xml</code> (margens, alturas e tamanhos de letra).</td></tr>
+  <tr><td>ViewBinding em todos os ecrãs</td><td>Fragments, <code>ConviteActivity</code>, <code>MainActivity</code> e os três diálogos; não há <code>findViewById</code> no código.</td></tr>
+  <tr><td>RecyclerView com ListAdapter e cliques</td><td>Cinco listas: projetos, tarefas, subtarefas, membros e “por pessoa” do relatório, todas com <code>ListAdapter</code> + <code>DiffUtil</code> e tratamento de toque/toque longo.</td></tr>
+  <tr><td>Navigation com Fragments, argumentos e botão voltar</td><td><code>nav_graph.xml</code> com 8 destinos, Safe Args e Toolbar ligada ao NavController.</td></tr>
+  <tr><td>MVVM: um ViewModel por ecrã com lógica</td><td>Nove ViewModels (Login, Registo, Projetos, Quadro, Detalhe, Membros, Relatório, Perfil, Convite) com <code>LiveData</code>; a camada de dados em <code>data/Repo.kt</code>.</td></tr>
+  <tr><td>Operações demoradas em coroutines</td><td><code>viewModelScope</code>; <code>async/await</code> em paralelo no quadro e nos membros; <code>withContext(Dispatchers.IO)</code> no <code>Repo</code>; cancelamento do Job anterior ao recarregar.</td></tr>
+  <tr><td>Indicador de carregamento (ProgressBar)</td><td>Num ecrã com pedidos: login, registo, projetos, quadro, detalhe, membros, relatório, perfil e convite.</td></tr>
+  <tr><td>Consumo de uma API com vários endpoints</td><td>Retrofit + Gson; 23 endpoints de 7 recursos.</td></tr>
+  <tr><td>Erros: sem ligação, timeout e resposta inválida</td><td><code>erroAmigavel</code> (<code>api/Api.kt</code>) devolve uma mensagem diferente para sem ligação, timeout, resposta inválida e erro do servidor.</td></tr>
+  <tr><td>Emulador e dispositivo físico</td><td>Emulador (API 35) com todos os ecrãs verificados; telemóvel Xiaomi com Android 16.</td></tr>
+  <tr><td>Código e README</td><td><code>README.md</code> com passos para compilar e executar, conta de demonstração, organização do código, testes e identificação de recursos de terceiros.</td></tr>
+</table>
+
+<h2>7. Dados e RGPD</h2>
+<p>A app recolhe nome, email e palavra-passe (contas) e o conteúdo dos projetos — os mesmos dados do site, com o mesmo responsável (algarit.pt) e a política de privacidade do site. No dispositivo guarda apenas o id, o nome e o email da sessão (<code>SharedPreferences</code>); a palavra-passe nunca é guardada. Uma única permissão: <code>INTERNET</code>. <code>allowBackup="false"</code>.</p>
+
+<h2>8. Entregáveis</h2>
 <ol>
-  <li>Código-fonte: <strong>github.com/bmmcastro/taskflow-app</strong></li>
+  <li>Código-fonte com README: <strong>github.com/bmmcastro/taskflow-app</strong> (e em ZIP)</li>
   <li>Este documento de planeamento</li>
-  <li>Relatório técnico</li>
-  <li>Manual de utilizador (com screenshots)</li>
+  <li>Relatório técnico (complemento)</li>
+  <li>Manual de utilizador com capturas de ecrã (complemento)</li>
 </ol>
 
 </body>

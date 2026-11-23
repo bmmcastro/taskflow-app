@@ -18,10 +18,16 @@ class PerfilViewModel(app: Application) : AndroidViewModel(app) {
     private val _atualizado = MutableLiveData<Utilizador>()
     val atualizado: LiveData<Utilizador> = _atualizado
 
+    // Verdadeiro enquanto o pedido de guardar está a correr (mostra a ProgressBar).
+    private val _aGuardar = MutableLiveData(false)
+    val aGuardar: LiveData<Boolean> = _aGuardar
+
     private val _erro = MutableLiveData<String>()
     val erro: LiveData<String> = _erro
 
     fun guardar(nome: String, email: String, password: String?) {
+        if (_aGuardar.value == true) return
+        _aGuardar.value = true
         viewModelScope.launch {
             try {
                 val atualizado = Api.servico.atualizarPerfil(
@@ -34,6 +40,8 @@ class PerfilViewModel(app: Application) : AndroidViewModel(app) {
                 throw t
             } catch (t: Exception) {
                 _erro.value = erroAmigavel(t)
+            } finally {
+                _aGuardar.value = false
             }
         }
     }

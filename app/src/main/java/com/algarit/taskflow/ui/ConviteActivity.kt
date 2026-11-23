@@ -2,132 +2,107 @@ package com.algarit.taskflow.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.isVisible
 import com.algarit.taskflow.MainActivity
 import com.algarit.taskflow.R
-import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
-import com.algarit.taskflow.api.erroAmigavel
-import com.algarit.taskflow.model.MembroPedido
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.launch
+import com.algarit.taskflow.databinding.ActivityConviteBinding
 
 // Quem recebe um convite cola o link (ou só o token) e entra no projeto.
 // Fica fora do grafo de navegação: é o ponto de entrada de quem foi convidado.
 class ConviteActivity : AppCompatActivity() {
 
-    private var token = ""
-    private lateinit var campoConvite: EditText
-    private lateinit var textoConvite: TextView
-    private lateinit var botaoAceitar: Button
+    private lateinit var binding: ActivityConviteBinding
+    private val viewModel: ConviteViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Sessao.carregar(this)
-        setContentView(R.layout.activity_convite)
-        aplicarInsets(findViewById(android.R.id.content))
+        binding = ActivityConviteBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        aplicarInsetsEm(binding.raiz)
 
-        findViewById<ImageButton>(R.id.botao_voltar).setOnClickListener { finish() }
-        campoConvite = findViewById(R.id.campo_convite)
-        textoConvite = findViewById(R.id.texto_convite)
-        botaoAceitar = findViewById(R.id.botao_aceitar)
-        findViewById<Button>(R.id.botao_ver).setOnClickListener { verConvite() }
+        binding.botaoVoltar.setOnClickListener { finish() }
+        binding.botaoVer.setOnClickListener { verConvite() }
+        binding.botaoAceitar.setOnClickListener { aceitarConvite() }
 
-        botaoAceitar.setOnClickListener { aceitarConvite() }
+        // O convite vem do link (intent) ou do estado guardado ao rodar o ecrã.
         val conviteGuardado = savedInstanceState?.getString("convite")
             ?: intent.getStringExtra("token")
         if (!conviteGuardado.isNullOrBlank()) {
-            campoConvite.setText(conviteGuardado)
+            binding.campoConvite.setText(conviteGuardado)
             verConvite()
         }
+        observar()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString("convite", campoConvite.text.toString())
-        super.onSaveInstanceState(outState)
-    }
-
-    // cola o link todo ou só o token: os dois caminhos chegam ao mesmo sítio
-    private fun verConvite() {
-        val colado = campoConvite.text.toString().trim()
-        if (colado.isBlank()) { aviso("Cola o link do convite primeiro"); return }
-        token = ""
-        val tokenPedido = colado.trimEnd('/').substringAfterLast('/')
-
-        botaoAceitar.visibility = View.GONE
-        campoConvite.isEnabled = false
-        findViewById<Button>(R.id.botao_ver).isEnabled = false
-        textoConvite.visibility = View.VISIBLE
-        textoConvite.text = getString(R.string.a_carregar)
-        lifecycleScope.launch {
-            try {
-                val c = Api.servico.convitePorToken(tokenPedido)
-                token = tokenPedido
-                textoConvite.text = "Projeto: ${c.projeto}\n" +
-                    "Convidado por: ${c.criador}\n" +
-                    "Para o email: ${c.email}\n" +
-                    "Estado: ${c.status}"
-                botaoAceitar.visibility = View.VISIBLE
-            } catch (t: CancellationException) {
-                throw t
-            } catch (t: Exception) {
-                textoConvite.text = erroAmigavel(t)
-            } finally {
-                campoConvite.isEnabled = true
-                findViewById<Button>(R.id.botao_ver).isEnabled = true
+    private fun observar() {
+        viewModel.convite.observe(this) { estado ->
+            val aCarregar = estado is UiState.Loading
+            binding.loading.isVisible = aCarregar
+            binding.campoConvite.isEnabled = !aCarregar
+            binding.botaoVer.isEnabled = !aCarregar
+            binding.textoConvite.isVisible = estado !is UiState.Idle
+            binding.botaoAceitar.isVisible = estado is UiState.Sucesso
+            binding.textoConvite.text = when (estado) {
+                is UiState.Sucesso -> {
+                    val c = estado.dados
+                    getString(R.string.convite_detalhe, c.projeto, c.criador, c.email, c.status)
+                }
+                is UiState.Erro -> estado.mensagem
+                is UiState.Loading -> getString(R.string.a_carregar)
+                is UiState.Idle -> ""
             }
         }
+        viewModel.aAceitar.observe(this) { aAceitar ->
+            binding.botaoAceitar.isEnabled = !aAceitar
+            binding.botaoVer.isEnabled = !aAceitar
+        }
+        viewModel.aceite.observe(this) { aceite ->
+            if (!aceite) return@observe
+            aviso(getString(R.string.convite_aceite))
+            // A sessão está guardada: a MainActivity abre direto nos projetos.
+            startActivity(Intent(this@ConviteActivity, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            finish()
+        }
+        viewModel.erro.observe(this) { aviso(it) }
+    }
+
+    private fun verConvite() {
+        val colado = binding.campoConvite.text.toString().trim()
+        // Validação com setError no próprio campo.
+        if (colado.isBlank()) { binding.campoConvite.error = getString(R.string.erro_colar_convite); return }
+        binding.campoConvite.error = null
+        viewModel.ver(colado)
     }
 
     private fun aceitarConvite() {
-        // Se o texto mudou, é preciso consultar esse convite antes de o aceitar.
-        val tokenAtual = campoConvite.text.toString().trim().trimEnd('/').substringAfterLast('/')
-        if (token.isBlank() || tokenAtual != token) {
-            botaoAceitar.visibility = View.GONE
-            aviso("Carrega em Ver convite antes de aceitar")
+        val colado = binding.campoConvite.text.toString().trim()
+        if (!viewModel.eOConviteConsultado(colado)) {
+            // O texto mudou depois de consultar: é preciso ver o convite antes de aceitar.
+            binding.botaoAceitar.isVisible = false
+            aviso(getString(R.string.erro_ver_convite))
             return
         }
-        // Sem sessão iniciada o id seria -1: exigimos login antes de aceitar.
         if (!Sessao.estaLogado()) {
-            aviso("Inicia sessão primeiro para aceitares o convite")
+            // Sem sessão iniciada o id seria -1: pedimos o login e retomamos o convite a seguir.
+            aviso(getString(R.string.erro_sessao_convite))
             startActivity(Intent(this, MainActivity::class.java)
-                .putExtra("convite_pendente", token))
+                .putExtra("convite_pendente", viewModel.tokenConsultado))
             finish()
             return
         }
-        botaoAceitar.isEnabled = false
-        campoConvite.isEnabled = false
-        findViewById<Button>(R.id.botao_ver).isEnabled = false
-        lifecycleScope.launch {
-            try {
-                Api.servico.aceitarConvite(token, MembroPedido(Sessao.utilizadorId)).close()
-                aviso("Agora és membro do projeto!")
-                // A sessão está guardada: a MainActivity abre direto nos projetos.
-                startActivity(Intent(this@ConviteActivity, MainActivity::class.java)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
-                finish()
-            } catch (t: CancellationException) {
-                throw t
-            } catch (t: Exception) {
-                aviso(erroAmigavel(t))
-            } finally {
-                botaoAceitar.isEnabled = true
-                campoConvite.isEnabled = true
-                findViewById<Button>(R.id.botao_ver).isEnabled = true
-            }
-        }
+        viewModel.aceitar()
     }
 
-    private fun aviso(mensagem: String) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setMessage(mensagem)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
+    // Os avisos usam a Toast comum (Context.aviso, em Ui.kt): sobrevive à mudança
+    // de ecrã, ao contrário de um dialog, que fecharia junto com a Activity.
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("convite", binding.campoConvite.text.toString())
+        super.onSaveInstanceState(outState)
     }
 }

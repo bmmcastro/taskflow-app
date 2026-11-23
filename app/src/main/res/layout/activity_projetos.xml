@@ -1,86 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<!-- Projetos: ConstraintLayout. As duas linhas do cabeçalho e a lista
+     ficam presos de cima a baixo; o botão de convite está colado ao fundo. -->
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fundo"
-    android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
+    android:background="@color/fundo">
+
+    <!-- Linha da marca + botão do perfil -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linha_marca"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="20dp">
+        android:paddingStart="@dimen/margem_ecra"
+        android:paddingEnd="@dimen/margem"
+        android:paddingTop="@dimen/margem"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <TextView
+            android:id="@+id/texto_marca"
             style="@style/TextoApoio"
             android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="@string/app_name"
             android:textStyle="bold"
-            android:letterSpacing="0.08"/>
+            android:letterSpacing="0.08"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/botao_perfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <ImageButton
             android:id="@+id/botao_perfil"
             style="@style/BotaoIcone"
             android:src="@drawable/ic_perfil"
-            android:contentDescription="@string/o_teu_perfil"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
+            android:contentDescription="@string/o_teu_perfil"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Linha do título + botão de criar projeto -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linha_titulo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="12dp">
+        android:paddingStart="@dimen/margem_ecra"
+        android:paddingEnd="@dimen/margem"
+        android:paddingTop="@dimen/margem_pequena"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linha_marca">
+
         <TextView
+            android:id="@+id/titulo_projetos"
             style="@style/TituloGrande"
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="@string/projetos"/>
+            android:layout_height="wrap_content"
+            android:text="@string/projetos"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/botao_novo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <ImageButton
             android:id="@+id/botao_novo"
             style="@style/BotaoIcone"
             android:src="@drawable/ic_adicionar"
             android:contentDescription="@string/novo_projeto"
             android:background="@drawable/bg_botao"
-            app:tint="@android:color/white"/>
-    </LinearLayout>
+            app:tint="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <TextView
+        android:id="@+id/texto_apoio_projetos"
         style="@style/TextoApoio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/margem_ecra"
+        android:paddingEnd="@dimen/margem_ecra"
+        android:paddingBottom="@dimen/espaco_16"
         android:text="@string/projetos_apoio"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingBottom="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linha_titulo"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_projetos"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1">
-        <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        app:layout_constraintBottom_toTopOf="@id/botao_convite"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/texto_apoio_projetos">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_projetos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="20dp"/>
+                android:paddingBottom="@dimen/margem"/>
+
+            <!-- Indicador de carregamento: visível enquanto a lista é obtida. -->
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="@dimen/altura_indicador"
+                android:layout_height="@dimen/altura_indicador"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
             <TextView
                 android:id="@+id/texto_vazio"
                 style="@style/TextoApoio"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:padding="36dp"
                 android:text="@string/sem_projetos"/>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/botao_convite"
         style="@style/BotaoTexto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margem"
+        android:layout_marginEnd="@dimen/margem"
+        android:layout_marginBottom="@dimen/espaco_8"
         android:text="@string/tenho_convite"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="8dp"/>
-</LinearLayout>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

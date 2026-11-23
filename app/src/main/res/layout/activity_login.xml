@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Login: ConstraintLayout com uma cadeia vertical compactada
+     (o conteúdo fica centrado quando cabe no ecrã). -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,63 +10,169 @@
     android:background="@color/fundo"
     android:fillViewport="true"
     android:clipToPadding="false">
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="28dp"
-        android:gravity="center_vertical"
+        android:padding="@dimen/margem_grande"
         android:focusableInTouchMode="true">
-        <FrameLayout android:layout_width="72dp" android:layout_height="72dp" android:background="@drawable/bg_botao">
+
+        <FrameLayout
+            android:id="@+id/caixa_logo"
+            android:layout_width="@dimen/logo"
+            android:layout_height="@dimen/logo"
+            android:background="@drawable/bg_botao"
+            app:layout_constraintBottom_toTopOf="@id/titulo_app"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed">
+
             <ImageView
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:layout_width="@dimen/avatar"
+                android:layout_height="@dimen/avatar"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_taskflow"/>
         </FrameLayout>
-        <Space android:layout_width="1dp" android:layout_height="22dp"/>
-        <TextView style="@style/TituloGrande" android:text="@string/app_name" android:textSize="42sp"/>
-        <TextView style="@style/TextoApoio" android:text="@string/slogan_login"/>
-        <Space android:layout_width="1dp" android:layout_height="32dp"/>
-        <TextView style="@style/TituloSecao" android:text="@string/entrar"/>
-        <Space android:layout_width="1dp" android:layout_height="16dp"/>
+
+        <TextView
+            android:id="@+id/titulo_app"
+            style="@style/TituloGrande"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_22"
+            android:text="@string/app_name"
+            android:textSize="@dimen/texto_logo"
+            app:layout_constraintBottom_toTopOf="@id/texto_apoio_login"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/caixa_logo"/>
+
+        <TextView
+            android:id="@+id/texto_apoio_login"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/slogan_login"
+            app:layout_constraintBottom_toTopOf="@id/titulo_entrar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_app"/>
+
+        <TextView
+            android:id="@+id/titulo_entrar"
+            style="@style/TituloSecao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_32"
+            android:text="@string/entrar"
+            app:layout_constraintBottom_toTopOf="@id/campo_email"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_apoio_login"/>
+
         <EditText
             android:id="@+id/campo_email"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_16"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:autofillHints="username"
-            android:imeOptions="actionNext"/>
-        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            android:imeOptions="actionNext"
+            app:layout_constraintBottom_toTopOf="@id/campo_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_entrar"/>
+
         <EditText
             android:id="@+id/campo_password"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:hint="@string/password"
             android:inputType="textPassword"
             android:autofillHints="password"
-            android:imeOptions="actionDone"/>
-        <Space android:layout_width="1dp" android:layout_height="24dp"/>
+            android:imeOptions="actionDone"
+            app:layout_constraintBottom_toTopOf="@id/loading"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_email"/>
+
+        <!-- Indicador de carregamento: visível enquanto o login é validado. -->
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="@dimen/altura_indicador"
+            android:layout_height="@dimen/altura_indicador"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/botao_entrar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_password"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_entrar"
             style="@style/BotaoPrimario"
-            android:text="@string/entrar"/>
-        <Space android:layout_width="1dp" android:layout_height="8dp"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_24"
+            android:text="@string/entrar"
+            app:layout_constraintBottom_toTopOf="@id/botao_demo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loading"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_demo"
             style="@style/BotaoTexto"
-            android:text="@string/conta_demo"/>
-        <Space android:layout_width="1dp" android:layout_height="24dp"/>
-        <TextView style="@style/TextoApoio" android:text="@string/slogan" android:gravity="center"/>
-        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_8"
+            android:text="@string/conta_demo"
+            app:layout_constraintBottom_toTopOf="@id/texto_slogan"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_entrar"/>
+
+        <TextView
+            android:id="@+id/texto_slogan"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_24"
+            android:gravity="center"
+            android:text="@string/slogan"
+            app:layout_constraintBottom_toTopOf="@id/botao_registar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_demo"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_registar"
             style="@style/BotaoTexto"
-            android:text="@string/nao_tens_conta"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:text="@string/nao_tens_conta"
+            app:layout_constraintBottom_toTopOf="@id/botao_convite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_slogan"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_convite"
             style="@style/BotaoTexto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:text="@string/tenho_convite"
-            android:textColor="@color/texto_secundario"/>
-    </LinearLayout>
+            android:textColor="@color/texto_secundario"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_registar"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

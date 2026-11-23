@@ -17,6 +17,7 @@ import com.algarit.taskflow.databinding.ActivityProjetosBinding
 import com.algarit.taskflow.databinding.DialogNovoProjetoBinding
 import com.algarit.taskflow.model.Projeto
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 
 // Ecrã principal depois do login: os projetos onde sou membro.
 class ProjetosFragment : Fragment() {
@@ -52,18 +53,24 @@ class ProjetosFragment : Fragment() {
         }
 
         viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            // ProgressBar visível enquanto os dados são obtidos.
+            binding.loading.isVisible = estado is UiState.Loading
             binding.swipeProjetos.isRefreshing = estado is UiState.Loading
             when (estado) {
                 is UiState.Sucesso -> {
                     adaptador.atualizar(estado.dados)
+                    binding.textoVazio.setText(R.string.sem_projetos)
                     binding.textoVazio.isVisible = estado.dados.isEmpty()
                 }
                 is UiState.Erro -> {
-                    binding.textoVazio.isVisible = true
+                    // Com projetos já no ecrã, eles ficam como estão. Só quando não há
+                    // lista é que o motivo do erro aparece no lugar da lista.
+                    if (adaptador.itemCount == 0) {
+                        binding.textoVazio.text = estado.mensagem
+                        binding.textoVazio.isVisible = true
+                    }
                     // Snackbar com ação: relança o carregamento sem sair do ecrã.
-                    com.google.android.material.snackbar.Snackbar.make(
-                        binding.root, estado.mensagem, com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-                    )
+                    Snackbar.make(binding.root, estado.mensagem, Snackbar.LENGTH_LONG)
                         .setAction(R.string.tentar_de_novo) { viewModel.carregar() }
                         .show()
                 }
@@ -83,32 +90,31 @@ class ProjetosFragment : Fragment() {
     // Ao voltar de outros ecrãs, recarregamos para mostrar as novidades.
     override fun onResume() {
         super.onResume()
-        if (Sessao.estaLogado() && _binding != null) carregar()
+        if (Sessao.estaLogado() && _binding != null) viewModel.carregar()
     }
 
-    private fun carregar() = viewModel.carregar()
-
     private fun dialogNovoProjeto() {
-        val dialogBinding = DialogNovoProjetoBinding.inflate(layoutInflater)
+        val dialogo = DialogNovoProjetoBinding.inflate(layoutInflater)
         val alerta = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.novo_projeto)
-            .setView(dialogBinding.root)
+            .setView(dialogo.root)
             .setPositiveButton(R.string.guardar, null)
             .setNegativeButton(R.string.cancelar, null)
             .show()
         alerta.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-            val nome = dialogBinding.dialogNome.text.toString().trim()
+            val nome = dialogo.dialogNome.text.toString().trim()
+            // Validação com setError no próprio campo.
             if (nome.isBlank()) {
-                dialogBinding.dialogNome.error = "Dá um nome ao projeto"
+                dialogo.dialogNome.error = getString(R.string.erro_nome_projeto)
                 return@setOnClickListener
             }
-            viewModel.criar(nome, dialogBinding.dialogDescricao.text.toString().trim())
+            viewModel.criar(nome, dialogo.dialogDescricao.text.toString().trim())
             alerta.dismiss()
         }
     }
 
     private fun menuDoProjeto(projeto: Projeto) {
-        if (projeto.criadorId != Sessao.utilizadorId) { aviso("Só o criador pode apagar o projeto"); return }
+        if (projeto.criadorId != Sessao.utilizadorId) { aviso(getString(R.string.so_criador_apaga)); return }
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(projeto.nome)
             .setMessage(R.string.apagar_projeto_pergunta)

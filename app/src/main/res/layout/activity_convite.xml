@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Convite: ConstraintLayout em coluna (cada elemento fica por baixo do anterior). -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,48 +9,100 @@
     android:background="@color/fundo"
     android:fillViewport="true"
     android:clipToPadding="false">
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="@dimen/margem_ecra"
         android:focusableInTouchMode="true">
-        <LinearLayout
-            android:layout_width="match_parent"
+
+        <ImageButton
+            android:id="@+id/botao_voltar"
+            style="@style/BotaoIcone"
+            android:src="@drawable/ic_voltar"
+            android:contentDescription="@string/voltar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/titulo_convite"
+            style="@style/TituloGrande"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageButton
-                android:id="@+id/botao_voltar"
-                style="@style/BotaoIcone"
-                android:src="@drawable/ic_voltar"
-                android:contentDescription="@string/voltar"/>
-        </LinearLayout>
-        <Space android:layout_width="1dp" android:layout_height="20dp"/>
-        <TextView style="@style/TituloGrande" android:text="@string/aceitar_convite"/>
-        <TextView style="@style/TextoApoio" android:text="@string/convite_apoio"/>
-        <Space android:layout_width="1dp" android:layout_height="28dp"/>
+            android:layout_marginTop="@dimen/margem"
+            android:text="@string/aceitar_convite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_voltar"/>
+
+        <TextView
+            android:id="@+id/texto_apoio_convite"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/convite_apoio"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_convite"/>
+
         <EditText
             android:id="@+id/campo_convite"
             style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_grande"
             android:hint="@string/colar_link_convite"
-            android:inputType="textUri"/>
-        <Space android:layout_width="1dp" android:layout_height="16dp"/>
+            android:inputType="textUri"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_apoio_convite"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_ver"
             style="@style/BotaoPrimario"
-            android:text="@string/ver_convite"/>
-        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/espaco_16"
+            android:text="@string/ver_convite"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_convite"/>
+
+        <!-- Indicador de carregamento: visível enquanto o convite é consultado. -->
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="@dimen/altura_indicador"
+            android:layout_height="@dimen/altura_indicador"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/botao_ver"/>
+
         <TextView
             android:id="@+id/texto_convite"
             style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem"
             android:background="@drawable/bg_cartao"
-            android:padding="24dp"
-            android:visibility="gone"/>
-        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+            android:padding="@dimen/margem_grande"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loading"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/botao_aceitar"
             style="@style/BotaoPrimario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem"
             android:text="@string/aceitar_convite"
-            android:visibility="gone"/>
-    </LinearLayout>
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_convite"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

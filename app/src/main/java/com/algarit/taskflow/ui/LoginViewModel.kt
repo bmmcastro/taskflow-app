@@ -30,7 +30,10 @@ class LoginViewModel(app: Application) : AndroidViewModel(app) {
                     Sessao.guardar(getApplication(), utilizador.id, utilizador.nome, utilizador.email)
                     _estado.value = UiState.Sucesso(Unit)
                 } else {
-                    _estado.value = UiState.Erro(resposta.mensagem ?: "Não foi possível entrar")
+                    // O servidor não aceitou as credenciais: usa a razão que ele devolve.
+                    _estado.value = UiState.Erro(
+                        resposta.mensagem ?: getApplication<Application>().getString(com.algarit.taskflow.R.string.erro_login)
+                    )
                 }
             } catch (t: CancellationException) {
                 throw t

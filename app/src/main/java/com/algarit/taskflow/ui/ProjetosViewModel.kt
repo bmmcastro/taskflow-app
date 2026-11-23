@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.algarit.taskflow.api.Api
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.api.erroAmigavel
+import com.algarit.taskflow.data.Repo
 import com.algarit.taskflow.model.Projeto
 import com.algarit.taskflow.model.ProjetoPedido
 import kotlinx.coroutines.CancellationException
@@ -22,7 +23,8 @@ class ProjetosViewModel(app: Application) : AndroidViewModel(app) {
         _estado.value = UiState.Loading
         viewModelScope.launch {
             try {
-                val lista = Api.servico.projetos(Sessao.utilizadorId)
+                // Passa pela camada de dados (Repo), como o quadro.
+                val lista = Repo.projetos(Sessao.utilizadorId)
                 _estado.value = UiState.Sucesso(lista)
             } catch (t: CancellationException) {
                 throw t

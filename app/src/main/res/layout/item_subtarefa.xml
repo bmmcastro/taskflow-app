@@ -1,24 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<!-- Linha da checklist (ConstraintLayout): caixa de marcar à esquerda,
+     descrição ao lado. -->
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="horizontal"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:minHeight="@dimen/altura_botao_icone"
+    android:paddingTop="@dimen/espaco_8"
+    android:paddingBottom="@dimen/espaco_8">
+
     <CheckBox
         android:id="@+id/item_feito"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:buttonTint="@color/roxo"/>
+        android:layout_width="@dimen/altura_botao_icone"
+        android:layout_height="@dimen/altura_botao_icone"
+        android:buttonTint="@color/roxo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <TextView
         android:id="@+id/item_descricao"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_weight="1"
+        android:layout_marginStart="@dimen/espaco_8"
         android:textColor="@color/texto"
-        android:textSize="15sp"/>
-</LinearLayout>
+        android:textSize="@dimen/texto_apoio"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/item_feito"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

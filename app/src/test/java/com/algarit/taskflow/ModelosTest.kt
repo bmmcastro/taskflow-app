@@ -1,5 +1,6 @@
 package com.algarit.taskflow
 
+import com.algarit.taskflow.model.EstadoTarefa
 import com.algarit.taskflow.model.Projeto
 import com.algarit.taskflow.model.Subtarefa
 import com.algarit.taskflow.model.Tarefa
@@ -7,6 +8,7 @@ import com.algarit.taskflow.model.Utilizador
 import com.google.gson.Gson
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 // Testes ao mapeamento JSON → modelos (o mesmo caminho que o Retrofit usa).
@@ -39,12 +41,32 @@ class ModelosTest {
     }
 
     @Test
+    fun `tarefa sem link deixa o link a null`() {
+        // A API devolve "link": null quando a tarefa não tem link.
+        val tarefa = gson.fromJson(
+            "{\"id\":4,\"titulo\":\"X\",\"responsavel\":\"a\",\"link\":null,\"projeto_id\":1}",
+            Tarefa::class.java
+        )
+        assertNull(tarefa.link)
+        assertTrue(tarefa.link.isNullOrBlank())
+    }
+
+    @Test
     fun `tarefa sem estado fica Por fazer`() {
         val tarefa = gson.fromJson(
             "{\"id\":3,\"titulo\":\"X\",\"responsavel\":\"a\",\"projeto_id\":1}",
             Tarefa::class.java
         )
-        assertEquals(Tarefa.POR_FAZER, tarefa.status)
+        assertEquals(EstadoTarefa.POR_FAZER.rotulo, tarefa.status)
+    }
+
+    @Test
+    fun `texto da API é convertido para o enum do estado`() {
+        // Texto desconhecido ou em falta cai sempre em Por fazer.
+        assertEquals(EstadoTarefa.POR_FAZER, EstadoTarefa.de(null))
+        assertEquals(EstadoTarefa.POR_FAZER, EstadoTarefa.de("outra coisa"))
+        assertEquals(EstadoTarefa.EM_CURSO, EstadoTarefa.de("Em curso"))
+        assertEquals(EstadoTarefa.CONCLUIDA, EstadoTarefa.de("Concluída"))
     }
 
     @Test

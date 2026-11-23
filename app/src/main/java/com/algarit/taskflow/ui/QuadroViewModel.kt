@@ -82,7 +82,7 @@ class QuadroViewModel(app: Application) : AndroidViewModel(app) {
                         responsavel = tarefa.responsavel,
                         status = novoStatus,
                         dataConclusao = tarefa.dataConclusao ?: "",
-                        link = tarefa.link,
+                        link = tarefa.link.orEmpty(),
                         projetoId = null
                     )
                 )

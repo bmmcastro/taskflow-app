@@ -50,12 +50,12 @@
 ├── api/      ApiService (interface Retrofit) + Api (cliente, erros) + Sessao
 ├── model/    data classes Gson + enum EstadoTarefa
 ├── data/     Repo — coroutines (paralelismo do quadro)
-├── ui/       um Fragment + um ViewModel por ecrã; UiState (sealed); Ui (ajudas)
-└── adapter/  ListAdapter + DiffUtil</pre>
+├── ui/       um Fragment + um ViewModel por ecrã (9); UiState (sealed class); Ui (ajudas)
+└── adapter/  5 ListAdapter + DiffUtil</pre>
 <ul>
   <li><strong>Grafo de navegação</strong> com 8 destinos e ações; ids por <strong>Safe Args</strong> (erro de compilação em vez de runtime).</li>
-  <li><strong>Toolbar ligada ao NavController</strong>: título por destino e seta de voltar automática.</li>
-  <li><strong>UiState</strong> (Idle / Loading / Sucesso / Erro) observado por LiveData; o Idle existe para os formulários — começar em Sucesso fazia navegar sozinho ao observar o valor inicial (bug detetado na revisão do formador).</li>
+  <li><strong>Toolbar ligada ao NavController</strong>: o botão Voltar aparece nos ecrãs secundários.</li>
+  <li><strong>UiState</strong> (Idle / Loading / Sucesso / Erro), uma <code>sealed class</code> observada por LiveData; o Idle existe para os formulários — começar em Sucesso fazia navegar sozinho ao observar o valor inicial (bug detetado na revisão do formador).</li>
 </ul>
 
 <h2>4. Ligação à API</h2>
@@ -73,27 +73,28 @@
 <h2>5. Threads e coroutines (Sessão 11)</h2>
 <ul>
   <li>Nada bloqueia a main thread: nunca <code>Thread.sleep</code>, <code>runBlocking</code> ou <code>GlobalScope</code>.</li>
-  <li>O quadro carrega membros e tarefas <strong>em paralelo</strong> (async/await) dentro de <code>withContext(Dispatchers.IO)</code> no <code>Repo</code>.</li>
+  <li>O quadro carrega membros e tarefas <strong>em paralelo</strong> (async/await) dentro de <code>withContext(Dispatchers.IO)</code> no <code>Repo</code>; os membros e convites do ecrã Membros também.</li>
   <li><strong>Cancelamento</strong>: o ViewModel guarda o Job e cancela o anterior ao recarregar.</li>
-  <li>Erros distintos: sem ligação / timeout / servidor (<code>erroAmigavel</code>).</li>
-  <li>Indicadores em todos os ecrãs com dados: ProgressBar (Relatório, Detalhe, Membros) e SwipeRefresh (Projetos, Quadro), ligados ao estado Loading.</li>
+  <li>Erros distintos: sem ligação / timeout / resposta inválida / servidor (<code>erroAmigavel</code>). A ordem dos ramos conta: a exceção de JSON mal formado também é um <code>IOException</code>, por isso é tratada antes do ramo da falta de ligação.</li>
+  <li><strong>ProgressBar em todos os ecrãs com pedidos</strong> (login, registo, projetos, quadro, detalhe, membros, relatório, perfil e convite), ligada ao estado Loading; nos projetos e no quadro há também o puxar para atualizar.</li>
 </ul>
 
 <h2>6. Interface e recursos</h2>
 <ul>
-  <li>Views em XML com <strong>ViewBinding</strong> em todos os ecrãs e diálogos; listas com <strong>ListAdapter + DiffUtil</strong>.</li>
-  <li>Textos, cores, dimensões e temas em recursos; <strong>modo noturno</strong> (values-night).</li>
+  <li>Views em XML com <strong>ConstraintLayout</strong> em todos os ecrãs, diálogos e itens de lista (cadeias verticais nos formulários, cadeias horizontais nos blocos do relatório); <strong>ViewBinding</strong> em todos os ecrãs e diálogos, sem <code>findViewById</code>; cinco listas com <strong>ListAdapter + DiffUtil</strong>.</li>
+  <li>Elementos nativos variados: <code>EditText</code> com validação (<code>setError</code>), <code>Switch</code> para esconder concluídas, <code>Spinner</code> para a coluna da tarefa, <code>ImageView</code>, <code>Toast</code> e <code>Snackbar</code> com ação.</li>
+  <li>Textos, cores, dimensões e temas em recursos (<code>strings.xml</code>, <code>colors.xml</code>, <code>dimens.xml</code>, <code>themes.xml</code>); <strong>modo noturno</strong> (values-night).</li>
   <li>Design próprio: cartões, separadores com contagens, chips de filtro, slogans por ecrã; prazo atrasado a vermelho.</li>
   <li>Acessibilidade: contentDescription nos botões de imagem.</li>
 </ul>
 
 <h2>7. Qualidade e testes</h2>
 <ul>
-  <li><strong>9 testes unitários (JUnit)</strong> — formatação de datas e mapeamento JSON→modelos pelo Gson — todos a passar.</li>
-  <li><strong>1 teste instrumentado</strong> (androidTest): tocar na checkbox de uma subtarefa dispara a ação do adapter.</li>
+  <li><strong>10 testes unitários (JUnit)</strong> — formatação de datas, mapeamento JSON→modelos pelo Gson (incluindo campos que vêm a <code>null</code>) e a conversão do texto da API para o enum do estado — todos a passar.</li>
+  <li><strong>2 testes instrumentados</strong> (androidTest): tocar na checkbox de uma subtarefa dispara a ação do adapter e uma linha reutilizada mostra o estado certo.</li>
   <li><strong>Build release assinada</strong> com keystore própria (RSA 2048); senhas no <code>local.properties</code>, fora do git.</li>
-  <li>Testada no emulador (API 35) e em telemóvel físico (Xiaomi, Android 16).</li>
-  <li><strong>Revisão do formador aplicada</strong>: ciclo login-projetos (UiState.Idle), convite sem sessão, setas duplicadas, enum do estado, mensagens de erro distintas, setError nas validações, dimens.xml, ConstraintLayout nos itens, senhas fora do build.</li>
+  <li>Verificada ecrã a ecrã no emulador (API 35), com as capturas no manual.</li>
+  <li><strong>Revisão do formador aplicada</strong>: ciclo login-projetos (UiState.Idle), convite sem sessão, setas duplicadas, enum do estado, mensagens de erro distintas, setError nas validações, dimens.xml, ConstraintLayout, senhas fora do build.</li>
 </ul>
 
 <h2>8. Dificuldades encontradas</h2>
@@ -103,6 +104,9 @@
   <li><strong>UTF-8 na linha de comandos.</strong> Ao registar dados por curl, acentos chegavam corrompidos (code page ANSI do Windows). Correção: JSON em ficheiro UTF-8 com --data-binary.</li>
   <li><strong>Safe Args + AGP 9.</strong> A versão 2.9.x recusa-se a aplicar; subi para 2.10.2.</li>
   <li><strong>PATCH das tarefas.</strong> A API exige título, responsável e prazo em todos os PATCH — mover uma tarefa reenvia-a completa com o estado novo.</li>
+  <li><strong>Um campo que vem a null.</strong> No detalhe de certas tarefas ficava um espaço vazio onde devia estar o link: a API devolve <code>"link": null</code> quando a tarefa não tem link, mas o modelo declarava <code>link</code> como String não anulável. O Gson põe <code>null</code> na mesma e o teste <code>isNotBlank</code> dizia que havia link. Correção: <code>link: String?</code> no modelo, tratado com <code>isNullOrBlank</code> e <code>orEmpty</code>, e um teste unitário a fixar o caso.</li>
+  <li><strong>ConstraintLayout dentro de ScrollView.</strong> Ao converter os ecrãs, prender o último elemento ao fundo do contentor fazia-o descer até ao fim do ecrã (o ScrollView estica o contentor). Correção: sem restrição ao fundo nos ecrãs com rolagem — o conteúdo fica no topo e o espaço livre fica em baixo.</li>
+  <li><strong>Teste instrumentado depois de mudar um layout.</strong> O teste falhou com <code>NoSuchMethodError</code> porque o código de teste estava compilado contra a classe de binding antiga (raiz LinearLayout). Não era da app: bastou limpar os ficheiros gerados do androidTest e recompilar.</li>
 </ul>
 
 <h2>9. Como testar</h2>

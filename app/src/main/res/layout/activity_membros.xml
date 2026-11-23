@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Membros: ConstraintLayout em coluna; a linha de ações é uma linha
+     (ConstraintLayout horizontal) alinhada à direita. -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,66 +10,126 @@
     android:background="@color/fundo"
     android:fillViewport="true"
     android:clipToPadding="false">
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="28dp">
-        <TextView style="@style/TituloGrande" android:text="@string/membros"/>
-        <TextView style="@style/TextoApoio" android:text="@string/membros_apoio"/>
-        <LinearLayout
-            android:layout_width="match_parent"
+        android:paddingStart="@dimen/margem"
+        android:paddingEnd="@dimen/margem"
+        android:paddingBottom="@dimen/margem_grande">
+
+        <TextView
+            android:id="@+id/titulo_membros"
+            style="@style/TituloGrande"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="end"
-            android:orientation="horizontal">
+            android:text="@string/membros"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/texto_apoio_membros"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/membros_apoio"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_membros"/>
+
+        <!-- Convidar por email e juntar membro já registado -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linha_acoes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/texto_apoio_membros">
+
             <ImageButton
                 android:id="@+id/botao_convidar"
                 style="@style/BotaoIcone"
+                android:layout_marginEnd="@dimen/espaco_8"
                 android:src="@drawable/ic_email"
-                android:contentDescription="@string/convidar_por_email"/>
+                android:contentDescription="@string/convidar_por_email"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/botao_adicionar"
+                app:layout_constraintTop_toTopOf="parent"/>
+
             <ImageButton
                 android:id="@+id/botao_adicionar"
                 style="@style/BotaoIcone"
                 android:src="@drawable/ic_adicionar"
                 android:contentDescription="@string/adicionar_membro"
-                android:layout_marginStart="8dp"
                 android:background="@drawable/bg_botao"
-                app:tint="@android:color/white"/>
-        </LinearLayout>
+                app:tint="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Indicador de carregamento: visível enquanto a lista é obtida. -->
         <ProgressBar
             android:id="@+id/loading"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:visibility="gone"/>
-        <Space android:layout_width="1dp" android:layout_height="20dp"/>
+            android:layout_width="@dimen/altura_indicador"
+            android:layout_height="@dimen/altura_indicador"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linha_acoes"/>
+
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cartao_membros"
             style="@style/Cartao"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/loading">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_membros"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"
-                android:padding="16dp"/>
+                android:padding="@dimen/espaco_16"/>
         </com.google.android.material.card.MaterialCardView>
-        <Space android:layout_width="1dp" android:layout_height="28dp"/>
-        <TextView style="@style/TituloSecao" android:text="@string/convites_pendentes"/>
-        <Space android:layout_width="1dp" android:layout_height="12dp"/>
+
+        <TextView
+            android:id="@+id/titulo_convites"
+            style="@style/TituloSecao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_grande"
+            android:text="@string/convites_pendentes"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cartao_membros"/>
+
+        <!-- Sem restrição ao fundo: o cartão segue o título e o espaço livre
+             fica em baixo, como numa lista normal. -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cartao_convites"
             style="@style/Cartao"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_convites">
+
             <TextView
                 android:id="@+id/texto_convites"
                 style="@style/TextoApoio"
-                android:padding="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/margem"
                 android:text="@string/a_carregar"/>
         </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

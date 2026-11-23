@@ -19,93 +19,102 @@
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.TaskFlow.Dialog</item>
     </style>
     <style name="ShapeAppearance.TaskFlow.Dialog" parent="ShapeAppearance.Material3.Corner.Large">
-        <item name="cornerSize">24dp</item>
+        <item name="cornerSize">@dimen/espaco_24</item>
     </style>
+
+    <!-- Títulos e textos de apoio -->
     <style name="TituloGrande">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">34sp</item>
+        <item name="android:textSize">@dimen/texto_titulo</item>
         <item name="android:textColor">@color/texto</item>
         <item name="android:textStyle">bold</item>
         <item name="android:letterSpacing">-0.03</item>
-        <item name="android:paddingTop">8dp</item>
-        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingTop">@dimen/espaco_8</item>
+        <item name="android:paddingBottom">@dimen/espaco_4</item>
     </style>
     <style name="TextoApoio">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:textSize">@dimen/texto_apoio</item>
+        <item name="android:lineSpacingExtra">@dimen/espaco_4</item>
         <item name="android:textColor">@color/texto_secundario</item>
     </style>
     <style name="TituloSecao" parent="TextoApoio">
-        <item name="android:textSize">20sp</item>
+        <item name="android:textSize">@dimen/texto_secao</item>
         <item name="android:textColor">@color/texto</item>
         <item name="android:textStyle">bold</item>
     </style>
+
+    <!-- Campos de texto dos formulários -->
     <style name="Campo">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_height">@dimen/altura_botao</item>
         <item name="android:background">@drawable/bg_input</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingStart">@dimen/espaco_16</item>
+        <item name="android:paddingEnd">@dimen/espaco_16</item>
         <item name="android:textColor">@color/texto</item>
         <item name="android:textColorHint">@color/texto_secundario</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/texto_normal</item>
         <item name="android:singleLine">true</item>
     </style>
+
+    <!-- Botões -->
     <style name="BotaoPrimario" parent="Widget.Material3.Button">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">56dp</item>
-        <item name="android:textSize">17sp</item>
+        <item name="android:layout_height">@dimen/altura_botao</item>
+        <item name="android:textSize">@dimen/texto_botao</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="backgroundTint">@color/azul_botao</item>
-        <item name="cornerRadius">16dp</item>
+        <item name="cornerRadius">@dimen/raio_botao</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
     <style name="BotaoTexto" parent="Widget.Material3.Button.TextButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:minHeight">@dimen/altura_botao_icone</item>
+        <item name="android:textSize">@dimen/texto_apoio</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/roxo</item>
     </style>
     <style name="BotaoIcone">
-        <item name="android:layout_width">48dp</item>
-        <item name="android:layout_height">48dp</item>
+        <item name="android:layout_width">@dimen/altura_botao_icone</item>
+        <item name="android:layout_height">@dimen/altura_botao_icone</item>
         <item name="android:background">@drawable/bg_acao</item>
-        <item name="android:padding">12dp</item>
+        <item name="android:padding">@dimen/margem_pequena</item>
         <item name="tint">@color/roxo</item>
     </style>
+
+    <!-- Cartões -->
     <style name="Cartao" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@color/cartao</item>
-        <item name="cardCornerRadius">22dp</item>
+        <item name="cardCornerRadius">@dimen/raio_cartao</item>
         <item name="cardElevation">0dp</item>
         <item name="strokeWidth">0dp</item>
     </style>
+
+    <!-- Blocos do relatório (um número por cima do rótulo) -->
     <style name="TileRelatorio">
-        <item name="android:orientation">vertical</item>
         <item name="android:background">@drawable/bg_cartao</item>
-        <item name="android:padding">20dp</item>
-        <item name="android:layout_marginStart">6dp</item>
-        <item name="android:layout_marginEnd">6dp</item>
+        <item name="android:padding">@dimen/margem</item>
+        <item name="android:layout_marginStart">@dimen/espaco_6</item>
+        <item name="android:layout_marginEnd">@dimen/espaco_6</item>
     </style>
     <style name="TileNumero">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/texto</item>
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">@dimen/texto_numero</item>
         <item name="android:textStyle">bold</item>
     </style>
     <style name="TileRotulo" parent="TextoApoio">
-        <item name="android:textSize">13sp</item>
+        <item name="android:textSize">@dimen/texto_secundario</item>
     </style>
     <style name="TextoSegmento" parent="TextAppearance.Material3.LabelLarge">
-        <item name="android:textSize">12sp</item>
+        <item name="android:textSize">@dimen/texto_mini</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>

@@ -2,12 +2,15 @@ package com.algarit.taskflow.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.algarit.taskflow.R
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityLoginBinding
 
@@ -33,8 +36,8 @@ class LoginFragment : Fragment() {
 
         binding.botaoEntrar.setOnClickListener { entrar() }
         binding.botaoDemo.setOnClickListener {
-            binding.campoEmail.setText("demo@taskflow.pt")
-            binding.campoPassword.setText("1234")
+            binding.campoEmail.setText(DEMO_EMAIL)
+            binding.campoPassword.setText(DEMO_PASSWORD)
             entrar()
         }
         binding.botaoRegistar.setOnClickListener {
@@ -45,6 +48,8 @@ class LoginFragment : Fragment() {
         }
 
         viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            // ProgressBar visível enquanto o login está a ser validado no servidor.
+            binding.loading.isVisible = estado is UiState.Loading
             binding.botaoEntrar.isEnabled = estado !is UiState.Loading
             if (estado is UiState.Sucesso) irParaProjetos()
             else if (estado is UiState.Erro) aviso(estado.mensagem)
@@ -54,9 +59,11 @@ class LoginFragment : Fragment() {
     private fun entrar() {
         val email = binding.campoEmail.text.toString().trim()
         val password = binding.campoPassword.text.toString()
+        // Validação com setError no próprio campo: preenchido e email com formato válido.
         var valido = true
-        if (email.isBlank()) { binding.campoEmail.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
-        if (password.isBlank()) { binding.campoPassword.error = getString(com.algarit.taskflow.R.string.erro_campos); valido = false }
+        if (email.isBlank()) { binding.campoEmail.error = getString(R.string.erro_campos); valido = false }
+        else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { binding.campoEmail.error = getString(R.string.erro_email); valido = false }
+        if (password.isBlank()) { binding.campoPassword.error = getString(R.string.erro_campos); valido = false }
         if (!valido) return
         viewModel.entrar(email, password)
     }
@@ -71,5 +78,11 @@ class LoginFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        // Conta de demonstração (a mesma que está no README e no site).
+        private const val DEMO_EMAIL = "demo@taskflow.pt"
+        private const val DEMO_PASSWORD = "1234"
     }
 }

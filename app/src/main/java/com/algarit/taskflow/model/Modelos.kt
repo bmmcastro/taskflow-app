@@ -17,26 +17,22 @@ data class Projeto(
     @SerializedName("criador_id") val criadorId: Int
 )
 
-// Uma tarefa do quadro. O estado é exatamente o texto que a API usa.
+// Uma tarefa do quadro. O estado é exatamente o texto que a API usa
+// (ver EstadoTarefa para o enum com os três valores).
 // Todos os campos têm valores por omissão: assim o Gson usa o construtor
-// sem argumentos e um tarefa sem "status" no JSON fica "Por fazer".
+// sem argumentos e uma tarefa sem "status" no JSON fica "Por fazer".
 data class Tarefa(
     val id: Int = 0,
     val titulo: String = "",
     val descricao: String = "",
     val criador: String = "",
     val responsavel: String = "",
-    var status: String = POR_FAZER,
+    val status: String = EstadoTarefa.POR_FAZER.rotulo,
     @SerializedName("data_conclusao") val dataConclusao: String? = null,
-    val link: String = "",
+    // A API devolve "link": null quando a tarefa não tem link, por isso é anulável.
+    val link: String? = null,
     @SerializedName("projeto_id") val projetoId: Int = 0
-) {
-    companion object {
-        const val POR_FAZER = "Por fazer"
-        const val EM_CURSO = "Em curso"
-        const val CONCLUIDA = "Concluída"
-    }
-}
+)
 
 // Um passo da checklist de uma tarefa.
 data class Subtarefa(

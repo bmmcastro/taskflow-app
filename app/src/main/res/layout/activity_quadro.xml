@@ -1,57 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<!-- Quadro: ConstraintLayout. Cabeçalho, ações, separadores de estado,
+     filtros e o switch ficam encaixados de cima a baixo; a lista ocupa
+     o resto do ecrã. -->
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/raiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fundo"
-    android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
+    android:background="@color/fundo">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cabecalho"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp">
+        android:paddingStart="@dimen/margem_ecra"
+        android:paddingEnd="@dimen/margem_ecra"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <TextView
             android:id="@+id/titulo_projeto"
             style="@style/TituloGrande"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:maxLines="2"
-            android:ellipsize="end"/>
-        <TextView style="@style/TextoApoio" android:text="@string/quadro_apoio"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/texto_apoio_quadro"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/quadro_apoio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/titulo_projeto"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Relatório, membros e nova tarefa, alinhados à direita -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linha_acoes"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end|center_vertical"
-        android:padding="20dp">
+        android:padding="@dimen/margem"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cabecalho">
+
         <ImageButton
             android:id="@+id/botao_relatorio"
             style="@style/BotaoIcone"
+            android:layout_marginEnd="@dimen/espaco_8"
             android:src="@drawable/ic_grafico"
-            android:contentDescription="@string/relatorio"/>
+            android:contentDescription="@string/relatorio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/botao_membros"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <ImageButton
             android:id="@+id/botao_membros"
             style="@style/BotaoIcone"
+            android:layout_marginEnd="@dimen/espaco_8"
             android:src="@drawable/ic_pessoas"
             android:contentDescription="@string/membros"
-            android:layout_marginStart="8dp"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/botao_nova_tarefa"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <ImageButton
             android:id="@+id/botao_nova_tarefa"
             style="@style/BotaoIcone"
             android:src="@drawable/ic_adicionar"
             android:contentDescription="@string/nova_tarefa"
-            android:layout_marginStart="8dp"
             android:background="@drawable/bg_botao"
-            app:tint="@android:color/white"/>
-    </LinearLayout>
+            app:tint="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Separadores com as três colunas do quadro -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs_estado"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/altura_botao_icone"
+        android:layout_marginStart="@dimen/margem"
+        android:layout_marginEnd="@dimen/margem"
         android:background="@drawable/bg_segmentos"
         app:tabBackground="@android:color/transparent"
         app:tabIndicator="@drawable/bg_segmento"
@@ -63,21 +103,31 @@
         app:tabTextColor="@color/texto_secundario"
         app:tabSelectedTextColor="@color/texto"
         app:tabPaddingStart="2dp"
-        app:tabPaddingEnd="2dp"/>
+        app:tabPaddingEnd="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linha_acoes"/>
+
+    <!-- Filtros por pessoa (os chips são criados no código conforme os membros) -->
     <HorizontalScrollView
-        android:layout_width="match_parent"
+        android:id="@+id/filtros"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:scrollbars="none">
+        android:paddingStart="@dimen/margem"
+        android:paddingEnd="@dimen/margem"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabs_estado">
+
         <LinearLayout
             android:id="@+id/linha_filtros"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="16dp"
-            android:paddingBottom="8dp"/>
+            android:paddingTop="@dimen/espaco_16"
+            android:paddingBottom="@dimen/espaco_8"/>
     </HorizontalScrollView>
 
     <!-- Filtro extra: ligado, esconde as tarefas concluídas em todas as colunas. -->
@@ -85,30 +135,50 @@
         android:id="@+id/switch_esconder_concluidas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginStart="@dimen/margem"
+        android:layout_marginBottom="@dimen/espaco_4"
         android:text="@string/esconder_concluidas"
         android:textColor="@color/texto_secundario"
-        android:textSize="13sp"/>
+        android:textSize="@dimen/texto_secundario"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filtros"/>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_quadro"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1">
-        <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/switch_esconder_concluidas">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista_tarefas"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingBottom="24dp"/>
+                android:paddingBottom="@dimen/espaco_24"/>
+
+            <!-- Indicador de carregamento: visível enquanto as tarefas são obtidas. -->
+            <ProgressBar
+                android:id="@+id/loading"
+                android:layout_width="@dimen/altura_indicador"
+                android:layout_height="@dimen/altura_indicador"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
             <TextView
                 android:id="@+id/texto_vazio"
                 style="@style/TextoApoio"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:padding="32dp"
                 android:text="@string/sem_tarefas"/>
         </FrameLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

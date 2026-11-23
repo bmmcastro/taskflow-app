@@ -3,15 +3,17 @@ package com.algarit.taskflow.ui
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.algarit.taskflow.model.EstadoTarefa
 
 // Pequenas ajudas usadas em todos os ecrãs, para manter o código curto.
 
 // Respeita as barras do sistema (edge-to-edge) aplicando o espaçamento certo.
-// Nos Fragments chamamos esta versão com a raiz do binding; nas Activities
-// restantes (Convite) mantém-se a extensão sobre Activity.
+// Basta passar a raiz do binding do ecrã (Fragment ou Activity).
 fun aplicarInsetsEm(raiz: View) {
     ViewCompat.setOnApplyWindowInsetsListener(raiz) { v, insets ->
         val b = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -26,6 +28,20 @@ fun Activity.aplicarInsets(raiz: View) {
 }
 
 fun Context.aviso(mensagem: String) = Toast.makeText(this, mensagem, Toast.LENGTH_SHORT).show()
+
+// Preenche um Spinner com as colunas do quadro e seleciona o estado indicado.
+// É usado no formulário de criar/editar tarefa (quadro e detalhe).
+fun Spinner.mostrarEstados(estado: EstadoTarefa) {
+    val colunas = EstadoTarefa.entries.map { it.rotulo }
+    adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, colunas).apply {
+        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+    }
+    setSelection(estado.ordinal)
+}
+
+// Coluna escolhida num Spinner preenchido com mostrarEstados().
+val Spinner.estadoEscolhido: EstadoTarefa
+    get() = EstadoTarefa.entries.getOrElse(selectedItemPosition) { EstadoTarefa.POR_FAZER }
 
 // "2026-11-02" ou "2026-11-02T00:00:00" -> "02/11/2026" (se vier vazia devolvemos "—").
 fun dataCurta(iso: String?): String {

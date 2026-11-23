@@ -4,15 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.algarit.taskflow.R
+import com.algarit.taskflow.adapter.PessoasAdapter
+import com.algarit.taskflow.adapter.TarefasPorPessoa
 import com.algarit.taskflow.databinding.ActivityRelatorioBinding
 import com.algarit.taskflow.model.RelatorioProjeto
 
@@ -24,6 +23,8 @@ class RelatorioFragment : Fragment() {
     private val args: RelatorioFragmentArgs by navArgs()
     private val viewModel: RelatorioViewModel by viewModels()
 
+    private lateinit var adaptador: PessoasAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -34,7 +35,12 @@ class RelatorioFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        adaptador = PessoasAdapter()
+        binding.listaPessoas.layoutManager = LinearLayoutManager(requireContext())
+        binding.listaPessoas.adapter = adaptador
+
         viewModel.estado.observe(viewLifecycleOwner) { estado ->
+            // ProgressBar visível enquanto os dados são obtidos.
             binding.loading.isVisible = estado is UiState.Loading
             if (estado is UiState.Sucesso) preencher(estado.dados)
             else if (estado is UiState.Erro) aviso(estado.mensagem)
@@ -42,8 +48,8 @@ class RelatorioFragment : Fragment() {
         viewModel.carregar(args.projetoId)
     }
 
-    private fun preencher(dados: com.algarit.taskflow.model.RelatorioProjeto) {
-        binding.numeroPercentagem.text = "${dados.percentagem}%"
+    private fun preencher(dados: RelatorioProjeto) {
+        binding.numeroPercentagem.text = getString(R.string.percentagem_valor, dados.percentagem)
         binding.progressoRelatorio.progress = dados.percentagem.coerceIn(0, 100)
         binding.numeroTotal.text = dados.total.toString()
         binding.numeroConcluidas.text = dados.concluidas.toString()
@@ -51,37 +57,13 @@ class RelatorioFragment : Fragment() {
         binding.numeroPorFazer.text = dados.porFazer.toString()
         binding.numeroAtrasadas.text = dados.atrasadas.toString()
 
-        binding.linhaPorPessoa.removeAllViews()
-        if (dados.porPessoa.isEmpty()) {
-            val vazio = TextView(requireContext())
-            vazio.text = getString(R.string.sem_atribuicoes)
-            vazio.setTextColor(ContextCompat.getColor(requireContext(), R.color.texto_secundario))
-            binding.linhaPorPessoa.addView(vazio)
-            return
-        }
-        dados.porPessoa.entries.sortedByDescending { it.value }.forEach { (nome, quantidade) ->
-            val linhaPessoa = LinearLayout(requireContext())
-            linhaPessoa.orientation = LinearLayout.HORIZONTAL
-            val margem = (12 * resources.displayMetrics.density).toInt()
-            linhaPessoa.setPadding(0, margem, 0, margem)
-
-            val esquerda = TextView(requireContext())
-            esquerda.text = nome
-            esquerda.setTextColor(ContextCompat.getColor(requireContext(), R.color.texto))
-            esquerda.textSize = 15f
-            esquerda.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-
-            val direita = TextView(requireContext())
-            direita.text = quantidade.toString()
-            direita.setTextColor(ContextCompat.getColor(requireContext(), R.color.roxo))
-            direita.textSize = 15f
-            direita.setTypeface(null, android.graphics.Typeface.BOLD)
-            direita.gravity = android.view.Gravity.END
-
-            linhaPessoa.addView(esquerda)
-            linhaPessoa.addView(direita)
-            binding.linhaPorPessoa.addView(linhaPessoa)
-        }
+        // Tarefas por pessoa: quem tem mais aparece primeiro.
+        val porPessoa = dados.porPessoa.entries
+            .sortedByDescending { it.value }
+            .map { TarefasPorPessoa(it.key, it.value) }
+        binding.textoSemAtribuicoes.isVisible = porPessoa.isEmpty()
+        binding.listaPessoas.isVisible = porPessoa.isNotEmpty()
+        adaptador.atualizar(porPessoa)
     }
 
     private fun aviso(mensagem: String) = requireContext().aviso(mensagem)

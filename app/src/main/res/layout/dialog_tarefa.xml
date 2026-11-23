@@ -1,81 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Formulário de criar/editar tarefa (diálogo): ConstraintLayout em coluna.
+     O responsável é escolhido numa lista e a coluna num Spinner. -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:paddingStart="@dimen/margem_ecra"
+        android:paddingEnd="@dimen/margem_ecra"
+        android:paddingTop="@dimen/espaco_8"
+        android:paddingBottom="@dimen/espaco_8">
+
         <EditText
             android:id="@+id/campo_titulo"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_input"
+            style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:hint="@string/titulo"
             android:inputType="textCapSentences"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/texto"
-            android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <EditText
             android:id="@+id/campo_descricao"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
+            style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:hint="@string/descricao"
             android:inputType="textCapSentences"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/texto"
-            android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_titulo"/>
+
         <AutoCompleteTextView
             android:id="@+id/campo_responsavel"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
+            style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:completionThreshold="1"
             android:hint="@string/responsavel"
             android:inputType="none"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/texto"
-            android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_descricao"/>
+
+        <TextView
+            android:id="@+id/rotulo_coluna"
+            style="@style/TextoApoio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
+            android:text="@string/coluna"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_responsavel"/>
+
+        <!-- Spinner: em que coluna do quadro a tarefa fica -->
+        <Spinner
+            android:id="@+id/spinner_estado"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/altura_botao_icone"
+            android:gravity="center_vertical"
+            android:contentDescription="@string/coluna"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rotulo_coluna"/>
+
         <EditText
             android:id="@+id/campo_prazo"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
+            style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:focusable="false"
             android:hint="@string/prazo"
             android:inputType="none"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/texto"
-            android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner_estado"/>
+
         <EditText
             android:id="@+id/campo_link"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_input"
+            style="@style/Campo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margem_pequena"
             android:hint="@string/link_opcional"
             android:inputType="textUri"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="@color/texto"
-            android:textColorHint="@color/texto_secundario"
-            android:textSize="16sp"/>
-    </LinearLayout>
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/campo_prazo"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

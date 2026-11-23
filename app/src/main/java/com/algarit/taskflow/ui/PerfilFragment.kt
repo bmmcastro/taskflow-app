@@ -1,12 +1,15 @@
 package com.algarit.taskflow.ui
 
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.algarit.taskflow.R
 import com.algarit.taskflow.api.Sessao
 import com.algarit.taskflow.databinding.ActivityPerfilBinding
 
@@ -33,15 +36,25 @@ class PerfilFragment : Fragment() {
         binding.botaoGuardarPerfil.setOnClickListener {
             val nome = binding.perfilNome.text.toString().trim()
             val email = binding.perfilEmail.text.toString().trim()
-            if (nome.isBlank() || email.isBlank()) { aviso("O nome e o email são obrigatórios"); return@setOnClickListener }
+            // Validação com setError no próprio campo.
+            var valido = true
+            if (nome.isBlank()) { binding.perfilNome.error = getString(R.string.erro_campos); valido = false }
+            if (email.isBlank()) { binding.perfilEmail.error = getString(R.string.erro_campos); valido = false }
+            else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) { binding.perfilEmail.error = getString(R.string.erro_email); valido = false }
+            if (!valido) return@setOnClickListener
             viewModel.guardar(nome, email, binding.perfilPassword.text.toString())
         }
 
+        viewModel.aGuardar.observe(viewLifecycleOwner) { aGuardar ->
+            // ProgressBar visível enquanto a conta está a ser guardada.
+            binding.loading.isVisible = aGuardar
+            binding.botaoGuardarPerfil.isEnabled = !aGuardar
+        }
         viewModel.atualizado.observe(viewLifecycleOwner) { atualizado ->
             binding.perfilAvatar.text = atualizado.nome.trim().take(1).uppercase()
             binding.perfilPassword.setText("")
             mostrarDados()
-            aviso("Conta atualizada")
+            aviso(getString(R.string.conta_atualizada))
         }
         viewModel.erro.observe(viewLifecycleOwner) { aviso(it) }
 
